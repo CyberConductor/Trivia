@@ -22,8 +22,9 @@ def get_valid_port(port):
 def main():
     #get arguments from user:
     if len(sys.argv) != 3:
+        
         print("Usage: python3 client.py <IP_ADDRESS> <PORT>")
-        print("Example: python3 client.py 127.0.0.1 8080")
+        print("Example: python3 client.py 127.0.0.1 8826")
         return
     
     server_ip = sys.argv[1]
