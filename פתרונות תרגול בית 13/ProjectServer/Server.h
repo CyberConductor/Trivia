@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MagshChat.h"
+#include "Chat.h"
 #include <deque>
 #include <queue>
 #include <map> 
@@ -14,11 +14,11 @@
 // Q: why do we need this class ?
 // A: this is the main class which holds all the resources,
 // accept new clients and handle them.
-class MagshMessageServer
+class Server
 {
 public:
-	MagshMessageServer();
-	~MagshMessageServer();
+	Server();
+	~Server();
 	void serve();
 
 
@@ -37,17 +37,12 @@ private:
 	std::string getAllUsernames();
 		
 	SOCKET _socket;
-	MagshChat _doc;
-
-	// Queue for all clients. This way we will know who's the current writer.
-	// SOCKET: client socket
-	// string: userName
-	std::deque<std::pair<SOCKET, std::string>> _clients;
+	Chat _doc;
 
 	// Map for all the Login Requests
 	// SOCKET: client socket
 	// LoginRequestHandler: client login request
-	std::map<SOCKET, LoginRequestHandler> _requests;
+	std::map<SOCKET, IRequestHandler*> _clients;
 
 	// Queue for messages - Will hold the mssage code and the file data. To add messages use std::ref<const ClientSocket>
 	// SOCKET: client socket

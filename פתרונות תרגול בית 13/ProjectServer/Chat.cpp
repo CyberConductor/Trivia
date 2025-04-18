@@ -1,19 +1,18 @@
-#include "MagshChat.h"
+#include "Chat.h"
 #include <fstream>
 
-MagshChat::MagshChat()
+Chat::Chat()
 {
-
 }
 
-MagshChat::~MagshChat()
+Chat::~Chat()
 {
 }
 
 // the funcion reads content of shared file
 // if the file does not exist return empty string
 // the function is thread-safe: use mutex to lock the file
-std::string MagshChat::read(const std::string& firstUsername, const std::string& secondUsername)
+std::string Chat::read(const std::string& firstUsername, const std::string& secondUsername)
 {
 	const int SIZE = 100;
 
@@ -46,7 +45,7 @@ std::string MagshChat::read(const std::string& firstUsername, const std::string&
 	return res;
 }
 
-std::string MagshChat::get_chat_file_path(const std::string& firstUsername, const std::string& secondUsername)
+std::string Chat::get_chat_file_path(const std::string& firstUsername, const std::string& secondUsername)
 {
 	if (firstUsername.compare(secondUsername) > 0)
 	{
@@ -56,7 +55,7 @@ std::string MagshChat::get_chat_file_path(const std::string& firstUsername, cons
 }
 
 
-void MagshChat::write(const std::string& firstUsername, const std::string& secondUsername, const std::string& data)
+void Chat::write(const std::string& firstUsername, const std::string& secondUsername, const std::string& data)
 {
 	std::ofstream doc;
 	const std::string messageMagic = "&MAGSH_MESSAGE&";
