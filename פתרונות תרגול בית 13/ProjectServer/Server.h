@@ -9,6 +9,7 @@
 #include <WinSock2.h>
 #include "RecvMessage.h"
 #include "LoginRequestHandler.h"
+#include "Communicator.h"
 
 
 // Q: why do we need this class ?
@@ -19,8 +20,7 @@ class Server
 public:
 	Server();
 	~Server();
-	void serve();
-
+	void run();
 
 private:
 	void bindAndListen();
@@ -39,10 +39,11 @@ private:
 	SOCKET _socket;
 	Chat _doc;
 
-	// Map for all the Login Requests
-	// SOCKET: client socket
-	// LoginRequestHandler: client login request
-	std::map<SOCKET, IRequestHandler*> _clients;
+	// Queue for all clients. This way we will know who's the current writer.
+		// SOCKET: client socket
+		// string: userName
+	std::deque<std::pair<SOCKET, std::string>> _clients;
+
 
 	// Queue for messages - Will hold the mssage code and the file data. To add messages use std::ref<const ClientSocket>
 	// SOCKET: client socket
@@ -51,5 +52,10 @@ private:
 
 	std::mutex _mtxReceivedMessages;
 	std::condition_variable _msgQueueCondition;
+
+	//TODO: create HandlerFactory
+	IDatabase m_database;
+	Communicator m_communicator;
+	RequestHandlerFactory m_handlerFactory;
 };
 

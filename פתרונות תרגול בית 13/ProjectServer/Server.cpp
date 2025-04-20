@@ -36,7 +36,7 @@ Server::~Server()
 	catch (...) {}
 }
 
-void Server::serve()
+void Server::run()
 {
 	bindAndListen();
 
