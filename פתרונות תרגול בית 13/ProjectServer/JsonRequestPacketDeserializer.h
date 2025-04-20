@@ -1,8 +1,5 @@
 #pragma once
 
-#include <vector>
-#include "json.hpp"
-
 typedef struct LoginResponse
 {
 
@@ -19,13 +16,7 @@ typedef struct ErrorResponse
 }ErrorResponse;
 
 
-using std::vector;
-
-static class JsonResponsePacketSerializer
+class JsonRequestPacketDeserializer
 {
-public:
-
-
-private:
 
 };
