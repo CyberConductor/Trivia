@@ -54,8 +54,8 @@ private:
 	std::condition_variable _msgQueueCondition;
 
 	//TODO: create HandlerFactory
-	IDatabase m_database;
+	//IDatabase m_database;
 	Communicator m_communicator;
-	RequestHandlerFactory m_handlerFactory;
+	//RequestHandlerFactory m_handlerFactory;
 };
 

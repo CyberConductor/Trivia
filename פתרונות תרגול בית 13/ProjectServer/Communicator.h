@@ -21,7 +21,5 @@ private:
 	// SOCKET: client socket
 	// LoginRequestHandler: client login request
 	map<SOCKET, IRequestHandler*> m_clients;
-
-	RequestHandlerFactory& m_handlerFactory; 
 	SOCKET m_serverSocket;
 };
