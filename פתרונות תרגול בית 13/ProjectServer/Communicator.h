@@ -1,7 +1,10 @@
+#pragma comment(lib, "Ws2_32.lib")
 #pragma once
-
 #include <map>
+#include <thread>
+#include <WinSock2.h>
 #include <Windows.h>
+#include "Helper.h"
 #include "IRequestHandler.h"
 
 using std::map;
@@ -10,9 +13,9 @@ class Communicator
 {
 public:
 	//TODO: add return parameter
-	startHandleRequests();
-	bindAndListen();
-	handleNewClient();
+	void startHandleRequests();
+	void bindAndListen();
+	void handleNewClient();
 
 private:
 	//TODO: create handler factory

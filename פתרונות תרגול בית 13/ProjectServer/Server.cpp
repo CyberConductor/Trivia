@@ -41,8 +41,9 @@ void Server::run()
 	bindAndListen();
 
 	// create new thread for handling message
-	std::thread tr(&Server::handleReceivedMessages, this);
-	tr.detach();
+	//TODO: change the function to Communicator::startHandleRequests()
+	std::thread t_connector(&Server::handleReceivedMessages, this);
+	t_connector.detach();
 
 	while (true)
 	{

@@ -27,7 +27,7 @@ typedef struct ErrorResponse
 
 using std::vector;
 
-static class JsonResponsePacketSerializer
+class JsonResponsePacketSerializer
 {
 public:
 	static Buffer serializeResponse(ErrorResponse);

@@ -3,10 +3,11 @@
 #include <string>
 #include "IRequestHandler.h"
 
-class LoginRequestHandler : IRequestHandler
+class LoginRequestHandler : public IRequestHandler
 {
 public:
 	LoginRequestHandler();
-	LoginRequestHandler(std::string);
-	~LoginRequestHandler();
+
+	virtual bool isRequestRelevant(RequestInfo);
+	virtual RequestResult handleRequest(RequestInfo);
 };

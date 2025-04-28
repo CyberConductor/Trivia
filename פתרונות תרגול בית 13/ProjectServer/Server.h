@@ -1,12 +1,11 @@
 #pragma once
 
-#include "Chat.h"
 #include <deque>
 #include <queue>
 #include <map> 
 #include <mutex>
 #include <condition_variable>
-#include <WinSock2.h>
+#include "Chat.h"
 #include "RecvMessage.h"
 #include "LoginRequestHandler.h"
 #include "Communicator.h"
