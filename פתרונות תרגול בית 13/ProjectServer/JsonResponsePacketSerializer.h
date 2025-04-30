@@ -21,7 +21,7 @@ typedef struct SignupResponse
 
 typedef struct ErrorResponse
 {
-	string massage;
+	string message;
 }ErrorResponse;
 
 

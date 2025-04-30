@@ -10,6 +10,7 @@
 #include "LoginRequestHandler.h"
 #include "Communicator.h"
 
+using std::thread;
 
 // Q: why do we need this class ?
 // A: this is the main class which holds all the resources,

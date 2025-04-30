@@ -6,6 +6,9 @@
 #include <Windows.h>
 #include "Helper.h"
 #include "IRequestHandler.h"
+#include "LoginRequestHandler.h"
+#include "JsonRequestPacketDeserializer.h"
+#include "JsonResponsePacketSerializer.h"
 
 using std::map;
 

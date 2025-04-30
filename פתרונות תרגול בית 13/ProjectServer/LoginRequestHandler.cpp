@@ -3,8 +3,6 @@
 #include "JsonRequestPacketDeserializer.h"
 #include <stdexcept>
 
-LoginRequestHandler::LoginRequestHandler() {}
-
 bool LoginRequestHandler::isRequestRelevant(RequestInfo requestInfo)
 {
     // בודק אם הקוד מתאים ל-Login או Signup

@@ -29,7 +29,7 @@ void Communicator::bindAndListen()
 
 void Communicator::startHandleRequests()
 {
-    bindAndListen(); // first, bind and listen on the port
+    bindAndListen();
 
     while (true)
     {
@@ -41,6 +41,7 @@ void Communicator::startHandleRequests()
 
 void Communicator::handleNewClient()
 {
+
     SOCKET clientSocket = ::accept(m_serverSocket, NULL, NULL);
     if (clientSocket == INVALID_SOCKET)
     {
@@ -50,54 +51,36 @@ void Communicator::handleNewClient()
 
     // create a thread for the new client
     std::thread clientThread([this, clientSocket]()
+    {
+        try
         {
-            try
+            // get the client's request
+            RequestInfo requestInfo = Helper::getRequestInfo(clientSocket);
+
+            // create the first handler - login/signup stage
+            LoginRequestHandler handler;
+
+            // check if the request is relevant
+            if (!handler.isRequestRelevant(requestInfo))
             {
-                // here you should handle the client requests
-                IRequestHandler* handler = nullptr; // later: create handler from a factory
-
-                this->m_clients[clientSocket] = handler;
-
-                bool isActive = true;
-                while (isActive)
-                {
-                    int messageCode = Helper::getMessageTypeCode(clientSocket);
-
-                    if (messageCode == 0)
-                    {
-                        // client disconnected
-                        TRACE("client disconnected");
-                        isActive = false;
-                        break;
-                    }
-
-                    IRequestHandler* currentHandler = this->m_clients[clientSocket];
-                    if (currentHandler == nullptr)
-                    {
-                        TRACE("no handler for client");
-                        isActive = false;
-                        break;
-                    }
-
-                    // now you would normally call currentHandler->handleRequest() etc.
-                    // but since no RequestHandler implemented yet, we just print the code
-                    TRACE("received message code: %d", messageCode);
-
-                    // todo: handle the request properly with handler
-                }
-
-                // clean up
-                closesocket(clientSocket);
-                this->m_clients.erase(clientSocket);
-                TRACE("client socket closed");
+                ErrorResponse errorResponse = { "Unrecognized request type" };
+                Buffer errorBuffer = JsonResponsePacketSerializer::serializeResponse(errorResponse);
+                Helper::sendData(clientSocket, string(errorBuffer.begin(), errorBuffer.end()));
+                return;
             }
-            catch (std::exception& e)
-            {
-                TRACE("error in client thread: %s", e.what());
-                closesocket(clientSocket);
-                this->m_clients.erase(clientSocket);
-            }
-        });
 
-    clientThread.detach(); // don't wait for the thread
+            // process the request
+            RequestResult result = handler.handleRequest(requestInfo);
+
+            // send back the response
+            Helper::sendData(clientSocket, string(result.response.begin(), result.response.end()));
+        }
+        catch (const std::exception& ex)
+        {
+            ErrorResponse errorResponse = { ex.what() };
+            Buffer errorBuffer = JsonResponsePacketSerializer::serializeResponse(errorResponse);
+            Helper::sendData(clientSocket, string(errorBuffer.begin(), errorBuffer.end()));
+        }
+    });
+    clientThread.detach();// don't wait for the thread
 }

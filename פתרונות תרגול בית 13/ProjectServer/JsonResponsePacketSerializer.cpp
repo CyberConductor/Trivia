@@ -8,7 +8,7 @@ using json = nlohmann::json;
 Buffer JsonResponsePacketSerializer::serializeResponse(ErrorResponse response)
 {
 	json j;
-	j["message"] = response.massage;
+	j["message"] = response.message;
 	string jsonStr = j.dump();
 	unsigned int size = jsonStr.size();
 
