@@ -15,6 +15,9 @@ using std::map;
 class Communicator
 {
 public:
+	Communicator();
+	~Communicator();
+
 	//TODO: add return parameter
 	void startHandleRequests();
 	void bindAndListen();

@@ -15,5 +15,4 @@ public:
 
 private:
     sqlite3* _db;
-    void createUsersTable();
 };
