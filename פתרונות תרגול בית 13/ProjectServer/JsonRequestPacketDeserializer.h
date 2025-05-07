@@ -27,5 +27,5 @@ class JsonRequestPacketDeserializer
 {
 public:
 	static LoginRequest deserializeLoginRequest(const Buffer& buffer);
-	static SignupRequest deserializeSignUpRequest(const Buffer& buffer);
+	static SignupRequest deserializeSignupRequest(const Buffer& buffer);
 };

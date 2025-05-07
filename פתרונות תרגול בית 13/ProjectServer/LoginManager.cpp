@@ -39,12 +39,8 @@ bool LoginManager::login(string username, string password)
 {
 	// check if user is already logged in
 	for (auto& user : m_loggedUsers)
-	{
 		if (user.getUsername() == username)
-		{
 			return false; // already logged in
-		}
-	}
 
 	// check if password matches
 	if (m_database->doesPasswordMatch(username, password))
@@ -59,11 +55,9 @@ bool LoginManager::login(string username, string password)
 void LoginManager::logout(string username)
 {
 	for (auto it = m_loggedUsers.begin(); it != m_loggedUsers.end(); ++it)
-	{
 		if (it->getUsername() == username)
 		{
 			m_loggedUsers.erase(it);
 			break;
 		}
-	}
 }

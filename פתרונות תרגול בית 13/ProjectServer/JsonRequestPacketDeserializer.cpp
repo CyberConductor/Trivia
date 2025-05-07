@@ -23,7 +23,7 @@ LoginRequest JsonRequestPacketDeserializer::deserializeLoginRequest(const Buffer
 	return req;
 }
 
-SignupRequest JsonRequestPacketDeserializer::deserializeSignUpRequest(const Buffer& buffer)
+SignupRequest JsonRequestPacketDeserializer::deserializeSignupRequest(const Buffer& buffer)
 {
 	if (buffer.size() < 5)
 		throw std::invalid_argument("buffer too short");
