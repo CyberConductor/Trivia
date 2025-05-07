@@ -1,26 +1,26 @@
 #pragma once
 
-#include "MagshChat.h"
 #include <deque>
 #include <queue>
 #include <map> 
 #include <mutex>
 #include <condition_variable>
-#include <WinSock2.h>
+#include "Chat.h"
 #include "RecvMessage.h"
 #include "LoginRequestHandler.h"
+#include "Communicator.h"
 
+using std::thread;
 
 // Q: why do we need this class ?
 // A: this is the main class which holds all the resources,
 // accept new clients and handle them.
-class MagshMessageServer
+class Server
 {
 public:
-	MagshMessageServer();
-	~MagshMessageServer();
-	void serve();
-
+	Server();
+	~Server();
+	void run();
 
 private:
 	void bindAndListen();
@@ -37,17 +37,13 @@ private:
 	std::string getAllUsernames();
 		
 	SOCKET _socket;
-	MagshChat _doc;
+	Chat _doc;
 
 	// Queue for all clients. This way we will know who's the current writer.
-	// SOCKET: client socket
-	// string: userName
+		// SOCKET: client socket
+		// string: userName
 	std::deque<std::pair<SOCKET, std::string>> _clients;
 
-	// Map for all the Login Requests
-	// SOCKET: client socket
-	// LoginRequestHandler: client login request
-	std::map<SOCKET, LoginRequestHandler> _requests;
 
 	// Queue for messages - Will hold the mssage code and the file data. To add messages use std::ref<const ClientSocket>
 	// SOCKET: client socket
@@ -56,5 +52,10 @@ private:
 
 	std::mutex _mtxReceivedMessages;
 	std::condition_variable _msgQueueCondition;
+
+	//TODO: create HandlerFactory
+	//IDatabase m_database;
+	Communicator m_communicator;
+	//RequestHandlerFactory m_handlerFactory;
 };
 

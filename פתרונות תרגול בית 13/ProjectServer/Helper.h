@@ -3,33 +3,31 @@
 #include <vector>
 #include <string>
 #include <WinSock2.h>
+#include "IRequestHandler.h"
+
+
+using std::string;
 
 
 enum MessageType : byte
 {
-	MT_CLIENT_LOG_IN = 200,
-	MT_CLIENT_UPDATE = 204,
-	MT_CLIENT_FINISH = 207,
-	MT_CLIENT_EXIT = 208,
-	MT_SERVER_UPDATE = 101,
+	CLIENT_ERROR,
+	CLIENT_LOG_IN,
+	CLIENT_SIGNUP
 };
 
 
 class Helper
 {
 public:
-
-
-	static int getMessageTypeCode(const SOCKET sc);
-	static int getIntPartFromSocket(const SOCKET sc, const int bytesNum);
-	static std::string getStringPartFromSocket(SOCKET sc, const int bytesNum);
-	static void sendData(const SOCKET sc, const std::string message);
-	static void send_update_message_to_client(const SOCKET sc, const std::string& file_content, const std::string& second_username, const std::string& all_users);
-	static std::string getPaddedNumber(const int num, const int digits);
+	static RequestInfo getRequestInfo(const SOCKET sc);
+	static void sendData(const SOCKET sc, const string message);
+	static void send_update_message_to_client(const SOCKET sc, const string& file_content, const string& second_username, const string& all_users);
+	static string getPaddedNumber(const int num, const int digits);
 
 private:
-	static std::string getPartFromSocket(const SOCKET sc, const int bytesNum);
-	static std::string getPartFromSocket(const SOCKET sc, const int bytesNum, const int flags);
+	static string getPartFromSocket(const SOCKET sc, const int bytesNum);
+	static string getPartFromSocket(const SOCKET sc, const int bytesNum, const int flags);
 
 };
 

@@ -4,22 +4,30 @@
 #include <iomanip>
 #include <sstream>
 
-using std::string;
 
-// recieves the type code of the message from socket (3 bytes)
-// and returns the code. if no message found in the socket returns 0 (which means the client disconnected)
-int Helper::getMessageTypeCode(const SOCKET sc)
+RequestInfo Helper::getRequestInfo(const SOCKET sc)
 {
-	std::string msg = getPartFromSocket(sc, 3, 0);
+	RequestInfo info;
+	info.receivalTime = time(nullptr);
 
-	if (msg == "")
-		return 0;
+	string idStr = getPartFromSocket(sc, 1); // read 1 byte for ID
+	info.id = static_cast<unsigned char>(idStr[0]);
 
-	int res = std::atoi(msg.c_str());
-	return  res;
+	string sizeStr = getPartFromSocket(sc, 4); // read 4 bytes for message size
+
+	int size = std::stoi(sizeStr);
+	if (size < 0)
+	{
+		info.id = CLIENT_ERROR;
+		return info;
+	}
+
+	string data = getPartFromSocket(sc, size); // read the buffer
+	info.buffer = Buffer(data.begin(), data.end());
+	return info;
 }
 
-
+//TODO::change it to the relevant project
 void Helper::send_update_message_to_client(const SOCKET sc, const string& file_content, const string& second_username, const string &all_users)
 {
 	//TRACE("all users: %s\n", all_users.c_str())
@@ -32,20 +40,6 @@ void Helper::send_update_message_to_client(const SOCKET sc, const string& file_c
 	sendData(sc, res);
 }
 
-// recieve data from socket according byteSize
-// returns the data as int
-int Helper::getIntPartFromSocket(const SOCKET sc, const int bytesNum)
-{
-	return atoi(getPartFromSocket(sc, bytesNum, 0).c_str());
-}
-
-// recieve data from socket according byteSize
-// returns the data as string
-string Helper::getStringPartFromSocket(const SOCKET sc, const int bytesNum)
-{
-	return getPartFromSocket(sc, bytesNum, 0);
-}
-
 // return string after padding zeros if necessary
 string Helper::getPaddedNumber(const int num, const int digits)
 {
@@ -55,16 +49,9 @@ string Helper::getPaddedNumber(const int num, const int digits)
 
 }
 
-// recieve data from socket according byteSize
-// this is private function
-std::string Helper::getPartFromSocket(const SOCKET sc, const int bytesNum)
-{
-	return getPartFromSocket(sc, bytesNum, 0);
-}
-
 // send data to socket
 // this is private function
-void Helper::sendData(const SOCKET sc, const std::string message)
+void Helper::sendData(const SOCKET sc, const string message)
 {
 	const char* data = message.c_str();
 
@@ -74,7 +61,14 @@ void Helper::sendData(const SOCKET sc, const std::string message)
 	}
 }
 
-std::string Helper::getPartFromSocket(const SOCKET sc, const int bytesNum, const int flags)
+// recieve data from socket according byteSize
+// this is private function
+string Helper::getPartFromSocket(const SOCKET sc, const int bytesNum)
+{
+	return getPartFromSocket(sc, bytesNum, 0);
+}
+
+string Helper::getPartFromSocket(const SOCKET sc, const int bytesNum, const int flags)
 {
 	if (bytesNum == 0)
 	{
@@ -85,12 +79,12 @@ std::string Helper::getPartFromSocket(const SOCKET sc, const int bytesNum, const
 	int res = recv(sc, data, bytesNum, flags);
 	if (res == INVALID_SOCKET)
 	{
-		std::string s = "Error while recieving from socket: ";
+		string s = "Error while recieving from socket: ";
 		s += std::to_string(sc);
 		throw std::exception(s.c_str());
 	}
 	data[bytesNum] = 0;
-	std::string received(data);
+	string received(data);
 	delete[] data;
 	return received;
 }
