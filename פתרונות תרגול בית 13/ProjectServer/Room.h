@@ -22,6 +22,7 @@ typedef struct RoomData
 class Room
 {
 public:
+	RoomData m_metadata;
 	Room(RoomData);
 
 	void addUser(LoggedUser);
@@ -29,7 +30,6 @@ public:
 	vector<string> getAllUsers();
 
 private:
-	RoomData m_metadata;
 	vector<LoggedUser> m_users;
 	unsigned int currentUsers;
 };

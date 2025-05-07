@@ -24,7 +24,8 @@ void Room::removeUser(LoggedUser user)
         if (it->getUsername() == user.getUsername())
         {
             m_users.erase(it);
-            currentUsers--;
+            if (--currentUsers == 0)
+                m_metadata.status = false;
             return;
         }
     }
