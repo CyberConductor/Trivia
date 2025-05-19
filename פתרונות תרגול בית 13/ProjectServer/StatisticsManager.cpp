@@ -39,6 +39,9 @@ json StatisticsManager::getUserStatistics(const std::string& username)
     return result;
 }
 
+
+//high score function:
+
 json StatisticsManager::getHighScores()
 {
     sqlite3* rawDb = m_db->getRawDB();
