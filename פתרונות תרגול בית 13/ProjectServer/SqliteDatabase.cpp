@@ -4,6 +4,10 @@
 
 using std::string;
 
+sqlite3* SqliteDatabase::getRawDB() const
+{
+    return _db;
+}
 SqliteDatabase::SqliteDatabase() {
     this->_db = nullptr;
 }
