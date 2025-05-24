@@ -57,14 +57,16 @@ void Communicator::handleNewClient()
             // get the client's request
             RequestInfo requestInfo = Helper::getRequestInfo(clientSocket);
 
-            // create the first handler - login/signup stage
-            LoginRequestHandler handler;
+            // create login request handler
+            LoginManager manager;
+            RequestHandlerFactory factory(manager);
+            LoginRequestHandler handler = LoginRequestHandler(factory);
 
             // check if the request is relevant
             if (!handler.isRequestRelevant(requestInfo))
             {
                 ErrorResponse errorResponse = { "Unrecognized request type" };
-                Buffer errorBuffer = JsonResponsePacketSerializer::serializeResponse(errorResponse);
+                Buffer errorBuffer = JsonResponsePacketSerializer::serializeErrorResponse(errorResponse);
                 Helper::sendData(clientSocket, string(errorBuffer.begin(), errorBuffer.end()));
                 return;
             }
@@ -78,7 +80,7 @@ void Communicator::handleNewClient()
         catch (const std::exception& ex)
         {
             ErrorResponse errorResponse = { ex.what() };
-            Buffer errorBuffer = JsonResponsePacketSerializer::serializeResponse(errorResponse);
+            Buffer errorBuffer = JsonResponsePacketSerializer::serializeErrorResponse(errorResponse);
             Helper::sendData(clientSocket, string(errorBuffer.begin(), errorBuffer.end()));
         }
     });

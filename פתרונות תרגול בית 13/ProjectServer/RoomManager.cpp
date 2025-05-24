@@ -5,7 +5,7 @@ void RoomManager::createRoom(LoggedUser user, RoomData data)
 	for (auto it = m_rooms.begin(); it != m_rooms.end(); ++it)
 	{
 		roomID id = it->first;
-		if (id == data.id)
+		if (id == data.id)//check that there are no room existing with the same id
 			return;
 	}
 

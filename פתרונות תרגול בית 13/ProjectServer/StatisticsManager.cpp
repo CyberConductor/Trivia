@@ -11,7 +11,6 @@ StatisticsManager::StatisticsManager(SqliteDatabase* db)
 json StatisticsManager::getUserStatistics(const std::string& username)
 {
     sqlite3* rawDb = m_db->getRawDB();
-    ;
 
     std::string sql =
         "SELECT COUNT(*), AVG(score), MAX(score), MIN(score) FROM game_results WHERE username = ?;";

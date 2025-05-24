@@ -8,11 +8,9 @@
 static const unsigned short PORT = 8826;
 static const unsigned int IFACE = 0;
 
-using std::string;
-using std::mutex;
 using std::unique_lock;
 using std::vector;
-
+using std::exception;
 
 Server::Server()
 {
@@ -20,7 +18,7 @@ Server::Server()
 	// for the resolution of the function socket
 	_socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (_socket == INVALID_SOCKET)
-		throw std::exception( __FUNCTION__ " - socket");
+		throw exception( __FUNCTION__ " - socket");
 }
 
 Server::~Server()
@@ -60,11 +58,11 @@ void Server::bindAndListen()
 	sa.sin_addr.s_addr = IFACE;
 	// again stepping out to the global namespace
 	if (::bind(_socket, (struct sockaddr*)&sa, sizeof(sa)) == SOCKET_ERROR)
-		throw std::exception(__FUNCTION__ " - bind");
+		throw exception(__FUNCTION__ " - bind");
 	TRACE("binded");
 
 	if (::listen(_socket, SOMAXCONN) == SOCKET_ERROR)
-		throw std::exception(__FUNCTION__ " - listen");
+		throw exception(__FUNCTION__ " - listen");
 	TRACE("listening...");
 }
 
@@ -72,7 +70,7 @@ void Server::acceptClient()
 {
 	SOCKET client_socket = accept(_socket, NULL, NULL);
 	if (client_socket == INVALID_SOCKET)
-		throw std::exception(__FUNCTION__);
+		throw exception(__FUNCTION__);
 
 	TRACE("Client accepted !");
 
@@ -81,7 +79,7 @@ void Server::acceptClient()
 	Helper::sendData(client_socket, hello);
 
 	// create new thread for client	and detach from it
-	std::thread tr(&Server::clientHandler, this, client_socket);
+	thread tr(&Server::clientHandler, this, client_socket);
 	tr.detach();
 
 }
@@ -108,7 +106,7 @@ void Server::clientHandler(const SOCKET client_socket)
 		addReceivedMessage(currRcvMsg);
 
 	}
-	catch (const std::exception& e)
+	catch (const exception& e)
 	{
 		std::cout << "Exception was catch in function clientHandler. socket=" << client_socket << ", what=" << e.what() << std::endl;
 		currRcvMsg = build_receive_message(client_socket, MT_CLIENT_EXIT);
@@ -246,11 +244,11 @@ void Server::handleReceivedMessages()
 }
 
 
-std::string Server::getAllUsernames()
+string Server::getAllUsernames()
 {
-	const std::string delimiter = "&";
-	return std::accumulate(std::begin(_clients), std::end(_clients), std::string(),
-		[delimiter](const string& lhs, const std::pair<SOCKET, string>& rhs)
+	const string delimiter = "&";
+	return std::accumulate(std::begin(_clients), std::end(_clients), string(),
+		[delimiter](const string& lhs, const pair<SOCKET, string>& rhs)
 		{
 			if (lhs.empty()) return rhs.second;
 			else
@@ -259,7 +257,7 @@ std::string Server::getAllUsernames()
 
 
 // get current user name (the writer)
-std::string Server::getCurrentUser()
+string Server::getCurrentUser()
 {
 
 	if (_clients.size() < 1)
@@ -269,7 +267,7 @@ std::string Server::getCurrentUser()
 }
 
 // get next user in queue
-std::string Server::getNextUser()
+string Server::getNextUser()
 {
 	if (_clients.size() < 2)
 		return "";
@@ -277,9 +275,9 @@ std::string Server::getNextUser()
 	return _clients[1].second;
 }
 
-std::string Server::get_user_name(const SOCKET id)
+string Server::get_user_name(const SOCKET id)
 {
-	for (const std::pair<SOCKET, string>& elem : _clients)
+	for (const pair<SOCKET, string>& elem : _clients)
 	{
 		if (elem.first == id)
 		{

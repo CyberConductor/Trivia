@@ -1,6 +1,6 @@
 #include "RequestHandlerFactory.h"
 
-RequestHandlerFactory::RequestHandlerFactory(const LoginManager& manager) 
+RequestHandlerFactory::RequestHandlerFactory(LoginManager& manager) 
 	: m_loginManager(manager)
 {
 	this->m_database = new SqliteDatabase();

@@ -7,10 +7,10 @@ Room::Room(RoomData data) : m_metadata(data)
 
 void Room::addUser(LoggedUser user)
 {
-    if (currentUsers == m_metadata.maxPlayers) // check the max amount
+    if (currentUsers == m_metadata.maxPlayers)//check the max amount
         return;
 	for (auto& it : m_users)
-		if (it.getUsername() == user.getUsername()) // check if there is another player with the same username
+		if (it.getUsername() == user.getUsername())//check that there is no another player with the same username
 			return;
 
 	m_users.push_back(user);

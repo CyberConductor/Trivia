@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 LoginRequestHandler::LoginRequestHandler(RequestHandlerFactory& factory) 
-    : m_handlerFactory(factory) {}
+    : m_handlerFactory(factory), m_loginManager(factory.getLoginManager()) {}
 
 bool LoginRequestHandler::isRequestRelevant(RequestInfo requestInfo)
 {
@@ -20,7 +20,7 @@ RequestResult LoginRequestHandler::handleRequest(RequestInfo requestInfo)
     {
         // בקשה לא רלוונטית -> מחזיר שגיאה
         ErrorResponse errorResponse = { "Invalid request" };
-        result.response = JsonResponsePacketSerializer::serializeResponse(errorResponse);
+        result.response = JsonResponsePacketSerializer::serializeErrorResponse(errorResponse);
         result.newHandler = this;
         return result;
     }
@@ -30,20 +30,20 @@ RequestResult LoginRequestHandler::handleRequest(RequestInfo requestInfo)
         LoginRequest loginRequest = JsonRequestPacketDeserializer::deserializeLoginRequest(requestInfo.buffer);
         // כאן אפשר לבדוק שם משתמש וסיסמה אמיתיים
         LoginResponse loginResponse = { 1 }; // 1 = הצלחה
-        result.response = JsonResponsePacketSerializer::serializeResponse(loginResponse);
+        result.response = JsonResponsePacketSerializer::serializeLoginResponse(loginResponse);
         result.newHandler = this;
     }
     else if (requestInfo.id == 2) // signup
     {
         SignupRequest signupRequest = JsonRequestPacketDeserializer::deserializeSignupRequest(requestInfo.buffer);
         SignupResponse signupResponse = { 1 }; // 1 = הצלחה
-        result.response = JsonResponsePacketSerializer::serializeResponse(signupResponse);
+        result.response = JsonResponsePacketSerializer::serializeSignupResponse(signupResponse);
         result.newHandler = this;
     }
     else
     {
         ErrorResponse err = { "Invalid request code" };
-        result.response = JsonResponsePacketSerializer::serializeResponse(err);
+        result.response = JsonResponsePacketSerializer::serializeErrorResponse(err);
         result.newHandler = this;
     }
 
@@ -54,14 +54,14 @@ RequestResult LoginRequestHandler::login(RequestInfo requestInfo)
 {
     if (requestInfo.id == 1)
     {
-        LoginManager manager = m_handlerFactory.getLoginManager();
         LoginRequest req = JsonRequestPacketDeserializer::deserializeLoginRequest(requestInfo.buffer);
-        bool success = manager.login(req.username, req.password);
+        bool success = m_loginManager.login(req.username, req.password);
 
         LoginResponse loginResp = { success ? 1 : 0 };
         RequestResult result;
-        result.response = JsonResponsePacketSerializer::serializeResponse(loginResp);
-        result.newHandler = success ? m_handlerFactory.createLoginRequestHandler() : this;
+        result.response = JsonResponsePacketSerializer::serializeLoginResponse(loginResp);
+        auto handler = m_handlerFactory.createLoginRequestHandler();
+        result.newHandler = success ? handler : this;
 
         return result;
     }
@@ -70,7 +70,7 @@ RequestResult LoginRequestHandler::login(RequestInfo requestInfo)
     ErrorResponse err = { "Invalid login request" };
 
     RequestResult result;
-    result.response = JsonResponsePacketSerializer::serializeResponse(err);
+    result.response = JsonResponsePacketSerializer::serializeErrorResponse(err);
     result.newHandler = this;
 
     return result;
@@ -80,13 +80,12 @@ RequestResult LoginRequestHandler::signup(RequestInfo requestInfo)
 {
     if (requestInfo.id == 2)
     {
-        LoginManager manager = m_handlerFactory.getLoginManager();
         SignupRequest req = JsonRequestPacketDeserializer::deserializeSignupRequest(requestInfo.buffer);
-        bool success = manager.signup(req.username, req.password, req.email);
+        bool success = m_loginManager.signup(req.username, req.password, req.email);
 
         SignupResponse signupResp = { success ? 1 : 0 };
         RequestResult result;
-        result.response = JsonResponsePacketSerializer::serializeResponse(signupResp);
+        result.response = JsonResponsePacketSerializer::serializeSignupResponse(signupResp);
         result.newHandler = success ? m_handlerFactory.createLoginRequestHandler() : this;
 
         return result;
@@ -96,7 +95,7 @@ RequestResult LoginRequestHandler::signup(RequestInfo requestInfo)
     ErrorResponse err = { "Invalid signup request" };
 
     RequestResult result;
-    result.response = JsonResponsePacketSerializer::serializeResponse(err);
+    result.response = JsonResponsePacketSerializer::serializeErrorResponse(err);
     result.newHandler = this;
 
     return result;
