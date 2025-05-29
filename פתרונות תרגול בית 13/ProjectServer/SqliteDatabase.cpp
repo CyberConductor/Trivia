@@ -14,8 +14,11 @@ SqliteDatabase::SqliteDatabase() {
 
 SqliteDatabase::~SqliteDatabase()
 {
-    this->close();
-    delete this->_db;
+    if (_db)
+    {
+        sqlite3_close(_db);
+        _db = nullptr;
+    }
 }
 
 bool SqliteDatabase::open() {

@@ -1,5 +1,9 @@
 #include "RoomManager.h"
 
+RoomManager::RoomManager(){}
+
+RoomManager::~RoomManager() { m_rooms.clear(); }
+
 void RoomManager::createRoom(LoggedUser user, RoomData data)
 {
 	for (auto it = m_rooms.begin(); it != m_rooms.end(); ++it)
@@ -43,4 +47,13 @@ vector<RoomData> RoomManager::getRooms()
 		res.push_back( it->second.m_metadata );
 
 	return res;
+}
+
+Room* RoomManager::getRoom(int ID)
+{
+	for (auto& room : m_rooms)
+		if (room.first == ID)
+			return &room.second;
+
+	return nullptr;
 }

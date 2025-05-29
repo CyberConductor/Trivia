@@ -8,7 +8,7 @@ Buffer JsonResponsePacketSerializer::serializeErrorResponse(ErrorResponse respon
 	json j;
 	j["message"] = response.message;
 
-	return buildResponseBuffer(Responses::Error, j);
+	return buildResponseBuffer(Response_Error, j);
 }
 
 Buffer JsonResponsePacketSerializer::serializeLoginResponse(LoginResponse response)
@@ -16,7 +16,7 @@ Buffer JsonResponsePacketSerializer::serializeLoginResponse(LoginResponse respon
 	json j;
 	j["status"] = response.status;
 
-	return buildResponseBuffer(Responses::Login, j);
+	return buildResponseBuffer(Response_Login, j);
 }
 
 Buffer JsonResponsePacketSerializer::serializeSignupResponse(SignupResponse response)
@@ -24,7 +24,7 @@ Buffer JsonResponsePacketSerializer::serializeSignupResponse(SignupResponse resp
 	json j;
 	j["status"] = response.status;
 
-	return buildResponseBuffer(Responses::Signup, j);
+	return buildResponseBuffer(Response_Signup, j);
 }
 
 Buffer JsonResponsePacketSerializer::serializeLogoutResponse(LogoutResponse response)
@@ -32,7 +32,7 @@ Buffer JsonResponsePacketSerializer::serializeLogoutResponse(LogoutResponse resp
 	json j;
 	j["status"] = response.status;
 
-	return buildResponseBuffer(Responses::Logout, j);
+	return buildResponseBuffer(Response_Logout, j);
 }
 
 Buffer JsonResponsePacketSerializer::serializeGetRoomsResponse(GetRoomsResponse response)
@@ -54,7 +54,7 @@ Buffer JsonResponsePacketSerializer::serializeGetRoomsResponse(GetRoomsResponse 
 		j["rooms"].push_back(roomJson);
 	}
 
-	return buildResponseBuffer(Responses::GetRooms, j);
+	return buildResponseBuffer(Response_GetRooms, j);
 }
 
 Buffer JsonResponsePacketSerializer::serializeGetPlayersInRoomResponse(GetPlayersInRoomResponse response)
@@ -62,7 +62,7 @@ Buffer JsonResponsePacketSerializer::serializeGetPlayersInRoomResponse(GetPlayer
 	json j;
 	j["players"] = response.players;
 
-	return buildResponseBuffer(Responses::GetPlayersInRoom, j);
+	return buildResponseBuffer(Response_GetPlayersInRoom, j);
 }
 
 Buffer JsonResponsePacketSerializer::serializeJoinRoomResponse(JoinRoomResponse response)
@@ -70,7 +70,7 @@ Buffer JsonResponsePacketSerializer::serializeJoinRoomResponse(JoinRoomResponse 
 	json j;
 	j["status"] = response.status;
 
-	return buildResponseBuffer(Responses::JoinRoom, j);
+	return buildResponseBuffer(Response_JoinRoom, j);
 }
 
 Buffer JsonResponsePacketSerializer::serializeCreateRoomResponse(CreateRoomResponse response)
@@ -78,7 +78,7 @@ Buffer JsonResponsePacketSerializer::serializeCreateRoomResponse(CreateRoomRespo
 	json j;
 	j["status"] = response.status;
 
-	return buildResponseBuffer(Responses::CreateRoom, j);
+	return buildResponseBuffer(Response_CreateRoom, j);
 }
 
 Buffer JsonResponsePacketSerializer::serializegetHighScoreResponse(getHighScoreResponse response)
@@ -87,7 +87,7 @@ Buffer JsonResponsePacketSerializer::serializegetHighScoreResponse(getHighScoreR
 	j["status"] = response.status;
 	j["statistics"] = response.statistics;
 
-	return buildResponseBuffer(Responses::GetHighScore, j);
+	return buildResponseBuffer(Response_GetHighScore, j);
 }
 
 Buffer JsonResponsePacketSerializer::serializegetPersonalStatsResponse(getPersonalStatsResponse response)
@@ -96,7 +96,7 @@ Buffer JsonResponsePacketSerializer::serializegetPersonalStatsResponse(getPerson
 	j["status"] = response.status;
 	j["statistics"] = response.statistics;
 
-	return buildResponseBuffer(Responses::GetPersonalStatus, j);
+	return buildResponseBuffer(Response_GetPersonalStatus, j);
 }
 
 Buffer JsonResponsePacketSerializer::buildResponseBuffer(unsigned char code, json& j)
@@ -105,8 +105,9 @@ Buffer JsonResponsePacketSerializer::buildResponseBuffer(unsigned char code, jso
 	unsigned int size = jsonStr.size();
 	Buffer buffer;
 
-	//insert the size of the massage
+	//insert the message code
 	buffer.push_back(code);
+	//insert the massage size
 	buffer.insert(buffer.end(), {
 		static_cast<unsigned char>(size >> 24),
 		static_cast<unsigned char>(size >> 16),

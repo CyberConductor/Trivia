@@ -4,9 +4,7 @@
 using json = nlohmann::json;
 
 StatisticsManager::StatisticsManager(SqliteDatabase* db)
-    : m_db(db)
-{
-}
+    : m_db(db){}
 
 json StatisticsManager::getUserStatistics(const std::string& username)
 {

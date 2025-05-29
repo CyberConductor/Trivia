@@ -9,10 +9,13 @@ typedef int roomID;
 class RoomManager
 {
 public:
+	RoomManager();
+	~RoomManager();
 	void createRoom(LoggedUser, RoomData);
-	void deleteRoom(int ID);
-	RoomStatus getRoomState(int ID);
+	void deleteRoom(int);
+	RoomStatus getRoomState(int);
 	vector<RoomData> getRooms();
+	Room* getRoom(int);
 private:
 	map<roomID, Room> m_rooms;
 };

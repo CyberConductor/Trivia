@@ -64,18 +64,18 @@ typedef struct getPersonalStatsResponse
 	vector<string> statistics;
 }getPersonalStatsResponse;
 
-static enum Responses : unsigned char
+enum Responses : unsigned char
 {
-	Error = 0,
-	Login,
-	Signup,
-	Logout,
-	GetRooms,
-	GetPlayersInRoom,
-	JoinRoom,
-	CreateRoom,
-	GetHighScore,
-	GetPersonalStatus
+	Response_Error = 0,
+	Response_Login,
+	Response_Signup,
+	Response_Logout,
+	Response_GetRooms,
+	Response_GetPlayersInRoom,
+	Response_JoinRoom,
+	Response_CreateRoom,
+	Response_GetHighScore,
+	Response_GetPersonalStatus
 };
 
 class JsonResponsePacketSerializer

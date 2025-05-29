@@ -28,17 +28,17 @@ RequestInfo Helper::getRequestInfo(const SOCKET sc)
 }
 
 //TODO::change it to the relevant project
-void Helper::send_update_message_to_client(const SOCKET sc, const string& file_content, const string& second_username, const string &all_users)
-{
-	//TRACE("all users: %s\n", all_users.c_str())
-	const string code = std::to_string(MT_SERVER_UPDATE);
-	const string current_file_size = getPaddedNumber(file_content.size(), 5);
-	const string username_size = getPaddedNumber(second_username.size(), 2);
-	const string all_users_size = getPaddedNumber(all_users.size(), 5);
-	const string res = code + current_file_size + file_content + username_size + second_username + all_users_size + all_users;
-	//TRACE("message: %s\n", res.c_str());
-	sendData(sc, res);
-}
+//void Helper::send_update_message_to_client(const SOCKET sc, const string& file_content, const string& second_username, const string &all_users)
+//{
+//	//TRACE("all users: %s\n", all_users.c_str())
+//	const string code = std::to_string(MT_SERVER_UPDATE);
+//	const string current_file_size = getPaddedNumber(file_content.size(), 5);
+//	const string username_size = getPaddedNumber(second_username.size(), 2);
+//	const string all_users_size = getPaddedNumber(all_users.size(), 5);
+//	const string res = code + current_file_size + file_content + username_size + second_username + all_users_size + all_users;
+//	//TRACE("message: %s\n", res.c_str());
+//	sendData(sc, res);
+//}
 
 // return string after padding zeros if necessary
 string Helper::getPaddedNumber(const int num, const int digits)
