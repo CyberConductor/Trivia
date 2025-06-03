@@ -14,11 +14,8 @@ SqliteDatabase::SqliteDatabase() {
 
 SqliteDatabase::~SqliteDatabase()
 {
-    if (_db)
-    {
-        sqlite3_close(_db);
-        _db = nullptr;
-    }
+    this->close();
+    delete this->_db;
 }
 
 bool SqliteDatabase::open() {
@@ -32,7 +29,8 @@ bool SqliteDatabase::open() {
         "CREATE TABLE IF NOT EXISTS users ("
         "username TEXT PRIMARY KEY, "
         "password TEXT, "
-        "email TEXT);";
+        "email TEXT), "
+        "score";
 
     res = sqlite3_exec(this->_db, createTableQuery.c_str(), nullptr, nullptr, nullptr);
     return res == SQLITE_OK;
@@ -81,4 +79,43 @@ int SqliteDatabase::addNewUser(string username, string password, string emailAdd
 
     int res = sqlite3_exec(this->_db, query.c_str(), nullptr, nullptr, nullptr);
     return res;
+}
+
+ivector<tuple<string, int>> SqliteDatabase::getTopHighScores(int count)
+{
+    vector<tuple<string, int>> results;
+
+    if (!_db)
+    {
+        std::cerr << "Database not open\n";
+        return results;
+    }
+
+    string query = "SELECT username, highscore FROM users ORDER BY highscore DESC LIMIT " + std::to_string(count) + ";";
+
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(_db, query.c_str(), -1, &stmt, nullptr);
+    if (rc != SQLITE_OK)
+    {
+        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(_db) << std::endl;
+        return results;
+    }
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+    {
+        const unsigned char* usernameText = sqlite3_column_text(stmt, 0);
+        int highscore = sqlite3_column_int(stmt, 1);
+
+        string username = usernameText ? reinterpret_cast<const char*>(usernameText) : "";
+        results.emplace_back(username, highscore);
+    }
+
+    if (rc != SQLITE_DONE)
+    {
+        std::cerr << "Failed during step: " << sqlite3_errmsg(_db) << std::endl;
+    }
+
+    sqlite3_finalize(stmt);
+
+    return results;
 }
