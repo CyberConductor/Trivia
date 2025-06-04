@@ -10,14 +10,15 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WpfApp
+namespace WpfApp1
 {
     /// <summary>
     /// Interaction logic for HighScore.xaml
     /// </summary>
-    public partial class HighScore : Window
+    public partial class HighScore : Page
     {
         public HighScore()
         {
