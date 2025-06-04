@@ -106,7 +106,14 @@ RequestResult MenuRequestHandler::getPlayersInRoom(RequestInfo requestInfo)
 
 RequestResult MenuRequestHandler::getPersonalStats(RequestInfo requestInfo)
 {
-    
+    //deserialize request
+    Buffer buffer = requestInfo.buffer;
+    int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
+    string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
+    json j = json::parse(jsonStr);
+    string username = j["username"];
+
+    json userstats = m_handlerFactory.getStatisticsManager().getUserStatistics(username);
 }
 
 RequestResult MenuRequestHandler::getHighScore(RequestInfo requestInfo)

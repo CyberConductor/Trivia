@@ -1,16 +1,14 @@
 #include "StatisticsManager.h"
 #include <iostream>
 
-using json = nlohmann::json;
-
 StatisticsManager::StatisticsManager(SqliteDatabase* db)
     : m_db(db){}
 
-json StatisticsManager::getUserStatistics(const std::string& username)
+vector<string> StatisticsManager::getUserStatistics(const string& username)
 {
     sqlite3* rawDb = m_db->getRawDB();
 
-    std::string sql =
+    string sql =
         "SELECT COUNT(*), AVG(score), MAX(score), MIN(score) FROM game_results WHERE username = ?;";
 
     sqlite3_stmt* stmt;
@@ -29,7 +27,7 @@ json StatisticsManager::getUserStatistics(const std::string& username)
     }
     else
     {
-        std::cerr << "Failed to prepare user statistics query\n";
+        std::cerr << "Failed to prepare user statistics query" << std::endl;
     }
 
     sqlite3_finalize(stmt);
@@ -39,7 +37,7 @@ json StatisticsManager::getUserStatistics(const std::string& username)
 
 //high score function:
 
-json StatisticsManager::getHighScores()
+vector<string> StatisticsManager::getHighScores()
 {
     sqlite3* rawDb = m_db->getRawDB();
 

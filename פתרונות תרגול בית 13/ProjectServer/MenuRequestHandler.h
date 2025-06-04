@@ -17,6 +17,7 @@ public:
 	virtual bool isRequestRelevant(RequestInfo);
 	virtual RequestResult handleRequest(RequestInfo);
 
+private:
 	//Methods
 	RequestResult signout(RequestInfo);
 	RequestResult getRooms(RequestInfo);
@@ -25,7 +26,7 @@ public:
 	RequestResult getHighScore(RequestInfo);
 	RequestResult joinRoom(RequestInfo);
 	RequestResult createRoom(RequestInfo);
-private:
+
 	LoggedUser m_user;
 	RequestHandlerFactory& m_handlerFactory;
 };

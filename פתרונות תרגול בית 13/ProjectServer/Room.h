@@ -22,14 +22,16 @@ typedef struct RoomData
 class Room
 {
 public:
-	RoomData m_metadata;
 	Room(RoomData);
 
 	void addUser(LoggedUser);
 	void removeUser(LoggedUser);
 	vector<string> getAllUsers();
 
+	//public field used in RoomManager
+	RoomData m_metadata;
 private:
 	vector<LoggedUser> m_users;
+	//Helper count
 	unsigned int currentUsers;
 };

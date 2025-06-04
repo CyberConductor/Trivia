@@ -17,7 +17,13 @@ public:
     int doesPasswordMatch(string username, string password) override;
     int addNewUser(string username, string password, string emailAddr) override;
     vector<tuple<string, int>> getTopHighScores(int count);
-    sqlite3* getRawDB() const;
+
+    virtual list<Question> getQuestion(int);
+    virtual float getPlayerAverageAnswerTime(string);
+    virtual int getNumOfCorrectAnswers(string);
+    virtual int getNumOfPlayerGames(string);
+    virtual int getPlayerScore(string);
+    virtual vector<string> getHighScores();
 private:
     sqlite3* _db;
 };
