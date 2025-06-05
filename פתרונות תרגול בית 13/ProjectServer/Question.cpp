@@ -1,7 +1,7 @@
 #include "Question.h"
 
-Question::Question(string question, string rightAnswer, vector<string> wrongAnswers)
-	: m_question(question), m_rightAnswer(rightAnswer), m_wrongAnswers(wrongAnswers){}
+Question::Question(string question, string rightAnswer, vector<string> possibleAnswes)
+	: m_question(question), m_rightAnswer(rightAnswer), m_possibleAnswers(possibleAnswes){}
 
 string Question::getQuestion()
 {

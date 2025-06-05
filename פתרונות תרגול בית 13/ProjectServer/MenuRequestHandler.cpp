@@ -113,20 +113,68 @@ RequestResult MenuRequestHandler::getPersonalStats(RequestInfo requestInfo)
     json j = json::parse(jsonStr);
     string username = j["username"];
 
-    json userstats = m_handlerFactory.getStatisticsManager().getUserStatistics(username);
+    if (!m_handlerFactory.getStatisticsManager().doesUserExist(username))
+        return generateErrorResponse("user \"" + username + "\" not found in the database.", this);
+
+    UserStatistics userstats = m_handlerFactory.getStatisticsManager().getUserStatistics(username);
+    json statistics;
+    statistics["username"] = username;
+    statistics["averageAnswerTime"] = userstats.averageAnswerTime;
+    statistics["totalAnswers"] = userstats.totalAnswers;
+    statistics["correctAnswers"] = userstats.correctAnswers;
+    statistics["gamesPlayed"] = userstats.gamesPlayed;
+    statistics["totalScore"] = userstats.totalScore;
+
+    RequestResult result;
+    getPersonalStatsResponse response;
+    response.statistics = statistics;
+    response.status = 1;
+    result.response = JsonResponsePacketSerializer::serializegetPersonalStatsResponse(response);
+    result.newHandler = this;
+    return result;
 }
 
 RequestResult MenuRequestHandler::getHighScore(RequestInfo requestInfo)
 {
-    return RequestResult();
+    vector<string> stats = m_handlerFactory.getStatisticsManager().getHighScores();
+    json statistics;
+    statistics["stats"] = stats;
+
+    RequestResult result;
+    getHighScoreResponse response;
+    response.statistics = statistics;
+    response.status = 1;
+    result.response = JsonResponsePacketSerializer::serializegetHighScoreResponse(response);
+    result.newHandler = this;
+    return result;   
 }
 
 RequestResult MenuRequestHandler::joinRoom(RequestInfo requestInfo)
 {
-    return RequestResult();
+    JoinRoomRequest request = JsonRequestPacketDeserializer::deserializeJoinRoomRequest(requestInfo.buffer);
+    Room* room = m_handlerFactory.getRoomManager().getRoom(request.roomId);
+    room->addUser(m_user);
+
+    RequestResult result;
+    JoinRoomResponse response;
+    response.status = 1;
+    result.response = JsonResponsePacketSerializer::serializeJoinRoomResponse(response);
+    result.newHandler = this;
+    return result;    
 }
 
 RequestResult MenuRequestHandler::createRoom(RequestInfo requestInfo)
 {
-    return RequestResult();
+    //deserialize request
+    CreateRoomRequest request = JsonRequestPacketDeserializer::deserializeCreateRoomRequest(requestInfo.buffer);
+    int id = m_handlerFactory.getRoomManager().getFreeId();
+    RoomData roomData = { id, request.roomName, request.maxUsers, request.questionCount, request.answerTimeOut, 0 };
+    m_handlerFactory.getRoomManager().createRoom(m_user, roomData);
+
+    RequestResult result;
+    CreateRoomResponse response;
+    response.status = 0;
+    result.response = JsonResponsePacketSerializer::serializeCreateRoomResponse(response);
+    result.newHandler = this;
+    return result;
 }

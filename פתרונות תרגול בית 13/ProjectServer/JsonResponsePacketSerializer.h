@@ -4,6 +4,7 @@
 #include <vector>
 #include "json.hpp"
 #include "Room.h"
+#include "StatisticsManager.h"
 
 using json = nlohmann::json;
 using std::string;
@@ -55,13 +56,13 @@ typedef struct CreateRoomResponse
 typedef struct getHighScoreResponse
 {
 	unsigned int status;
-	vector<string> statistics;
+	json statistics;
 }getHighScoreResponse;
 
 typedef struct getPersonalStatsResponse
 {
 	unsigned int status;
-	vector<string> statistics;
+	json statistics;
 }getPersonalStatsResponse;
 
 enum Responses : unsigned char

@@ -11,11 +11,15 @@ class RoomManager
 public:
 	RoomManager();
 	~RoomManager();
+
 	void createRoom(LoggedUser, RoomData);
 	void deleteRoom(int);
 	RoomStatus getRoomState(int);
 	vector<RoomData> getRooms();
 	Room* getRoom(int);
+
+	//Helpers
+	int getFreeId();
 private:
 	map<roomID, Room> m_rooms;
 };
