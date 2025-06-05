@@ -1,6 +1,6 @@
 #include "StatisticsManager.h"
 #include <iostream>
-
+#include "json.hpp"
 StatisticsManager::StatisticsManager(SqliteDatabase* db)
     : m_db(db){}
 
