@@ -1,11 +1,15 @@
 #pragma once
 #include "winsqlite/winsqlite3.h"
 #include "Question.h"
+#include <vector>
 #include <string>
 #include <list>
+#include <tuple>
 
 using std::list;
 using std::string;
+using std::vector;
+using std::tuple;
 
 class IDatabase
 {
@@ -21,8 +25,9 @@ public:
 
     virtual list<Question> getQuestion(int) = 0;
     virtual float getPlayerAverageAnswerTime(string) = 0;
+    virtual int getNumOfAnswers(string) = 0;
     virtual int getNumOfCorrectAnswers(string) = 0;
     virtual int getNumOfPlayerGames(string) = 0;
     virtual int getPlayerScore(string) = 0;
-    virtual vector<string> getHighScores() = 0;
+    virtual vector<tuple<string, int>> getHighScores() = 0;
 };

@@ -1,4 +1,6 @@
 #include "RoomManager.h"
+#include <cstdlib>
+#include <ctime>
 
 RoomManager::RoomManager(){}
 
@@ -56,4 +58,19 @@ Room* RoomManager::getRoom(int ID)
 			return &room.second;
 
 	return nullptr;
+}
+
+int RoomManager::getFreeId()
+{
+	if (m_rooms.size() >= 1000)
+		return -1;
+	while (true)
+	{
+		srand(time(0)); // Seed the random number generator
+		int randId = (rand() % 1000) + 1; // Generate a random number in range 0-1000
+
+		//if the id doesn't exist, return it.
+		if (m_rooms.find(randId) == m_rooms.end())
+			return randId;
+	}
 }

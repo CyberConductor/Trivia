@@ -3,21 +3,20 @@
 #include "MenuRequestHandler.h"
 
 RequestHandlerFactory::RequestHandlerFactory()
+    : m_loginManager(),
+    m_roomManager(),
+    m_database(new SqliteDatabase()),
+    m_statisticsManager(m_database)
 {
-	m_loginManager = LoginManager();
-	m_roomManager = RoomManager();
-	m_database = new SqliteDatabase();
-	m_database->open();
-	m_statisticsManager = StatisticsManager(m_database);
+    m_database->open();
 }
 
 RequestHandlerFactory::~RequestHandlerFactory() { delete m_database; }
 
 LoginRequestHandler* RequestHandlerFactory::createLoginRequestHandler() { return new LoginRequestHandler(*this); }
-MenuRequestHandler* RequestHandlerFactory::createMenuRequestHandler(LoggedUser user) 
+IRequestHandler* RequestHandlerFactory::createMenuRequestHandler(LoggedUser user) 
 { return new MenuRequestHandler(*this, user); }
 
 LoginManager& RequestHandlerFactory::getLoginManager() { return m_loginManager; }
 StatisticsManager& RequestHandlerFactory::getStatisticsManager() { return m_statisticsManager; }
 RoomManager& RequestHandlerFactory::getRoomManager() { return m_roomManager; }
-

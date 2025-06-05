@@ -3,6 +3,7 @@
 #include "SqliteDatabase.h"
 #include "RoomManager.h"
 #include "StatisticsManager.h"
+#include "IRequestHandler.h"
 
 //forward declaration to prevent circular dependency 
 class LoginRequestHandler;
@@ -15,7 +16,7 @@ public:
 	~RequestHandlerFactory();
 
 	LoginRequestHandler* createLoginRequestHandler();
-	MenuRequestHandler* createMenuRequestHandler(LoggedUser);
+	IRequestHandler* createMenuRequestHandler(LoggedUser);
 	LoginManager& getLoginManager();
 	StatisticsManager& getStatisticsManager();
 	RoomManager& getRoomManager();

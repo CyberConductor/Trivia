@@ -7,6 +7,7 @@
 //#include <Windows.h>
 #include "Helper.h"
 #include "LoginRequestHandler.h"
+#include "RequestHandlerFactory.h"
 #include "JsonResponsePacketSerializer.h"
 #include "JsonRequestPacketDeserializer.h"
 
