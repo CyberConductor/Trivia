@@ -30,6 +30,9 @@
     <ClCompile Include="LoginRequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Chat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -60,13 +63,10 @@
     <ClCompile Include="StatisticsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="qnData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="ConListen.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Question.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MenuRequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -116,16 +116,19 @@
     <ClInclude Include="RoomManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="qnData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="StatisticsManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RecvMessage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Question.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MenuRequestHandler.h">
+    <ClInclude Include="sqlite3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

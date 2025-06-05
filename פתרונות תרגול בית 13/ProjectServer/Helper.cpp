@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <sstream>
 
-
+//a request info method
 RequestInfo Helper::getRequestInfo(const SOCKET sc)
 {
 	RequestInfo info;
