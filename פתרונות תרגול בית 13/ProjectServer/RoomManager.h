@@ -20,6 +20,7 @@ public:
 
 	//Helpers
 	int getFreeId();
+	Room& getUserRoom(string);
 private:
 	map<roomID, Room> m_rooms;
 };
