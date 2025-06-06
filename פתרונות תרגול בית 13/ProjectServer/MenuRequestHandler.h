@@ -12,11 +12,9 @@ class MenuRequestHandler : public IRequestHandler
 public:
 	//Constructor
 	MenuRequestHandler(RequestHandlerFactory&, LoggedUser&);
-
 	//virtual functions
 	virtual bool isRequestRelevant(RequestInfo);
 	virtual RequestResult handleRequest(RequestInfo);
-
 private:
 	//Methods
 	RequestResult signout(RequestInfo);

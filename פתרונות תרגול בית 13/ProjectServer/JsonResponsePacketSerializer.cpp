@@ -99,6 +99,42 @@ Buffer JsonResponsePacketSerializer::serializegetPersonalStatsResponse(getPerson
 	return buildResponseBuffer(Response_GetPersonalStatus, j);
 }
 
+Buffer JsonResponsePacketSerializer::serializeCloseRoomResponse(CloseRoomResponse response)
+{
+	json j;
+	j["status"] = response.status;
+
+	return buildResponseBuffer(Response_CloseRoom, j);
+}
+
+Buffer JsonResponsePacketSerializer::serializeStartGameResponse(StartGameResponse response)
+{
+	json j;
+	j["status"] = response.status;
+
+	return buildResponseBuffer(Response_StartGame, j);
+}
+
+Buffer JsonResponsePacketSerializer::serializeGetRoomStateResponse(GetRoomStateResponse response)
+{
+	json j;
+	j["status"] = response.status;
+	j["hasGameBegun"] = response.hasGameBegun;
+	j["players"] = response.players;
+	j["questionCount"] = response.questionCount;
+	j["answerTimeOut"] = response.answerTimeOut;
+
+	return buildResponseBuffer(Response_GetRoomState, j);
+}
+
+Buffer JsonResponsePacketSerializer::serializeLeaveRoomResponse(LeaveRoomResponse response)
+{
+	json j;
+	j["status"] = response.status;
+
+	return buildResponseBuffer(Response_LeaveRoom, j);
+}
+
 Buffer JsonResponsePacketSerializer::buildResponseBuffer(unsigned char code, json& j)
 {
 	string jsonStr = j.dump();
