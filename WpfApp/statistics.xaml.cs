@@ -15,11 +15,11 @@ using System.Windows.Shapes;
 namespace WpfApp
 {
     /// <summary>
-    /// Interaction logic for statistics.xaml
+    /// Interaction logic for Statistics.xaml
     /// </summary>
-    public partial class statistics : Window
+    public partial class Statistics : Window
     {
-        public statistics()
+        public Statistics()
         {
             InitializeComponent();
         }
