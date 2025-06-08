@@ -1,27 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace WpfApp
 {
-    /// <summary>
-    /// Interaction logic for Statistics.xaml
-    /// </summary>
     public partial class Statistics : Window
     {
         public Statistics()
         {
             InitializeComponent();
+        }
+
+
+        private void PersonalStatsButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Personal statistics window would open here.");
+           
+        }
+
+        private void HighScoresButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("High scores table would open here.");
         }
     }
 }
