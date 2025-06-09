@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 
 namespace TriviaClient.Network
 {
     public static class ServerCommunicator
     {
-        // Connects to 127.0.0.1:8826, sends 1-byte code + 4-byte length + JSON, receives response
+        //connects to 127.0.0.1:8826, sends 1-byte code + 4-byte length + JSON, receives response
         public static string SendRequest(byte code, string json)
         {
+            const string SERVER_IP = "127.0.0.1";
+            const int PORT = 8826;
             try
             {
-                using (TcpClient client = new TcpClient("127.0.0.1", 8826))
+                using (TcpClient client = new TcpClient(SERVER_IP, PORT))
                 using (NetworkStream stream = client.GetStream())
                 {
                     // encode JSON payload
