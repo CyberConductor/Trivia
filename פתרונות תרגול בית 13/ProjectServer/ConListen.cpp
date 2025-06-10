@@ -31,7 +31,13 @@ void HandleClient(SOCKET clientSocket)
     std::string username = parsed.value("username", "");
     std::string password = parsed.value("password", "");
     std::string email = parsed.value("email", "");
-    if (messageCode == Request_Signup) // Signup
+    if (messageCode == Request_Login)
+    {
+
+    }
+
+    
+    else if (messageCode == Request_Signup) // Signup
     {
         try 
         {
@@ -55,15 +61,19 @@ void HandleClient(SOCKET clientSocket)
         }
     }
 
-    if (messageCode == Request_Login)
+    else if (messageCode == Request_Signout)
     {
 
     }
-    if (messageCode == Request_JoinRoom)
+    else if (messageCode == Request_GetRooms)
     {
 
     }
-    else if (messageCode == Request_GetPersonalStats) // Request_GetPersonalStats
+    else if (messageCode == Request_getStatistics)
+    {
+
+    }
+    else if (messageCode == Request_GetPersonalStats)
     {
         try {
             // Deserialize using existing function
@@ -99,7 +109,17 @@ void HandleClient(SOCKET clientSocket)
             Buffer errBuf = JsonResponsePacketSerializer::serializeErrorResponse(err);
             send(clientSocket, reinterpret_cast<const char*>(errBuf.data()), (int)errBuf.size(), 0);
         }
+
     }
+    else if (messageCode == Request_GetHighScore)
+    {
+
+    }
+    else if (messageCode == Request_CreateRoom)
+    {
+
+    }
+   
 
     else
     {
