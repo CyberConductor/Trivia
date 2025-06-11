@@ -7,6 +7,12 @@
         mc:Ignorable="d"
         Title="JoinRoom" Height="450" Width="800">
     <Grid>
-        
+        <Button Name="JoinRoomButton"
+                Content="Join Room"
+                Width="150"
+                Height="40"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Click="JoinRoomButton_Click"/>
     </Grid>
 </Window>

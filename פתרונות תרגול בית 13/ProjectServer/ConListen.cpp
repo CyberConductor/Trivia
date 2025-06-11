@@ -41,8 +41,6 @@ void HandleClient(SOCKET clientSocket)
     {
         try 
         {
-           //30-33 maybe move here
-
             if (db.doesUserExist(username)) 
             {
                 std::string response = "User already exists";
