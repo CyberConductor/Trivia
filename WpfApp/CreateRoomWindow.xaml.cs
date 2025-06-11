@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using TriviaClient.Network;
+using WpfApp;
 
 namespace WpfApp1
 {
@@ -22,6 +14,36 @@ namespace WpfApp1
         public CreateRoomWindow()
         {
             InitializeComponent();
+        }
+
+        private void CreateRoomButton_Click(object sender, RoutedEventArgs e)
+        {
+            string roomName = RoomNameTextBox.Text;
+            string questionTimeStr = QuestionTimeTextBox.Text;
+            string playersCountStr = PlayersCountTextBox.Text;
+
+            // Basic validation
+            if (string.IsNullOrWhiteSpace(roomName) ||
+                !int.TryParse(questionTimeStr, out int questionTime) ||
+                !int.TryParse(playersCountStr, out int playersCount))
+            {
+                MessageBox.Show("Please enter valid values for all fields.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Build the JSON payload
+            var payload = JsonSerializer.Serialize(new
+            {
+                roomName = roomName,
+                answerTimeOut = questionTime,
+                questionCount = 5, // or make this user-input later
+                maxUsers = playersCount
+            });
+
+            // Send to server
+            string response = ServerCommunicator.SendRequest((byte)Requests.Request_CreateRoom, payload);
+
+            MessageBox.Show(response, "Server Response", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

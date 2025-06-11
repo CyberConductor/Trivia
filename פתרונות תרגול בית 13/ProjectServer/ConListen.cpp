@@ -139,8 +139,33 @@ void HandleClient(SOCKET clientSocket)
     }
     else if (messageCode == Request_CreateRoom)
     {
+        try
+        {
+            //deserialize request from buffer
+            CreateRoomRequest request = JsonRequestPacketDeserializer::deserializeCreateRoomRequest(buffer);
 
-    }
+            std::cout << "[CREATE ROOM] Room Name: " << request.roomName
+                << ", Max Users: " << request.maxUsers
+                << ", Question Count: " << request.questionCount
+                << ", Timeout: " << request.answerTimeOut << std::endl;
+
+            ////
+
+
+            CreateRoomResponse response;
+            response.status = 1; //success
+
+            //serialize & send response
+            Buffer outBuffer = JsonResponsePacketSerializer::serializeCreateRoomResponse(response);
+            send(clientSocket, reinterpret_cast<const char*>(outBuffer.data()), (int)outBuffer.size(), 0);
+        }
+        catch (const std::exception& e)
+        {
+            ErrorResponse err{ std::string("CreateRoom error: ") + e.what() };
+            Buffer errBuf = JsonResponsePacketSerializer::serializeErrorResponse(err);
+            send(clientSocket, reinterpret_cast<const char*>(errBuf.data()), (int)errBuf.size(), 0);
+        }
+        }
    
 
     else
