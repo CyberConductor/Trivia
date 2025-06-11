@@ -1,15 +1,21 @@
 #pragma once
 #include "Room.h"
+#include "IRequestHandler.h"
+//#include "RequestHandlerFactory.h"
 #include <map>
 
 using std::map;
 
 typedef int roomID;
 
+//forward decleration
+class RequestHandlerFactory;
+class RoomAdminRequestHandler;
+
 class RoomManager
 {
 public:
-	RoomManager();
+	RoomManager(RequestHandlerFactory*);
 	~RoomManager();
 
 	void createRoom(LoggedUser, RoomData);
@@ -23,4 +29,5 @@ public:
 	Room& getUserRoom(string);
 private:
 	map<roomID, Room> m_rooms;
+	RequestHandlerFactory* m_handlerFactory;
 };

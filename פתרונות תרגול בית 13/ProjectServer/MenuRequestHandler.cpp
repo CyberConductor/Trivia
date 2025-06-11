@@ -1,4 +1,5 @@
 #include "MenuRequestHandler.h"
+#include "RoomMemberRequestHandler.h"
 #include <stdexcept>
 
 MenuRequestHandler::MenuRequestHandler(RequestHandlerFactory& factory, LoggedUser& user) 
@@ -6,7 +7,7 @@ MenuRequestHandler::MenuRequestHandler(RequestHandlerFactory& factory, LoggedUse
 
 bool MenuRequestHandler::isRequestRelevant(RequestInfo req)
 {
-    return (req.id >= Request_Signout || req.id <= Request_CreateRoom);
+    return (req.id >= Request_Signout && req.id <= Request_CreateRoom);
 }
 
 RequestResult MenuRequestHandler::handleRequest(RequestInfo req)
@@ -19,10 +20,6 @@ RequestResult MenuRequestHandler::handleRequest(RequestInfo req)
     }
     switch (req.id)
     {
-    case Request_Login:
-        return signout(req);
-    case Request_Signup:
-        return getRooms(req);
     case Request_Signout:
         return signout(req);
     case Request_GetRooms:
@@ -89,8 +86,7 @@ RequestResult MenuRequestHandler::getRooms(RequestInfo requestInfo)
 RequestResult MenuRequestHandler::getPlayersInRoom(RequestInfo requestInfo)
 {
     GetPlayersInRoomRequest req = JsonRequestPacketDeserializer::deserializeGetPlayersInRoomRequest(requestInfo.buffer);
-    Room* room = m_handlerFactory.getRoomManager().getRoom(req.roomId);
-    if (room)
+    if (Room* room = m_handlerFactory.getRoomManager().getRoom(req.roomId))
     {
         vector<string> players = room->getAllUsers();
         GetPlayersInRoomResponse resp = { players };
@@ -153,7 +149,7 @@ RequestResult MenuRequestHandler::joinRoom(RequestInfo requestInfo)
 {
     JoinRoomRequest request = JsonRequestPacketDeserializer::deserializeJoinRoomRequest(requestInfo.buffer);
     Room* room = m_handlerFactory.getRoomManager().getRoom(request.roomId);
-    room->addUser(m_user);
+    room->addUser(m_user, dynamic_cast<IRequestHandler*>(m_handlerFactory.createRoomMemberRequestHandler(m_user, *room)));
 
     RequestResult result;
     JoinRoomResponse response;

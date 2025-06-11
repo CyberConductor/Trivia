@@ -11,7 +11,7 @@ using std::vector;
 class LoggedUser {
 public:
 	LoggedUser(string username);
-	string getUsername();
+	string getUsername() const;
 private:
 	string m_username;
 };

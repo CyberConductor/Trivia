@@ -92,7 +92,7 @@ void Communicator::handleNewClient()
             loginResponse.status = j["status"];
             
             //check the client status
-            if (loginResponse.status == 1)
+            if (loginResponse.status == Response_Login)
             {
                 delete m_clients[clientSocket];
                 LoginRequest req = JsonRequestPacketDeserializer::deserializeLoginRequest(requestInfo.buffer);

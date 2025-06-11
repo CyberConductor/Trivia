@@ -45,14 +45,16 @@ enum Requests : unsigned char
 	Request_Login = 0,
 	Request_Signup,
 	Request_Signout,
-	//Request_Logout,
 	Request_GetRooms,
 	Request_GetPlayersInRoom,
-	Request_getStatistics,
 	Request_GetPersonalStats,
 	Request_GetHighScore,
 	Request_JoinRoom,
-	Request_CreateRoom
+	Request_CreateRoom,
+	Request_CloseRoom,
+	Request_StartGame,
+	Request_GetRoomState,
+	Request_LeaveRoom
 };
 
 class JsonRequestPacketDeserializer

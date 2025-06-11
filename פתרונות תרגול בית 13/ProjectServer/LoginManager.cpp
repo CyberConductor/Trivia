@@ -3,7 +3,7 @@
 LoggedUser::LoggedUser(string username) 
 	: m_username(username){}
 
-string LoggedUser::getUsername()
+string LoggedUser::getUsername() const
 {
 	return m_username;
 }

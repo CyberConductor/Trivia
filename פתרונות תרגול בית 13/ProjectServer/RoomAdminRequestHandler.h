@@ -1,22 +1,21 @@
 #pragma once
-#include "IRequestHandler.h"
-#include "RoomManager.h"
-#include "RequestHandlerFactory.h"
+#include "RoomMember.h"
+#include "RoomMemberRequestHandler.h"
+#include "Communicator.h"
+#include "Helper.h"
 
-class RoomAdminRequestHandler : public IRequestHandler
+class RoomAdminRequestHandler : public RoomMember
 {
 public:
 	//Constructor
-	RoomAdminRequestHandler(RequestHandlerFactory&, LoggedUser&);
+	RoomAdminRequestHandler(RequestHandlerFactory&, LoggedUser, Room, Communicator*);
 	//virtual functions
 	virtual bool isRequestRelevant(RequestInfo);
 	virtual RequestResult handleRequest(RequestInfo);
 private:
 	//Methods
-	
+	RequestResult closeRoom(RequestInfo);
+	RequestResult startGame(RequestInfo);
 	//attributes
-	Room m_room;
-	LoggedUser m_user;
-	RoomManager m_roomManager;
-	RequestHandlerFactory& m_handlerFactory;
+	Communicator* m_communicator;
 };
