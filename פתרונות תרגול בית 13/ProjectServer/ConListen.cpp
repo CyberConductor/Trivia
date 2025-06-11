@@ -135,8 +135,31 @@ void HandleClient(SOCKET clientSocket)
     }
     else if (messageCode == Request_GetHighScore)
     {
+        try
+        {
+            StatisticsManager statsManager(&db);
+            std::vector<std::string> topPlayers = statsManager.getHighScores();
 
-    }
+            getHighScoreResponse response;
+            response.status = 1;
+
+            json playersArray = json::array();
+            for (const auto& player : topPlayers)
+            {
+                playersArray.push_back(player);
+            }
+            response.statistics = playersArray;
+
+            Buffer outBuffer = JsonResponsePacketSerializer::serializegetHighScoreResponse(response);
+            send(clientSocket, reinterpret_cast<const char*>(outBuffer.data()), (int)outBuffer.size(), 0);
+        }
+        catch (const std::exception& e)
+        {
+            ErrorResponse err{ std::string("HighScore error: ") + e.what() };
+            Buffer errBuf = JsonResponsePacketSerializer::serializeErrorResponse(err);
+            send(clientSocket, reinterpret_cast<const char*>(errBuf.data()), (int)errBuf.size(), 0);
+        }
+        }
     else if (messageCode == Request_CreateRoom)
     {
         try
