@@ -67,10 +67,34 @@ void HandleClient(SOCKET clientSocket)
     {
 
     }
-    else if (messageCode == Request_getStatistics)
+    else if (messageCode == Request_GetPlayersInRoom)
     {
+        try
+        {
+            // Deserialize the request first to get roomId:
+            GetPlayersInRoomRequest request = JsonRequestPacketDeserializer::deserializeGetPlayersInRoomRequest(buffer);
 
+            // Get the list of players from DB:
+            std::vector<std::string> players = db.getPlayersInRoom(request.roomId);
+
+            // Prepare response struct:
+            GetPlayersInRoomResponse response;
+            response.players = players;
+
+            // Serialize response into a buffer:
+            Buffer outBuffer = JsonResponsePacketSerializer::serializeGetPlayersInRoomResponse(response);
+
+            // Send response buffer to client:
+            send(clientSocket, reinterpret_cast<const char*>(outBuffer.data()), (int)outBuffer.size(), 0);
+        }
+        catch (const std::exception& e)
+        {
+            ErrorResponse err{ std::string("Error: ") + e.what() };
+            Buffer errBuf = JsonResponsePacketSerializer::serializeErrorResponse(err);
+            send(clientSocket, reinterpret_cast<const char*>(errBuf.data()), (int)errBuf.size(), 0);
+        }
     }
+
     else if (messageCode == Request_GetPersonalStats)
     {
         try {
