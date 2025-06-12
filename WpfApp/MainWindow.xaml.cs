@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using WpfApp;
 using WpfApp1;
 
 namespace SimpleWpfGui
@@ -9,11 +10,48 @@ namespace SimpleWpfGui
         {
             InitializeComponent();
         }
+
         private void RegisterButton_Click(object sender, RoutedEventArgs e)
         {
             SignUp signupWindow = new SignUp();
             signupWindow.Show();
             this.Close();
+        }
+
+
+        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        {
+            Login loginWindow = new Login();
+            loginWindow.Show();
+            this.Close();
+        }
+
+
+
+        private void CreateRoomButton_Click(object sender, RoutedEventArgs e)
+        {
+            CreateRoomWindow room = new CreateRoomWindow();
+            room.Show();
+            this.Close();
+        }
+
+        private void JoinRoomButton_Click(object sender, RoutedEventArgs e)
+        {
+            JoinRoom joinRoomWindow = new JoinRoom();
+            joinRoomWindow.Show();
+            this.Close();
+        }
+
+        private void StatisticsButton_Click(object sender, RoutedEventArgs e)
+        {
+            Statistics statsWindow = new Statistics();
+            statsWindow.Show();
+            this.Close();
+        }
+
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
         }
     }
 }

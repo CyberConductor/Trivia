@@ -7,9 +7,7 @@ using WpfApp;
 
 namespace WpfApp1
 {
-    /// <summary>
-    /// Interaction logic for SignUp.xaml
-    /// </summary>
+  
     public partial class SignUp : Window
     {
         public SignUp()
