@@ -3,6 +3,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using TriviaClient.Network;
+using WpfApp;
+
 namespace WpfApp1
 {
     /// <summary>
@@ -52,7 +54,7 @@ namespace WpfApp1
                 email = email
             });
 
-            string response = ServerCommunicator.SendRequest(2, payload); // Code 2 = Sign Up
+            string response = ServerCommunicator.SendRequest((int)Requests.Request_Signup, payload);
 
             MessageBox.Show(response);
         }

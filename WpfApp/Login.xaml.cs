@@ -11,6 +11,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Text.Json;
+using TriviaClient.Network;
 
 namespace WpfApp
 {
@@ -23,5 +25,58 @@ namespace WpfApp
         {
             InitializeComponent();
         }
+
+        private async void LoginButton_Click(object sender, RoutedEventArgs e)
+        {
+            string username = UsernameTextBox.Text.Trim();
+            string password = PasswordBox.Password;
+
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                StatusTextBlock.Text = "Please enter username and password.";
+                return;
+            }
+
+            StatusTextBlock.Text = "Logging in...";
+            bool success = false;
+
+            try
+            {
+              
+                success = await Task.Run(() =>
+                {
+                    var payload = new { username = username, password = password };
+                    string json = JsonSerializer.Serialize(payload);
+                    string response = ServerCommunicator.SendRequest((byte)Requests.Request_Login, json);
+
+                    
+                    //deserialize response
+                    var respObj = JsonSerializer.Deserialize<JsonElement>(response);
+
+                    if (respObj.TryGetProperty("status", out JsonElement statusElement) && statusElement.GetInt32() == 1)
+                        return true;
+
+                    return false;
+                });
+            }
+            catch (Exception ex)
+            {
+                StatusTextBlock.Text = "Error: " + ex.Message;
+                return;
+            }
+
+            if (success)
+            {
+                StatusTextBlock.Foreground = System.Windows.Media.Brushes.Green;
+                StatusTextBlock.Text = "Login successful!";
+                
+            }
+            else
+            {
+                StatusTextBlock.Foreground = System.Windows.Media.Brushes.Red;
+                StatusTextBlock.Text = "Login failed. Check your credentials.";
+            }
+        }
     }
 }
+
