@@ -9,6 +9,7 @@
 #include "JsonRequestPacketDeserializer.h"
 #include "Room.h"
 #include "RoomManager.h"
+#include "LoginManager.h"
 using json = nlohmann::json;
 
 typedef std::vector<unsigned char> Buffer;
@@ -28,15 +29,43 @@ void HandleClient(SOCKET clientSocket)
 
     SqliteDatabase db;
     db.open();
+   
     auto parsed = json::parse(std::string(buffer.begin() + 5, buffer.end()));
     std::string username = parsed.value("username", "");
     std::string password = parsed.value("password", "");
     std::string email = parsed.value("email", "");
     if (messageCode == Request_Login)
     {
+        try
+        {
+            LoginManager loginManager(&db);
+            LoginRequest request = JsonRequestPacketDeserializer::deserializeLoginRequest(buffer);
 
+            std::cout << "[LOGIN] Username: " << request.username << ", Password: " << request.password << std::endl;
+
+            // Use LoginManager instead of calling db directly
+            if (!loginManager.login(request.username, request.password))
+            {
+                ErrorResponse err{ "Login failed: wrong credentials or user already logged in" };
+                Buffer errBuf = JsonResponsePacketSerializer::serializeErrorResponse(err);
+                send(clientSocket, reinterpret_cast<const char*>(errBuf.data()), (int)errBuf.size(), 0);
+                return;
+            }
+
+            // Successful login
+            LoginResponse response;
+            response.status = 1;
+
+            Buffer outBuffer = JsonResponsePacketSerializer::serializeLoginResponse(response);
+            send(clientSocket, reinterpret_cast<const char*>(outBuffer.data()), (int)outBuffer.size(), 0);
+        }
+        catch (const std::exception& e)
+        {
+            ErrorResponse err{ std::string("Login error: ") + e.what() };
+            Buffer errBuf = JsonResponsePacketSerializer::serializeErrorResponse(err);
+            send(clientSocket, reinterpret_cast<const char*>(errBuf.data()), (int)errBuf.size(), 0);
+        }
     }
-
     
     else if (messageCode == Request_Signup) // Signup
     {
