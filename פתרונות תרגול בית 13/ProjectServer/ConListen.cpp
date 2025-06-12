@@ -7,7 +7,8 @@
 #include "StatisticsManager.h"
 #include "JsonResponsePacketSerializer.h"
 #include "JsonRequestPacketDeserializer.h"
-
+#include "Room.h"
+#include "RoomManager.h"
 using json = nlohmann::json;
 
 typedef std::vector<unsigned char> Buffer;
@@ -65,7 +66,26 @@ void HandleClient(SOCKET clientSocket)
     }
     else if (messageCode == Request_GetRooms)
     {
+        try
+        {
+            // Assuming RoomManager is accessible globally or passed somehow.
+            extern RoomManager g_roomManager; // <-- This must match how you use it in your project
 
+            std::vector<RoomData> roomList = g_roomManager.getRooms();
+
+            GetRoomsResponse response;
+            response.status = 1;
+            response.rooms = roomList;
+
+            Buffer outBuffer = JsonResponsePacketSerializer::serializeGetRoomsResponse(response);
+            send(clientSocket, reinterpret_cast<const char*>(outBuffer.data()), static_cast<int>(outBuffer.size()), 0);
+        }
+        catch (const std::exception& e)
+        {
+            ErrorResponse err{ std::string("GetRooms error: ") + e.what() };
+            Buffer errBuf = JsonResponsePacketSerializer::serializeErrorResponse(err);
+            send(clientSocket, reinterpret_cast<const char*>(errBuf.data()), static_cast<int>(errBuf.size()), 0);
+        }
     }
     else if (messageCode == Request_GetPlayersInRoom)
     {
