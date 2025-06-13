@@ -17,6 +17,7 @@ namespace WpfApp
         Request_GetPersonalStats,
         Request_GetHighScore,
         Request_JoinRoom,
-        Request_CreateRoom
+        Request_CreateRoom,
+        Request_GetRoomState //this is for the refresh to get current room state
     }
 }
