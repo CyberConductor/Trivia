@@ -1,7 +1,6 @@
 #pragma once
 #include "Room.h"
 #include "IRequestHandler.h"
-//#include "RequestHandlerFactory.h"
 #include <map>
 
 using std::map;
@@ -10,7 +9,6 @@ typedef int roomID;
 
 //forward decleration
 class RequestHandlerFactory;
-class RoomAdminRequestHandler;
 
 class RoomManager
 {
@@ -26,7 +24,7 @@ public:
 
 	//Helpers
 	int getFreeId();
-	Room& getUserRoom(string);
+	//Room& getUserRoom(string);
 private:
 	map<roomID, Room> m_rooms;
 	RequestHandlerFactory* m_handlerFactory;

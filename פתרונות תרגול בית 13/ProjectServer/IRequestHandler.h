@@ -30,16 +30,10 @@ public:
 struct RequestResult
 {
 	Buffer response;
-	IRequestHandler* newHandler;
+	IRequestHandler* newHandler = nullptr;
 };
 
 RequestResult IRequestHandler::generateErrorResponse(string str, IRequestHandler* handler)
 {
-	ErrorResponse err = { str };
-
-	RequestResult result;
-	result.response = JsonResponsePacketSerializer::serializeErrorResponse(err);
-	result.newHandler = handler;
-
-	return result;
+	return { JsonResponsePacketSerializer::serializeErrorResponse({ str }), handler };
 }

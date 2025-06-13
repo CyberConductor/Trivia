@@ -40,6 +40,11 @@ typedef struct CreateRoomRequest
 	unsigned int answerTimeOut;
 }CreateRoomRequest;
 
+typedef struct SubmitAnswerRequest
+{
+	unsigned int answerId;
+}SubmitAnswerRequest;
+
 enum Requests : unsigned char
 {
 	Request_Login = 0,
@@ -54,17 +59,19 @@ enum Requests : unsigned char
 	Request_CloseRoom,
 	Request_StartGame,
 	Request_GetRoomState,
-	Request_LeaveRoom
+	Request_LeaveRoom,
+	Request_SubmitAnswer
 };
 
 class JsonRequestPacketDeserializer
 {
 public:
-	static LoginRequest deserializeLoginRequest(const Buffer& buffer);
-	static SignupRequest deserializeSignupRequest(const Buffer& buffer);
-	static GetPlayersInRoomRequest deserializeGetPlayersInRoomRequest(const Buffer& buffer);
-	static JoinRoomRequest deserializeJoinRoomRequest(const Buffer& buffer);
-	static CreateRoomRequest deserializeCreateRoomRequest(const Buffer& buffer);
+	static LoginRequest deserializeLoginRequest(const Buffer&);
+	static SignupRequest deserializeSignupRequest(const Buffer&);
+	static GetPlayersInRoomRequest deserializeGetPlayersInRoomRequest(const Buffer&);
+	static JoinRoomRequest deserializeJoinRoomRequest(const Buffer&);
+	static CreateRoomRequest deserializeCreateRoomRequest(const Buffer&);
+	static SubmitAnswerRequest deserializeSubmitAnswerRequest(const Buffer&);
 	//Helpers
-	static void CheckErrors(unsigned char code, const Buffer& buffer);
+	static void CheckErrors(unsigned char, const Buffer&);
 };

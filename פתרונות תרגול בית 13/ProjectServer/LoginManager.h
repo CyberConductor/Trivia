@@ -1,5 +1,5 @@
 #pragma once
-
+#include "WinSock2.h"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -10,10 +10,15 @@ using std::vector;
 
 class LoggedUser {
 public:
-	LoggedUser(string username);
+	LoggedUser(string, SOCKET);
+	~LoggedUser();
 	string getUsername() const;
+	SOCKET getSocket() const;
+
+	bool operator<(const LoggedUser&) const;
 private:
 	string m_username;
+	SOCKET m_socket;
 };
 
 class LoginManager
@@ -22,8 +27,8 @@ public:
 	LoginManager();
 	~LoginManager();
 
-	bool signup(string username, string password, string email);
-	bool login(string username, string password);
+	bool signup(string username, string password, string email, SOCKET);
+	bool login(string username, string password, SOCKET);
 	void logout(string);
 private:
 	IDatabase* m_database;

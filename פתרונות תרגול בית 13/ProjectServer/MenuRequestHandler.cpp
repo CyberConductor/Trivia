@@ -12,10 +12,9 @@ bool MenuRequestHandler::isRequestRelevant(RequestInfo req)
 
 RequestResult MenuRequestHandler::handleRequest(RequestInfo req)
 {
-
     if (!isRequestRelevant(req))
     {
-        // irrelevant requesst
+        // irrelevant request
         return generateErrorResponse("Unrecognized request type", this);
     }
     switch (req.id)
@@ -53,33 +52,25 @@ RequestResult MenuRequestHandler::signout(RequestInfo requestInfo)
     {
         m_handlerFactory.getLoginManager().logout(username);
 
-        LogoutResponse resp = { 1 };
         RequestResult result;
-        result.response = JsonResponsePacketSerializer::serializeLogoutResponse(resp);
-        result.newHandler = m_handlerFactory.createMenuRequestHandler(LoggedUser(username));
-
+        result.response = JsonResponsePacketSerializer::serializeLogoutResponse({ 1 });
+        result.newHandler = dynamic_cast<IRequestHandler*>(m_handlerFactory.createLoginRequestHandler(m_user.getSocket()));
         return result;
     }
     catch(...)
     {
-        LogoutResponse resp = { 0 };
-        RequestResult result;
-        result.response = JsonResponsePacketSerializer::serializeLogoutResponse(resp);
-        result.newHandler = this;
-
-        return result;
+        IRequestHandler* handler = dynamic_cast<IRequestHandler*>(m_handlerFactory.createLoginRequestHandler(m_user.getSocket()));
+        return generateErrorResponse("failed to signout" + username, handler);
     }
 }
 
 RequestResult MenuRequestHandler::getRooms(RequestInfo requestInfo)
 {
     vector<RoomData> rooms = m_handlerFactory.getRoomManager().getRooms();
-    GetRoomsResponse resp = { 1, rooms };
 
     RequestResult result;
-    result.response = JsonResponsePacketSerializer::serializeGetRoomsResponse(resp);
+    result.response = JsonResponsePacketSerializer::serializeGetRoomsResponse({ 1, rooms });
     result.newHandler = this;
-
     return result;
 }
 
@@ -89,14 +80,8 @@ RequestResult MenuRequestHandler::getPlayersInRoom(RequestInfo requestInfo)
     if (Room* room = m_handlerFactory.getRoomManager().getRoom(req.roomId))
     {
         vector<string> players = room->getAllUsers();
-        GetPlayersInRoomResponse resp = { players };
-        RequestResult result;
-        result.response = JsonResponsePacketSerializer::serializeGetPlayersInRoomResponse(resp);
-        result.newHandler = this;
-
-        return result;
+        return { JsonResponsePacketSerializer::serializeGetPlayersInRoomResponse({ players }), this };
     }
-
     return generateErrorResponse("No room found with the given ID", this);
 }
 
@@ -121,13 +106,7 @@ RequestResult MenuRequestHandler::getPersonalStats(RequestInfo requestInfo)
     statistics["gamesPlayed"] = userstats.gamesPlayed;
     statistics["totalScore"] = userstats.totalScore;
 
-    RequestResult result;
-    getPersonalStatsResponse response;
-    response.statistics = statistics;
-    response.status = 1;
-    result.response = JsonResponsePacketSerializer::serializegetPersonalStatsResponse(response);
-    result.newHandler = this;
-    return result;
+    return { JsonResponsePacketSerializer::serializegetPersonalStatsResponse({ statistics, 1}), this };
 }
 
 RequestResult MenuRequestHandler::getHighScore(RequestInfo requestInfo)
@@ -136,13 +115,7 @@ RequestResult MenuRequestHandler::getHighScore(RequestInfo requestInfo)
     json statistics;
     statistics["stats"] = stats;
 
-    RequestResult result;
-    getHighScoreResponse response;
-    response.statistics = statistics;
-    response.status = 1;
-    result.response = JsonResponsePacketSerializer::serializegetHighScoreResponse(response);
-    result.newHandler = this;
-    return result;   
+    return { JsonResponsePacketSerializer::serializegetHighScoreResponse({ statistics, 1 }), this };
 }
 
 RequestResult MenuRequestHandler::joinRoom(RequestInfo requestInfo)
@@ -151,12 +124,7 @@ RequestResult MenuRequestHandler::joinRoom(RequestInfo requestInfo)
     Room* room = m_handlerFactory.getRoomManager().getRoom(request.roomId);
     room->addUser(m_user, dynamic_cast<IRequestHandler*>(m_handlerFactory.createRoomMemberRequestHandler(m_user, *room)));
 
-    RequestResult result;
-    JoinRoomResponse response;
-    response.status = 1;
-    result.response = JsonResponsePacketSerializer::serializeJoinRoomResponse(response);
-    result.newHandler = this;
-    return result;    
+    return { JsonResponsePacketSerializer::serializeJoinRoomResponse({ 1 }), this };
 }
 
 RequestResult MenuRequestHandler::createRoom(RequestInfo requestInfo)
@@ -167,10 +135,5 @@ RequestResult MenuRequestHandler::createRoom(RequestInfo requestInfo)
     RoomData roomData = { id, request.roomName, request.maxUsers, request.questionCount, request.answerTimeOut, 0 };
     m_handlerFactory.getRoomManager().createRoom(m_user, roomData);
 
-    RequestResult result;
-    CreateRoomResponse response;
-    response.status = 0;
-    result.response = JsonResponsePacketSerializer::serializeCreateRoomResponse(response);
-    result.newHandler = this;
-    return result;
+    return { JsonResponsePacketSerializer::serializeCreateRoomResponse({ 1 }), this };
 }

@@ -3,10 +3,7 @@
 #include <map>
 #include <thread>
 #include <exception>
-//#include <WinSock2.h>
-//#include <Windows.h>
 #include "Helper.h"
-#include "RoomAdminRequestHandler.h"
 #include "LoginRequestHandler.h"
 #include "RequestHandlerFactory.h"
 #include "JsonResponsePacketSerializer.h"
@@ -28,6 +25,4 @@ private:
 	map<SOCKET, IRequestHandler*> m_clients;
 	RequestHandlerFactory& m_handlerFactory;
 	SOCKET m_serverSocket;
-
-	friend RoomAdminRequestHandler;
 };

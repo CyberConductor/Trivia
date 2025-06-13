@@ -32,7 +32,6 @@ SignupRequest JsonRequestPacketDeserializer::deserializeSignupRequest(const Buff
 
 GetPlayersInRoomRequest JsonRequestPacketDeserializer::deserializeGetPlayersInRoomRequest(const Buffer& buffer)
 {
-
 	CheckErrors(Request_GetPlayersInRoom, buffer);
 	int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
 	
@@ -46,7 +45,6 @@ GetPlayersInRoomRequest JsonRequestPacketDeserializer::deserializeGetPlayersInRo
 
 JoinRoomRequest JsonRequestPacketDeserializer::deserializeJoinRoomRequest(const Buffer& buffer)
 {
-
 	CheckErrors(Request_JoinRoom, buffer);
 	int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
 
@@ -71,6 +69,19 @@ CreateRoomRequest JsonRequestPacketDeserializer::deserializeCreateRoomRequest(co
 	req.maxUsers = j["maxUsers"];
 	req.questionCount = j["questionCount"];
 	req.answerTimeOut = j["answerTimeOut"];
+	return req;
+}
+
+SubmitAnswerRequest JsonRequestPacketDeserializer::deserializeSubmitAnswerRequest(const Buffer& buffer)
+{
+	CheckErrors(Request_SubmitAnswer, buffer);
+	int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
+
+	string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
+	json j = json::parse(jsonStr);
+
+	SubmitAnswerRequest req;
+	req.answerId = j["answerId"];
 	return req;
 }
 

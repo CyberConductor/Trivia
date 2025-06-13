@@ -27,8 +27,5 @@ RequestResult RoomMemberRequestHandler::leaveRoom(RequestInfo)
 	m_room.removeUser(m_user);
 
 	Buffer buffer = JsonResponsePacketSerializer::serializeLogoutResponse({ 1 });
-	RequestResult result;
-	result.response = buffer;
-	result.newHandler = m_handlerFactory.createMenuRequestHandler(m_user);
-	return result;
+	return RequestResult({ buffer, m_handlerFactory.createMenuRequestHandler(m_user) });
 }

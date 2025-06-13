@@ -3,26 +3,24 @@
 #include "MenuRequestHandler.h"
 #include "RoomAdminRequestHandler.h"
 #include "RoomMemberRequestHandler.h"
-#include "Communicator.h"
 
-RequestHandlerFactory::RequestHandlerFactory(Communicator* communicator)
+RequestHandlerFactory::RequestHandlerFactory()
     : m_roomManager(RoomManager(this)),
     m_database(new SqliteDatabase()),
-    m_statisticsManager(m_database),
-    m_communicator(communicator)
+    m_statisticsManager(m_database)
 {
     m_database->open();
 }
 
 RequestHandlerFactory::~RequestHandlerFactory() { delete m_database; }
 
-LoginRequestHandler* RequestHandlerFactory::createLoginRequestHandler() { return new LoginRequestHandler(*this); }
+IRequestHandler* RequestHandlerFactory::createLoginRequestHandler(SOCKET sock) { return new LoginRequestHandler(*this, sock); }
 IRequestHandler* RequestHandlerFactory::createMenuRequestHandler(LoggedUser user) 
 { return new MenuRequestHandler(*this, user); }
 
 RoomAdminRequestHandler* RequestHandlerFactory::createRoomAdminRequestHandler(LoggedUser user, Room room)
 {
-    return new RoomAdminRequestHandler(*this, user, room, m_communicator);
+    return new RoomAdminRequestHandler(*this, user, room);
 }
 
 RoomMemberRequestHandler* RequestHandlerFactory::createRoomMemberRequestHandler(LoggedUser user, Room room)

@@ -1,6 +1,5 @@
 #pragma once
 #include "RoomMember.h"
-#include "Room.h"
 
 class RoomMemberRequestHandler : public RoomMember
 {
