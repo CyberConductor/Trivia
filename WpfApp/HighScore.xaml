@@ -1,14 +1,22 @@
-﻿<Page x:Class="WpfApp1.HighScore"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:WpfApp1"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="HighScore">
+﻿<Window x:Class="WpfApp1.HighScore"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="High Scores" Height="450" Width="800">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-    <Grid>
+        <TextBlock Text="High Scores" FontSize="24" FontWeight="Bold" Margin="0,0,0,10"/>
 
+        <ListBox x:Name="ScoresListBox" Grid.Row="1" Margin="0,0,0,10"/>
+
+        <Button Content="Close" Grid.Row="2" Width="100" Height="30" HorizontalAlignment="Right" Click="CloseButton_Click"/>
     </Grid>
-</Page>
+</Window>
