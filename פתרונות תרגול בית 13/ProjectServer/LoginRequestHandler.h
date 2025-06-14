@@ -1,5 +1,4 @@
 #pragma once
-#include "IRequestHandler.h"
 #include "RequestHandlerFactory.h"
 #include "JsonResponsePacketSerializer.h"
 #include "JsonRequestPacketDeserializer.h"
@@ -7,7 +6,7 @@
 class LoginRequestHandler : public IRequestHandler
 {
 public:
-	LoginRequestHandler(RequestHandlerFactory& factory);
+	LoginRequestHandler(RequestHandlerFactory&, SOCKET);
 	//virtual functions
 	virtual bool isRequestRelevant(RequestInfo) override;
 	virtual RequestResult handleRequest(RequestInfo) override;
@@ -18,4 +17,5 @@ private:
 	//
 	RequestHandlerFactory& m_handlerFactory;
 	LoginManager& m_loginManager;
+	SOCKET m_socket;
 };

@@ -125,7 +125,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Communicator.cpp" />
-    <ClCompile Include="ConListen.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="JsonRequestPacketDeserializer.cpp" />
     <ClCompile Include="JsonResponsePacketSerializer.cpp" />
@@ -133,7 +132,7 @@
     <ClCompile Include="LoginRequestHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuRequestHandler.cpp" />
-    <ClCompile Include="qnData.cpp" />
+    <ClCompile Include="Question.cpp" />
     <ClCompile Include="RequestHandlerFactory.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="RoomAdminRequestHandler.cpp" />
@@ -146,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Communicator.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="IDatabase.h" />
     <ClInclude Include="IRequestHandler.h" />
@@ -155,7 +155,7 @@
     <ClInclude Include="LoginManager.h" />
     <ClInclude Include="LoginRequestHandler.h" />
     <ClInclude Include="MenuRequestHandler.h" />
-    <ClInclude Include="qnData.h" />
+    <ClInclude Include="Question.h" />
     <ClInclude Include="RequestHandlerFactory.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="RoomAdminRequestHandler.h" />

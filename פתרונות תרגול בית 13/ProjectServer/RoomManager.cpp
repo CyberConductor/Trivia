@@ -1,5 +1,6 @@
 #include "RoomManager.h"
 #include "RoomAdminRequestHandler.h"
+#include "RequestHandlerFactory.h"
 #include <cstdlib>
 #include <ctime>
 
@@ -80,13 +81,13 @@ int RoomManager::getFreeId()
 	}
 }
 
-Room& RoomManager::getUserRoom(string username)
-{
-	for (auto& room : m_rooms)
-	{
-		map<LoggedUser, IRequestHandler*> users = room.second.m_users;
-		for (auto& user : users)
-			if(user.first.getUsername() == username)
-				return room.second;
-	}
-}
+//Room& RoomManager::getUserRoom(string username)
+//{
+//	for (auto& room : m_rooms)
+//	{
+//		map<LoggedUser, IRequestHandler*> users = room.second.m_users;
+//		for (auto& user : users)
+//			if(user.first.getUsername() == username)
+//				return room.second;
+//	}
+//}

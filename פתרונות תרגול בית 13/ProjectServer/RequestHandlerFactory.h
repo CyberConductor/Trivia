@@ -1,9 +1,10 @@
 #pragma once
+#include <WinSock2.h>
+#include "IRequestHandler.h"
 #include "LoginManager.h"
 #include "RoomManager.h"
 #include "SqliteDatabase.h"
 #include "StatisticsManager.h"
-#include "IRequestHandler.h"
 
 //forward declaration to prevent circular dependency
 class Communicator;
@@ -15,11 +16,11 @@ class RoomMemberRequestHandler;
 class RequestHandlerFactory
 {
 public:
-	RequestHandlerFactory(Communicator*);
+	RequestHandlerFactory();
 	~RequestHandlerFactory();
 
 	//creators
-	LoginRequestHandler* createLoginRequestHandler();
+	IRequestHandler* createLoginRequestHandler(SOCKET);
 	IRequestHandler* createMenuRequestHandler(LoggedUser);
 	RoomAdminRequestHandler* createRoomAdminRequestHandler(LoggedUser, Room);
 	RoomMemberRequestHandler* createRoomMemberRequestHandler(LoggedUser, Room);
@@ -34,5 +35,4 @@ private:
 	SqliteDatabase* m_database;
 	RoomManager m_roomManager;
 	StatisticsManager m_statisticsManager;
-	Communicator* m_communicator;
 };

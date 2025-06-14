@@ -1,7 +1,4 @@
 #include "JsonResponsePacketSerializer.h"
-#include <string>
-#include <vector>
-#include <cstring>
 
 Buffer JsonResponsePacketSerializer::serializeErrorResponse(ErrorResponse response)
 {
@@ -133,6 +130,55 @@ Buffer JsonResponsePacketSerializer::serializeLeaveRoomResponse(LeaveRoomRespons
 	j["status"] = response.status;
 
 	return buildResponseBuffer(Response_LeaveRoom, j);
+}
+
+Buffer JsonResponsePacketSerializer::serializeLeaveGameResponse(LeaveGameResponse response)
+{
+	json j;
+	j["status"] = response.status;
+
+	return buildResponseBuffer(Response_LeaveGame, j);
+}
+
+Buffer JsonResponsePacketSerializer::serializeGetQuestionResponse(GetQuestionResponse response)
+{
+	json j;
+	j["status"] = response.status;
+	j["question"] = response.question;
+	for (const auto& pair : response.answers)
+		j[std::to_string(pair.first)] = pair.second;
+
+	return buildResponseBuffer(Response_GetQuestion, j);
+}
+
+Buffer JsonResponsePacketSerializer::serializeSubmitAnswerResponse(SubmitAnswerResponse response)
+{
+	json j;
+	j["status"] = response.status;
+	j["correctAnwserId"] = response.correctAnwserId;
+
+	return buildResponseBuffer(Response_SubmitAnswer, j);
+}
+
+Buffer JsonResponsePacketSerializer::serializeGetGameResultsResponse(GetGameResultsResponse response)
+{
+	json j;
+	j["status"] = response.status;
+
+	json j_results = json::array();
+	for (const PlayerResults& pr : response.results)
+	{
+		json j_player;
+		j_player["username"] = pr.username;
+		j_player["correctAnswerCount"] = pr.correctAnswerCount;
+		j_player["wrongAnswersCount"] = pr.wrongAnswersCount;
+		j_player["avarageAnswerTime"] = pr.avarageAnswerTime;
+
+		j_results.push_back(j_player);
+	}
+	j["results"] = j_results;
+
+	return buildResponseBuffer(Response_GetGameResults, j);	
 }
 
 Buffer JsonResponsePacketSerializer::buildResponseBuffer(unsigned char code, json& j)

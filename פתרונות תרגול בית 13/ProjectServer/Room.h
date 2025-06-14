@@ -23,6 +23,7 @@ typedef struct RoomData
 
 //forward decleration
 class IRequestHandler;
+class RoomAdminRequestHandler;
 
 class Room
 {
@@ -35,9 +36,12 @@ public:
 	vector<string> getAllUsers();
 
 	//public field used in RoomManager
-	map<LoggedUser, IRequestHandler*> m_users;
 	RoomData m_metadata;
 private:
+	map<LoggedUser, IRequestHandler*> m_users;
 	//Helper count
 	unsigned int currentUsers;
+
+	//give access so it will be able to contact all the users in the room
+	friend RoomAdminRequestHandler;
 };

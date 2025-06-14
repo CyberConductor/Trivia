@@ -10,7 +10,7 @@ class RoomMember : public IRequestHandler
 {
 public:
 	//Constructor
-	RoomMember(LoggedUser user, Room room, RoomManager& manager, RequestHandlerFactory& factory)
+	RoomMember(LoggedUser user, Room room, RoomManager manager, RequestHandlerFactory& factory)
 		: m_user(user), m_room(room), m_roomManager(manager), m_handlerFactory(factory) {}
 	//virtual functions
 	virtual bool isRequestRelevant(RequestInfo) = 0;

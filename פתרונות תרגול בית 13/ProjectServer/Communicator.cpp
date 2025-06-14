@@ -74,13 +74,13 @@ void Communicator::handleNewClient()
         try
         {
             //craete new login handler
-            m_clients.emplace(clientSocket, m_handlerFactory.createLoginRequestHandler());
+            m_clients.emplace(clientSocket, m_handlerFactory.createLoginRequestHandler(clientSocket));
 
             // get the client's request
             RequestInfo requestInfo = Helper::getRequestInfo(clientSocket);
 
             // process the request
-            LoginRequestHandler handler = LoginRequestHandler(m_handlerFactory);
+            LoginRequestHandler handler = LoginRequestHandler(m_handlerFactory, clientSocket);
             RequestResult result = handler.handleRequest(requestInfo);
 
             //deserialize the response
@@ -96,7 +96,9 @@ void Communicator::handleNewClient()
             {
                 delete m_clients[clientSocket];
                 LoginRequest req = JsonRequestPacketDeserializer::deserializeLoginRequest(requestInfo.buffer);
-                m_clients[clientSocket] = m_handlerFactory.createMenuRequestHandler(LoggedUser(req.username));
+                {
+                    m_clients[clientSocket] = m_handlerFactory.createMenuRequestHandler({ req.username, clientSocket });
+                }
             }
 
             // send back the response

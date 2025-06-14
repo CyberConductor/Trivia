@@ -1,11 +1,16 @@
 #include "LoginManager.h"
 
-LoggedUser::LoggedUser(string username) 
-	: m_username(username){}
+LoggedUser::LoggedUser(string username, SOCKET sock) 
+	: m_username(username), m_socket(sock){}
 
-string LoggedUser::getUsername() const
+LoggedUser::~LoggedUser() { closesocket(m_socket); }
+
+string LoggedUser::getUsername() const { return m_username; }
+SOCKET LoggedUser::getSocket() const { return m_socket; }
+
+bool LoggedUser::operator<(const LoggedUser& other) const
 {
-	return m_username;
+	return m_username < other.getUsername();
 }
 
 LoginManager::LoginManager()
@@ -19,7 +24,7 @@ LoginManager::~LoginManager()
 	delete m_database;
 }
 
-bool LoginManager::signup(string username, string password, string email)
+bool LoginManager::signup(string username, string password, string email, SOCKET sock)
 {
 	int res = m_database->doesUserExist(username);
 	if (res == SQLITE_OK)
@@ -27,14 +32,14 @@ bool LoginManager::signup(string username, string password, string email)
 		res = m_database->addNewUser(username, password, email);
 		if (res == SQLITE_OK)
 		{
-			m_loggedUsers.push_back(LoggedUser(username));
+			m_loggedUsers.push_back(LoggedUser(username, sock));
 			return true;
 		}
 	}
 	return false;
 }
 
-bool LoginManager::login(string username, string password)
+bool LoginManager::login(string username, string password, SOCKET sock)
 {
 	// check if user is already logged in
 	for (auto& user : m_loggedUsers)
@@ -44,7 +49,7 @@ bool LoginManager::login(string username, string password)
 	// check if password matches
 	if (m_database->doesPasswordMatch(username, password))
 	{
-		m_loggedUsers.push_back(LoggedUser(username));
+		m_loggedUsers.push_back(LoggedUser(username, sock));
 		return true;
 	}
 
@@ -56,6 +61,7 @@ void LoginManager::logout(string username)
 	for (auto it = m_loggedUsers.begin(); it != m_loggedUsers.end(); ++it)
 		if (it->getUsername() == username)
 		{
+			closesocket(it->getSocket());
 			m_loggedUsers.erase(it);
 			break;
 		}

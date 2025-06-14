@@ -1,8 +1,8 @@
 ﻿#include "LoginRequestHandler.h"
 #include <stdexcept>
 
-LoginRequestHandler::LoginRequestHandler(RequestHandlerFactory& factory) 
-    : m_handlerFactory(factory), m_loginManager(factory.getLoginManager()) {}
+LoginRequestHandler::LoginRequestHandler(RequestHandlerFactory& factory, SOCKET sock) 
+    : m_handlerFactory(factory), m_loginManager(factory.getLoginManager()), m_socket(sock) {}
 
 bool LoginRequestHandler::isRequestRelevant(RequestInfo requestInfo)
 {
@@ -32,29 +32,17 @@ RequestResult LoginRequestHandler::handleRequest(RequestInfo requestInfo)
 RequestResult LoginRequestHandler::login(RequestInfo requestInfo)
 {
     LoginRequest req = JsonRequestPacketDeserializer::deserializeLoginRequest(requestInfo.buffer);
-    unsigned int success = m_loginManager.login(req.username, req.password);
+    unsigned int success = m_loginManager.login(req.username, req.password, m_socket);
 
-    LoginResponse loginResp = { success };
-    RequestResult result;
-    result.response = JsonResponsePacketSerializer::serializeLoginResponse(loginResp);
-    if(success)
-        result.newHandler = m_handlerFactory.createLoginRequestHandler();
-    result.newHandler = this;
-
-    return result;
+    Buffer buffer = JsonResponsePacketSerializer::serializeLoginResponse({ success });
+    return { buffer, success ? m_handlerFactory.createMenuRequestHandler({ req.username, m_socket }) : this};
 }
 
 RequestResult LoginRequestHandler::signup(RequestInfo requestInfo)
 {
     SignupRequest req = JsonRequestPacketDeserializer::deserializeSignupRequest(requestInfo.buffer);
-    unsigned int success = m_loginManager.signup(req.username, req.password, req.email);
+    unsigned int success = m_loginManager.signup(req.username, req.password, req.email, m_socket);
 
-    SignupResponse signupResp = { success };
-    RequestResult result;
-    result.response = JsonResponsePacketSerializer::serializeSignupResponse(signupResp);
-    if(success)
-        result.newHandler = m_handlerFactory.createLoginRequestHandler();
-    result.newHandler = this;
-
-    return result;
+    Buffer buffer = JsonResponsePacketSerializer::serializeSignupResponse({ success });
+    return { buffer, success ? m_handlerFactory.createMenuRequestHandler({ req.username, m_socket }) : this };
 }

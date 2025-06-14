@@ -1,7 +1,9 @@
 #pragma once
 
 #include <string>
+#include <cstring>
 #include <vector>
+#include <map>
 #include "json.hpp"
 #include "Room.h"
 #include "StatisticsManager.h"
@@ -9,6 +11,7 @@
 using json = nlohmann::json;
 using std::string;
 using std::vector;
+using std::map;
 
 typedef vector<unsigned char> Buffer;
 
@@ -89,6 +92,39 @@ typedef struct LeaveRoomResponse
 	unsigned int status;
 }LeaveRoomResponse;
 
+typedef struct LeaveGameResponse
+{
+	unsigned int status;
+}LeaveGameResponse;
+
+typedef struct GetQuestionResponse
+{
+	unsigned int status;
+	string question;
+	map<unsigned int, string> answers;
+}GetQuestionResponse;
+
+typedef struct SubmitAnswerResponse
+{
+	unsigned int status;
+	unsigned int correctAnwserId;
+}SubmitAnswerResponse;
+
+typedef struct PlayerResults
+{
+	string username;
+	unsigned int correctAnswerCount;
+	unsigned int wrongAnswersCount;
+	unsigned int avarageAnswerTime;
+}PlayerResults;
+
+typedef struct GetGameResultsResponse
+{
+	unsigned int status;
+	vector<PlayerResults> results;
+}GetGameResultsResponse;
+
+
 enum Responses : unsigned char
 {
 	Response_Error = 0,
@@ -104,7 +140,11 @@ enum Responses : unsigned char
 	Response_CloseRoom,
 	Response_StartGame,
 	Response_GetRoomState,
-	Response_LeaveRoom
+	Response_LeaveRoom,
+	Response_LeaveGame,
+	Response_GetQuestion,
+	Response_SubmitAnswer,
+	Response_GetGameResults
 };
 
 class JsonResponsePacketSerializer
@@ -124,7 +164,10 @@ public:
 	static Buffer serializeStartGameResponse(StartGameResponse);
 	static Buffer serializeGetRoomStateResponse(GetRoomStateResponse);
 	static Buffer serializeLeaveRoomResponse(LeaveRoomResponse);
-
+	static Buffer serializeLeaveGameResponse(LeaveGameResponse);
+	static Buffer serializeGetQuestionResponse(GetQuestionResponse);
+	static Buffer serializeSubmitAnswerResponse(SubmitAnswerResponse);
+	static Buffer serializeGetGameResultsResponse(GetGameResultsResponse);
 private:
 	static Buffer buildResponseBuffer(unsigned char code, json& j);
 };
