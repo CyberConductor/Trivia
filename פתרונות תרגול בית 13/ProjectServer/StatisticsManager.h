@@ -1,15 +1,16 @@
 #pragma once
 
-#include "SqliteDatabase.h"
 #include <string>
 #include <tuple>
+#include <ctime>
+#include "SqliteDatabase.h"
 
 using std::string;
 using std::tuple;
 
 struct UserStatistics {
     string username;
-    float averageAnswerTime;
+    time_t averageAnswerTime;
     int totalAnswers;
     int correctAnswers;
     int gamesPlayed;

@@ -13,7 +13,7 @@ typedef vector<unsigned char> Buffer;
 typedef struct RequestInfo
 {
 	int id;
-	time_t receivalTime;
+	std::time_t receivalTime;
 	Buffer buffer;
 }RequestInfo;
 

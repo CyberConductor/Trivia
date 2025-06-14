@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <ctime>
 #include "LoginManager.h"
 
 using std::string;
@@ -17,7 +18,7 @@ typedef struct RoomData
 	string name;
 	unsigned int maxPlayers;
 	unsigned int numOfQuestionsInGame;
-	unsigned int timePerQuestion;
+	std::time_t timePerQuestion;
 	RoomStatus status;
 } RoomData;
 

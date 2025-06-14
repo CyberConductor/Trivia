@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <ctime>
 #include "LoginManager.h"
 #include "Question.h"
 
@@ -11,7 +12,7 @@ using std::map;
 
 typedef struct GameData {
 	Question currentQuestion;
-	unsigned int correctAnswerCount;
+	std::time_t correctAnswerCount;
 	unsigned int wrongAnswerCount;
 	unsigned int avarageAnswerTime;
 };

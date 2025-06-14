@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <ctime>
 #include "json.hpp"
 
 using std::string;
@@ -37,7 +38,7 @@ typedef struct CreateRoomRequest
 	string roomName;
 	unsigned int maxUsers;
 	unsigned int questionCount;
-	unsigned int answerTimeOut;
+	std::time_t answerTimeOut;
 }CreateRoomRequest;
 
 typedef struct SubmitAnswerRequest

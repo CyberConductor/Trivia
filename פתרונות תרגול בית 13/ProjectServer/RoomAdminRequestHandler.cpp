@@ -51,6 +51,7 @@ RequestResult RoomAdminRequestHandler::closeRoom(RequestInfo requestInfo)
 				}
 		}
 	}
+	m_room.m_metadata.status = false;
 	m_roomManager.deleteRoom(m_room.m_metadata.id);
 
 	//return response: 1
@@ -86,6 +87,7 @@ RequestResult RoomAdminRequestHandler::startGame(RequestInfo)
 				}
 		}
 	}
+	m_room.m_metadata.status = true;
 	//return response: 1
 	Buffer buffer = JsonResponsePacketSerializer::serializeStartGameResponse({ 1 });
 	return { buffer, m_handlerFactory.createMenuRequestHandler(m_user) };

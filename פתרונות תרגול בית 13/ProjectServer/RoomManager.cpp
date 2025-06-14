@@ -21,6 +21,7 @@ void RoomManager::createRoom(LoggedUser user, RoomData data)
 			return;
 	}
 
+	data.status = false;
 	Room room = Room(data);
 	room.addUser(user, m_handlerFactory->createRoomAdminRequestHandler(user, room));
 	m_rooms.insert({ data.id, room });

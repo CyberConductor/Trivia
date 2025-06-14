@@ -4,6 +4,7 @@
 #include <cstring>
 #include <vector>
 #include <map>
+#include <ctime>
 #include "json.hpp"
 #include "Room.h"
 #include "StatisticsManager.h"
@@ -84,7 +85,7 @@ typedef struct GetRoomStateResponse
 	bool hasGameBegun;
 	vector<string> players;
 	unsigned int questionCount;
-	unsigned int answerTimeOut;
+	std::time_t answerTimeOut;
 }GetRoomStateResponse;
 
 typedef struct LeaveRoomResponse
@@ -115,7 +116,7 @@ typedef struct PlayerResults
 	string username;
 	unsigned int correctAnswerCount;
 	unsigned int wrongAnswersCount;
-	unsigned int avarageAnswerTime;
+	std::time_t avarageAnswerTime;
 }PlayerResults;
 
 typedef struct GetGameResultsResponse
