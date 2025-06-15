@@ -22,7 +22,7 @@ namespace WpfApp1
             string questionTimeStr = QuestionTimeTextBox.Text;
             string playersCountStr = PlayersCountTextBox.Text;
 
-            
+            //check if values are valid:
             if (string.IsNullOrWhiteSpace(roomName) ||
                 !int.TryParse(questionTimeStr, out int questionTime) ||
                 !int.TryParse(playersCountStr, out int playersCount))
