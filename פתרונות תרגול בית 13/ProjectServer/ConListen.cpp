@@ -43,7 +43,6 @@ void HandleClient(SOCKET clientSocket)
 
             std::cout << "[LOGIN] Username: " << request.username << ", Password: " << request.password << std::endl;
 
-            // Use LoginManager instead of calling db directly
             if (!loginManager.login(request.username, request.password))
             {
                 ErrorResponse err{ "Login failed: wrong credentials or user already logged in" };
@@ -52,7 +51,7 @@ void HandleClient(SOCKET clientSocket)
                 return;
             }
 
-            // Successful login
+        
             LoginResponse response;
             response.status = 1;
 
@@ -91,7 +90,28 @@ void HandleClient(SOCKET clientSocket)
 
     else if (messageCode == Request_Signout)
     {
+        try
+        {
+            LoginManager loginManager(&db);
 
+            std::cout << "[SIGNOUT] Username: " << username << std::endl;
+
+            loginManager.logout(username);
+
+            json responseJson = {
+                {"status", 1},
+                {"message", "User signed out successfully"}
+            };
+
+            std::string responseStr = responseJson.dump();
+            send(clientSocket, responseStr.c_str(), (int)responseStr.size(), 0);
+        }
+        catch (const std::exception& e)
+        {
+            ErrorResponse err{ std::string("Signout error: ") + e.what() };
+            Buffer errBuf = JsonResponsePacketSerializer::serializeErrorResponse(err);
+            send(clientSocket, reinterpret_cast<const char*>(errBuf.data()), (int)errBuf.size(), 0);
+        }
     }
     else if (messageCode == Request_GetRooms)
     {
@@ -120,20 +140,13 @@ void HandleClient(SOCKET clientSocket)
     {
         try
         {
-            // Deserialize the request first to get roomId:
             GetPlayersInRoomRequest request = JsonRequestPacketDeserializer::deserializeGetPlayersInRoomRequest(buffer);
-
-            // Get the list of players from DB:
             std::vector<std::string> players = db.getPlayersInRoom(request.roomId);
-
-            // Prepare response struct:
             GetPlayersInRoomResponse response;
             response.players = players;
 
-            // Serialize response into a buffer:
             Buffer outBuffer = JsonResponsePacketSerializer::serializeGetPlayersInRoomResponse(response);
 
-            // Send response buffer to client:
             send(clientSocket, reinterpret_cast<const char*>(outBuffer.data()), (int)outBuffer.size(), 0);
         }
         catch (const std::exception& e)
