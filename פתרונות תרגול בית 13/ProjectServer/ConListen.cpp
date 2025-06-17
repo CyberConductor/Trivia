@@ -117,8 +117,7 @@ void HandleClient(SOCKET clientSocket)
     {
         try
         {
-            // Assuming RoomManager is accessible globally or passed somehow.
-            extern RoomManager g_roomManager; // <-- This must match how you use it in your project
+            extern RoomManager g_roomManager; 
 
             std::vector<RoomData> roomList = g_roomManager.getRooms();
 
@@ -251,7 +250,10 @@ void HandleClient(SOCKET clientSocket)
             send(clientSocket, reinterpret_cast<const char*>(errBuf.data()), (int)errBuf.size(), 0);
         }
         }
-   
+    else if (Request_JoinRoom)
+    {
+
+    }
 
     else
     {
