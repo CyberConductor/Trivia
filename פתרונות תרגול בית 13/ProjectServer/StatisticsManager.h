@@ -17,6 +17,10 @@ struct UserStatistics {
     int totalScore;
 };
 
+//forward decleration
+class Game;
+typedef struct GameData GameData;
+
 class StatisticsManager
 {
 public:
@@ -24,7 +28,8 @@ public:
 
     bool doesUserExist(string);
     UserStatistics getUserStatistics(const string& username);
-    vector<string> getHighScores();
+    map<string, int> getHighScores();
+    int submitGameStatistics(string, GameData);
 private:
     SqliteDatabase* m_db;
 };

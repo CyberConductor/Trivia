@@ -14,7 +14,7 @@ private:
 	//Methods
 	RequestResult login(RequestInfo);
 	RequestResult signup(RequestInfo);
-	//
+	//fields
 	RequestHandlerFactory& m_handlerFactory;
 	LoginManager& m_loginManager;
 	SOCKET m_socket;

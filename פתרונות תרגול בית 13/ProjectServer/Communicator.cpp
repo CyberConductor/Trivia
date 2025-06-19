@@ -60,7 +60,6 @@ void Communicator::startHandleRequests()
 
 void Communicator::handleNewClient()
 {
-
     SOCKET clientSocket = accept(m_serverSocket, NULL, NULL);
     if (clientSocket == INVALID_SOCKET)
     {
@@ -74,15 +73,11 @@ void Communicator::handleNewClient()
         try
         {
             //craete new login handler
-            m_clients.emplace(clientSocket, m_handlerFactory.createLoginRequestHandler(clientSocket));
-
+            LoginRequestHandler* handler = (LoginRequestHandler*)m_handlerFactory.createLoginRequestHandler(clientSocket);
             // get the client's request
             RequestInfo requestInfo = Helper::getRequestInfo(clientSocket);
-
             // process the request
-            LoginRequestHandler handler = LoginRequestHandler(m_handlerFactory, clientSocket);
-            RequestResult result = handler.handleRequest(requestInfo);
-
+            RequestResult result = handler->handleRequest(requestInfo);
             //deserialize the response
             Buffer buffer = result.response;
             int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
@@ -90,28 +85,97 @@ void Communicator::handleNewClient()
             json j = json::parse(jsonStr);
             LoginResponse loginResponse;
             loginResponse.status = j["status"];
-            
             //check the client status
-            if (loginResponse.status == Response_Login)
+            if (loginResponse.status)
             {
-                delete m_clients[clientSocket];
-                LoginRequest req = JsonRequestPacketDeserializer::deserializeLoginRequest(requestInfo.buffer);
-                {
-                    m_clients[clientSocket] = m_handlerFactory.createMenuRequestHandler({ req.username, clientSocket });
-                }
-            }
+                delete handler;
+                m_clients[clientSocket] = result.newHandler;
 
-            // send back the response
-            Helper::sendData(clientSocket, string(result.response.begin(), result.response.end()));
+                Helper::sendData(clientSocket, std::string(result.response.begin(), result.response.end()));
+
+                std::thread([this, clientSocket]() {
+                    handleClient(clientSocket);
+                    }).detach();
+            }
+            else
+                // send back fail response
+                Helper::sendData(clientSocket, string(result.response.begin(), result.response.end()));
         }
         catch (const exception& ex)
         {
-            ErrorResponse errorResponse = { ex.what() };
-            Buffer errorBuffer = JsonResponsePacketSerializer::serializeErrorResponse(errorResponse);
+            Buffer errorBuffer = JsonResponsePacketSerializer::serializeErrorResponse({ ex.what() });
             Helper::sendData(clientSocket, string(errorBuffer.begin(), errorBuffer.end()));
-            delete m_clients[clientSocket];
-            m_clients[clientSocket] = nullptr;
         }
     });
     clientThread.detach();// don't wait for the thread
+}
+
+void Communicator::handleClient(SOCKET sock)
+{
+    IRequestHandler* handler = m_clients[sock];
+
+    try
+    {
+        while (true)
+        {
+            // receive and deserialize the request
+            RequestInfo request = Helper::getRequestInfo(sock);
+            // process the request through the current handler
+            RequestResult result = handler->handleRequest(request);
+            // send back the response
+            Helper::sendData(sock, string(result.response.begin(), result.response.end()));
+            // if the handler changed, replace and delete the old one
+            if (result.newHandler != handler)
+            {
+                // check if the new handler is RoomAdminRequestHandler
+                if (auto adminHandler = dynamic_cast<RoomAdminRequestHandler*>(handler))
+                {
+                    for (auto& userPair : adminHandler->m_room.m_users)
+                    {
+                        const LoggedUser& user = userPair.first;
+                        IRequestHandler*& userHandler = userPair.second;
+
+                        // convert all the room members to game request handlers
+                        if (adminHandler != userHandler)
+                            if (auto memberHandler = dynamic_cast<RoomMember*>(userHandler))
+                                userPair.second = (IRequestHandler*)m_handlerFactory.createGameRequestHandler(user, adminHandler->m_room, memberHandler);
+                    }
+                    handler = result.newHandler;
+                    m_clients[sock] = handler;
+                }
+                if(auto gameHandler = dynamic_cast<GameRequestHandler*>(handler))
+                {
+                    while (true)
+                    {
+                        // if leaveGame was called, break out of game mode
+                        if (gameHandler != result.newHandler)
+                        {
+                            handler = result.newHandler;
+                            m_clients[sock] = handler;
+                            delete gameHandler;
+                            break;
+                        }
+
+                        request = Helper::getRequestInfo(sock);
+                        result = handler->handleRequest(request);
+                        Helper::sendData(sock, string(result.response.begin(), result.response.end()));
+                    }
+                }
+                else
+                {
+                    delete handler;
+                    handler = result.newHandler;
+                    m_clients[sock] = handler;
+                }
+            }
+        }
+    }
+    catch (const exception& e)
+    {
+        std::cerr << "Client disconnected or error: " << e.what() << std::endl;
+
+        delete handler;
+        closesocket(sock);
+        m_clients.erase(sock);
+    }
 }

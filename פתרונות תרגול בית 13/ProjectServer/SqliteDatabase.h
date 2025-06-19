@@ -1,5 +1,4 @@
 #pragma once
-#include <vector>
 #include "IDatabase.h"
 
 class SqliteDatabase : public IDatabase
@@ -14,13 +13,14 @@ public:
     int doesPasswordMatch(string, string) override;
     int addNewUser(string, string, string) override;
 
-    virtual list<Question> getQuestion(int);
-    virtual float getPlayerAverageAnswerTime(string);
+    virtual vector<Question> getQuestion(int);
+    virtual time_t getPlayerAverageAnswerTime(string);
     virtual int getNumOfAnswers(string);
     virtual int getNumOfCorrectAnswers(string);
     virtual int getNumOfPlayerGames(string);
     virtual int getPlayerScore(string);
-    virtual vector<tuple<string, int>> getHighScores();
+    virtual map<string, int> getHighScores();
+    int execQuery(string);
 private:
     sqlite3* _db;
 };

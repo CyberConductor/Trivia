@@ -1,21 +1,21 @@
 #include "Question.h"
+#include <algorithm>
+#include <random>
 
 Question::Question(string question, string rightAnswer, vector<string> possibleAnswes)
-	: m_question(question), m_rightAnswer(rightAnswer), m_possibleAnswers(possibleAnswes){}
-
-string Question::getQuestion()
+	: m_question(question),
+	m_rightAnswer(rightAnswer),
+	m_possibleAnswers(possibleAnswes)
 {
-	return m_question;
+	std::shuffle(m_possibleAnswers.begin(), m_possibleAnswers.end(), std::mt19937(std::random_device{}()));
 }
 
-vector<string> Question::getPossibleAnswers()
+string Question::getQuestion() { return m_question; }
+vector<string> Question::getPossibleAnswers() { return m_possibleAnswers; }
+
+unsigned int Question::getCorrectAnswerId()
 {
-	return m_possibleAnswers;
+	for (unsigned int i = 0; i < m_possibleAnswers.size(); i++)
+		if (m_rightAnswer == m_possibleAnswers[i])
+			return i;
 }
-
-int Question::getCorrectAnswerId()
-{
-	return 0;
-}
-
-

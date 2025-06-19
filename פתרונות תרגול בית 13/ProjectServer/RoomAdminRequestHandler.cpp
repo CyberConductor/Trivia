@@ -1,7 +1,8 @@
 #include "RoomAdminRequestHandler.h"
 
-RoomAdminRequestHandler::RoomAdminRequestHandler(RequestHandlerFactory& factory, LoggedUser user, Room room)
-	: RoomMember(user, room,  factory.getRoomManager(), factory) {}
+RoomAdminRequestHandler::RoomAdminRequestHandler(RequestHandlerFactory& factory, LoggedUser user, Room& room)
+	: RoomMember(user, room,  factory.getRoomManager(), factory)
+{}
 
 bool RoomAdminRequestHandler::isRequestRelevant(RequestInfo req)
 {
@@ -28,27 +29,15 @@ RequestResult RoomAdminRequestHandler::closeRoom(RequestInfo requestInfo)
 	for (auto& user : m_room.m_users)
 	{
 		//send LeaveRoomRespone for each user
-		if (RoomMemberRequestHandler* handler = dynamic_cast<RoomMemberRequestHandler*>(user.second))
+		if ((RoomMemberRequestHandler*)user.second)
 		{
 			Buffer buffer = JsonResponsePacketSerializer::serializeLeaveRoomResponse({ 1 });
-			//get client socket
-			for (auto client : m_room.m_users)
-				if(handler == client.second)
-				{
-					Helper::sendData(client.first.getSocket(), string(buffer.begin(), buffer.end()));
-					break;
-				}
+			Helper::sendData(user.first.getSocket(), string(buffer.begin(), buffer.end()));
 		}
-		else if (RoomAdminRequestHandler* handler = dynamic_cast<RoomAdminRequestHandler*>(user.second))
+		else if ((RoomAdminRequestHandler*)user.second)
 		{
 			Buffer buffer = JsonResponsePacketSerializer::serializeLeaveRoomResponse({ 1 });
-			//find the admin socket
-			for (auto client : m_room.m_users)
-				if (handler == this)
-				{
-					Helper::sendData(client.first.getSocket(), string(buffer.begin(), buffer.end()));
-					break;
-				}
+			Helper::sendData(user.first.getSocket(), string(buffer.begin(), buffer.end()));
 		}
 	}
 	m_room.m_metadata.status = false;
@@ -64,32 +53,20 @@ RequestResult RoomAdminRequestHandler::startGame(RequestInfo)
 	for (auto& user : m_room.m_users)
 	{
 		//send StartGameRespone for each user
-		if (RoomMemberRequestHandler* handler = dynamic_cast<RoomMemberRequestHandler*>(user.second))
+		if (RoomMemberRequestHandler* handler = (RoomMemberRequestHandler*)user.second)
 		{
 			Buffer buffer = JsonResponsePacketSerializer::serializeStartGameResponse({ 1 });
-			//get client socket
-			for (auto client : m_room.m_users)
-				if (handler == client.second)
-				{
-					Helper::sendData(client.first.getSocket(), string(buffer.begin(), buffer.end()));
-					break;
-				}
+			Helper::sendData(user.first.getSocket(), string(buffer.begin(), buffer.end()));
+			user.second = (IRequestHandler*)m_handlerFactory.createGameRequestHandler(m_user, m_room, handler);
 		}
-		else if (RoomAdminRequestHandler* handler = dynamic_cast<RoomAdminRequestHandler*>(user.second))
+		else if ((RoomAdminRequestHandler*)user.second)
 		{
 			Buffer buffer = JsonResponsePacketSerializer::serializeStartGameResponse({ 1 });
-			//find the admin socket
-			for (auto client : m_room.m_users)
-				if (handler == this)
-				{
-					Helper::sendData(client.first.getSocket(), string(buffer.begin(), buffer.end()));
-					break;
-				}
+			Helper::sendData(user.first.getSocket(), string(buffer.begin(), buffer.end()));
 		}
 	}
 	m_room.m_metadata.status = true;
 	//return response: 1
 	Buffer buffer = JsonResponsePacketSerializer::serializeStartGameResponse({ 1 });
-	return { buffer, m_handlerFactory.createMenuRequestHandler(m_user) };
+	return { buffer, (IRequestHandler*)m_handlerFactory.createGameRequestHandler(m_user, m_room, this) };
 }
-

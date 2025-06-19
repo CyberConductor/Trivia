@@ -2,7 +2,10 @@
 #include <stdexcept>
 
 LoginRequestHandler::LoginRequestHandler(RequestHandlerFactory& factory, SOCKET sock) 
-    : m_handlerFactory(factory), m_loginManager(factory.getLoginManager()), m_socket(sock) {}
+    : m_handlerFactory(factory),
+    m_loginManager(factory.getLoginManager()),
+    m_socket(sock)
+{}
 
 bool LoginRequestHandler::isRequestRelevant(RequestInfo requestInfo)
 {

@@ -18,13 +18,15 @@ typedef struct RoomData
 	string name;
 	unsigned int maxPlayers;
 	unsigned int numOfQuestionsInGame;
-	std::time_t timePerQuestion;
+	time_t timePerQuestion;
 	RoomStatus status;
 } RoomData;
 
 //forward decleration
 class IRequestHandler;
 class RoomAdminRequestHandler;
+class Game;
+class Communicator;
 
 class Room
 {
@@ -45,4 +47,6 @@ private:
 
 	//give access so it will be able to contact all the users in the room
 	friend RoomAdminRequestHandler;
+	friend Game;
+	friend Communicator;
 };

@@ -8,60 +8,67 @@ using std::string;
 using std::vector;
 using json = nlohmann::json;
 
-typedef vector<unsigned char> Buffer;
+using Buffer = vector<unsigned char>;
 
-typedef struct LoginRequest
+struct LoginRequest
 {
 	string username;
 	string password;
-}LoginRequest;
+};
 
-typedef struct SignupRequest
+struct SignupRequest
 {
 	string username;
 	string password;
 	string email;
-}SignupRequest;
+};
 
-typedef struct GetPlayersInRoomRequest
+struct GetPlayersInRoomRequest
 {
 	unsigned int roomId;
-}GetPlayersInRoomRequest;
+};
 
-typedef struct JoinRoomRequest
+struct JoinRoomRequest
 {
 	unsigned int roomId;
-}JoinRoomRequest;
+};
 
-typedef struct CreateRoomRequest
+struct CreateRoomRequest
 {
 	string roomName;
 	unsigned int maxUsers;
 	unsigned int questionCount;
-	std::time_t answerTimeOut;
-}CreateRoomRequest;
+	time_t answerTimeOut;
+};
 
-typedef struct SubmitAnswerRequest
+struct SubmitAnswerRequest
 {
 	unsigned int answerId;
-}SubmitAnswerRequest;
+};
 
 enum Requests : unsigned char
 {
-	Request_Login = 0,
+	//1
+	Request_Login = 1,// skip 0 - error
 	Request_Signup,
+	//2
 	Request_Signout,
 	Request_GetRooms,
 	Request_GetPlayersInRoom,
-	Request_GetPersonalStats,
-	Request_GetHighScore,
 	Request_JoinRoom,
 	Request_CreateRoom,
+	Request_GetHighScore,
+	Request_GetPersonalStats,
+	//3
 	Request_CloseRoom,
 	Request_StartGame,
 	Request_GetRoomState,
 	Request_LeaveRoom,
-	Request_SubmitAnswer
+	//4
+	Request_LeaveGame,
+	Request_GetQuestion,
+	Request_SubmitAnswer,
+	Request_GetGameResults
 };
 
 class JsonRequestPacketDeserializer

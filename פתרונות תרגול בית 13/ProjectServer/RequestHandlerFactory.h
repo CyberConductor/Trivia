@@ -3,6 +3,7 @@
 #include "IRequestHandler.h"
 #include "LoginManager.h"
 #include "RoomManager.h"
+#include "GameManager.h"
 #include "SqliteDatabase.h"
 #include "StatisticsManager.h"
 
@@ -12,6 +13,8 @@ class LoginRequestHandler;
 class MenuRequestHandler;
 class RoomAdminRequestHandler;
 class RoomMemberRequestHandler;
+class RoomMember;
+class GameRequestHandler;
 
 class RequestHandlerFactory
 {
@@ -22,17 +25,20 @@ public:
 	//creators
 	IRequestHandler* createLoginRequestHandler(SOCKET);
 	IRequestHandler* createMenuRequestHandler(LoggedUser);
-	RoomAdminRequestHandler* createRoomAdminRequestHandler(LoggedUser, Room);
-	RoomMemberRequestHandler* createRoomMemberRequestHandler(LoggedUser, Room);
+	RoomAdminRequestHandler* createRoomAdminRequestHandler(LoggedUser, Room&);
+	RoomMemberRequestHandler* createRoomMemberRequestHandler(LoggedUser, Room&);
+	GameRequestHandler* createGameRequestHandler(LoggedUser, Room&, RoomMember*);
 
 	//getters
 	LoginManager& getLoginManager();
 	StatisticsManager& getStatisticsManager();
 	RoomManager& getRoomManager();
+	GameManager& getGameManager();
 
 private:
-	LoginManager m_loginManager;
 	SqliteDatabase* m_database;
-	RoomManager m_roomManager;
 	StatisticsManager m_statisticsManager;
+	LoginManager m_loginManager;
+	RoomManager m_roomManager;
+	GameManager m_gameManager;
 };

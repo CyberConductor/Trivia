@@ -16,15 +16,14 @@ public:
 	RoomManager(RequestHandlerFactory*);
 	~RoomManager();
 
-	void createRoom(LoggedUser, RoomData);
+	Room& createRoom(LoggedUser, RoomData);
 	void deleteRoom(int);
 	RoomStatus getRoomState(int);
 	vector<RoomData> getRooms();
-	Room* getRoom(int);
+	Room& getRoom(int);
 
 	//Helpers
 	int getFreeId();
-	//Room& getUserRoom(string);
 private:
 	map<roomID, Room> m_rooms;
 	RequestHandlerFactory* m_handlerFactory;

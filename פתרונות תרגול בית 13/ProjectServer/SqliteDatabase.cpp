@@ -132,14 +132,14 @@ int SqliteDatabase::addNewUser(string username, string password, string emailAdd
     sqlite3_bind_text(stmt, 3, emailAddr.c_str(), -1, SQLITE_STATIC);
 
     int res = sqlite3_step(stmt);
-    sqlite3_finalize(stmt);
 
+    sqlite3_finalize(stmt);
     return res == SQLITE_DONE ? SQLITE_OK : SQLITE_ERROR;
 }
 
-list<Question> SqliteDatabase::getQuestion(int num)
+vector<Question> SqliteDatabase::getQuestion(int num)
 {
-    list<Question> questions;
+    vector<Question> questions;
     string query = "SELECT question, correct_answer, incorrect_answer_1, incorrect_answer_2, incorrect_answer_3 FROM questions LIMIT " + std::to_string(num) + ";";
 
     sqlite3_stmt* stmt;
@@ -151,11 +151,11 @@ list<Question> SqliteDatabase::getQuestion(int num)
 
     while (sqlite3_step(stmt) == SQLITE_ROW)
     {
-        string questionText = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
-        string correctAnswer = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
-        string incorrect1 = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
-        string incorrect2 = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
-        string incorrect3 = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
+        string questionText = (const char*)sqlite3_column_text(stmt, 0);
+        string correctAnswer = (const char*)sqlite3_column_text(stmt, 1);
+        string incorrect1 = (const char*)sqlite3_column_text(stmt, 2);
+        string incorrect2 = (const char*)sqlite3_column_text(stmt, 3);
+        string incorrect3 = (const char*)sqlite3_column_text(stmt, 4);
 
         vector<string> answers = { correctAnswer, incorrect1, incorrect2, incorrect3 };
 
@@ -166,7 +166,7 @@ list<Question> SqliteDatabase::getQuestion(int num)
     return questions;
 }
 
-float SqliteDatabase::getPlayerAverageAnswerTime(string username)
+time_t SqliteDatabase::getPlayerAverageAnswerTime(string username)
 {
     string query = "SELECT average_answer_time FROM statistics WHERE username = ?;";
     sqlite3_stmt* stmt;
@@ -180,9 +180,9 @@ float SqliteDatabase::getPlayerAverageAnswerTime(string username)
     // Bind username as parameter 1 to prevent sql injection
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
 
-    float time = -1;
+    time_t time = -1;
     if (sqlite3_step(stmt) == SQLITE_ROW)
-        time = static_cast<float>(sqlite3_column_double(stmt, 0));
+        time = (time_t)sqlite3_column_double(stmt, 0);
 
     sqlite3_finalize(stmt);
     return time;
@@ -204,7 +204,7 @@ int SqliteDatabase::getNumOfAnswers(string username)
 
     int num = -1;
     if (sqlite3_step(stmt) == SQLITE_ROW)
-        num = static_cast<int>(sqlite3_column_double(stmt, 0));
+        num = (int)sqlite3_column_double(stmt, 0);
 
     sqlite3_finalize(stmt);
     return num;
@@ -226,7 +226,7 @@ int SqliteDatabase::getNumOfCorrectAnswers(string username)
 
     int num = -1;
     if (sqlite3_step(stmt) == SQLITE_ROW)
-        num = static_cast<int>(sqlite3_column_double(stmt, 0));
+        num = (int)sqlite3_column_double(stmt, 0);
 
     sqlite3_finalize(stmt);
     return num;
@@ -248,7 +248,7 @@ int SqliteDatabase::getNumOfPlayerGames(string username)
 
     int num = -1;
     if (sqlite3_step(stmt) == SQLITE_ROW)
-        num = static_cast<int>(sqlite3_column_double(stmt, 0));
+        num = (int)sqlite3_column_double(stmt, 0);
 
     sqlite3_finalize(stmt);
     return num;
@@ -270,15 +270,15 @@ int SqliteDatabase::getPlayerScore(string username)
 
     int score = -1;
     if (sqlite3_step(stmt) == SQLITE_ROW)
-        score = static_cast<int>(sqlite3_column_double(stmt, 0));
+        score = (int)sqlite3_column_double(stmt, 0);
 
     sqlite3_finalize(stmt);
     return score;
 }
 
-vector<tuple<string, int>> SqliteDatabase::getHighScores()
+map<string, int> SqliteDatabase::getHighScores()
 {
-    vector<tuple<string, int>> results;
+    map<string, int> results;
 
     if (!_db)
     {
@@ -301,14 +301,24 @@ vector<tuple<string, int>> SqliteDatabase::getHighScores()
         const unsigned char* usernameText = sqlite3_column_text(stmt, 0);
         int highscore = sqlite3_column_int(stmt, 1);
 
-        string username =  reinterpret_cast<const char*>(usernameText);
-        results.emplace_back(username, highscore);
+        string username = (const char*)usernameText;
+        results.emplace(username, highscore);
     }
 
     if (rc != SQLITE_DONE)
         std::cerr << "Failed during step: " << sqlite3_errmsg(_db) << std::endl;
 
     sqlite3_finalize(stmt);
-
     return results;
+}
+
+int SqliteDatabase::execQuery(string query)
+{
+    char* errMessage = nullptr;
+    int result = sqlite3_exec(this->_db, query.c_str(), nullptr, nullptr, &errMessage);
+
+    if (errMessage)
+        sqlite3_free(errMessage);
+
+    return result;
 }

@@ -12,20 +12,24 @@ RoomManager::~RoomManager()
 	delete(m_handlerFactory);
 }
 
-void RoomManager::createRoom(LoggedUser user, RoomData data)
+Room& RoomManager::createRoom(LoggedUser user, RoomData data)
 {
-	for (auto it = m_rooms.begin(); it != m_rooms.end(); ++it)
-	{
-		roomID id = it->first;
-		if (id == data.id)//check that there are no room existing with the same id
-			return;
-	}
+	// check if room with the same ID already exists
+	if (m_rooms.find(data.id) != m_rooms.end())
+		throw std::runtime_error("Room with this ID already exists");
 
 	data.status = false;
-	Room room = Room(data);
+
+	// insert a room directly into the map to avoid local object lifetime issue
+	auto inserted = m_rooms.emplace(data.id, Room(data));
+	Room& room = inserted.first->second;
+
+	// set the admin handler
 	room.addUser(user, m_handlerFactory->createRoomAdminRequestHandler(user, room));
-	m_rooms.insert({ data.id, room });
+
+	return room;
 }
+
 
 void RoomManager::deleteRoom(int ID)
 {
@@ -58,13 +62,13 @@ vector<RoomData> RoomManager::getRooms()
 	return res;
 }
 
-Room* RoomManager::getRoom(int ID)
+Room& RoomManager::getRoom(int ID)
 {
 	for (auto& room : m_rooms)
 		if (room.first == ID)
-			return &room.second;
+			return room.second;
 
-	return nullptr;
+	throw std::runtime_error("Room with given ID not found");
 }
 
 int RoomManager::getFreeId()

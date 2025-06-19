@@ -5,7 +5,7 @@ class RoomMemberRequestHandler : public RoomMember
 {
 public:
 	//Constructor
-	RoomMemberRequestHandler(RequestHandlerFactory&, LoggedUser&, Room);
+	RoomMemberRequestHandler(RequestHandlerFactory&, LoggedUser, Room&);
 	//virtual functions
 	virtual bool isRequestRelevant(RequestInfo);
 	virtual RequestResult handleRequest(RequestInfo);

@@ -18,8 +18,6 @@ class Helper
 public:
 	static RequestInfo getRequestInfo(const SOCKET sc);
 	static void sendData(const SOCKET sc, const string message);
-	//static void send_update_message_to_client(const SOCKET sc, const string& file_content, const string& second_username, const string& all_users);
-	static string getPaddedNumber(const int num, const int digits);
 
 private:
 	static string getPartFromSocket(const SOCKET sc, const int bytesNum);

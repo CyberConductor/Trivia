@@ -1,6 +1,6 @@
 #include "RoomMemberRequestHandler.h"
 
-RoomMemberRequestHandler::RoomMemberRequestHandler(RequestHandlerFactory& factory, LoggedUser& user, Room room)
+RoomMemberRequestHandler::RoomMemberRequestHandler(RequestHandlerFactory& factory, LoggedUser user, Room& room)
 	: RoomMember(user, room, factory.getRoomManager(), factory)
 {}
 
@@ -26,6 +26,6 @@ RequestResult RoomMemberRequestHandler::leaveRoom(RequestInfo)
 {
 	m_room.removeUser(m_user);
 
-	Buffer buffer = JsonResponsePacketSerializer::serializeLogoutResponse({ 1 });
+	Buffer buffer = JsonResponsePacketSerializer::serializeLeaveRoomResponse({ 1 });
 	return RequestResult({ buffer, m_handlerFactory.createMenuRequestHandler(m_user) });
 }

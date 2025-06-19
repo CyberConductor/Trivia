@@ -13,7 +13,7 @@ public:
 	//Methods:
 	string getQuestion();
 	vector<string> getPossibleAnswers();
-	int getCorrectAnswerId();
+	unsigned int getCorrectAnswerId();
 private:
 	string m_question;
 	string m_rightAnswer;

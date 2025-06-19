@@ -5,9 +5,10 @@
 #include <exception>
 #include "Helper.h"
 #include "LoginRequestHandler.h"
-#include "RequestHandlerFactory.h"
-#include "JsonResponsePacketSerializer.h"
-#include "JsonRequestPacketDeserializer.h"
+#include "MenuRequestHandler.h"
+#include "RoomAdminRequestHandler.h"
+#include "RoomMemberRequestHandler.h"
+#include "GameRequestHandler.h"
 
 using std::map;
 using std::exception;
@@ -22,6 +23,7 @@ public:
 	void bindAndListen();
 	void handleNewClient();
 private:
+	void handleClient(SOCKET);
 	map<SOCKET, IRequestHandler*> m_clients;
 	RequestHandlerFactory& m_handlerFactory;
 	SOCKET m_serverSocket;

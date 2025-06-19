@@ -191,10 +191,10 @@ Buffer JsonResponsePacketSerializer::buildResponseBuffer(unsigned char code, jso
 	buffer.push_back(code);
 	//insert the massage size
 	buffer.insert(buffer.end(), {
-		static_cast<unsigned char>(size >> 24),
-		static_cast<unsigned char>(size >> 16),
-		static_cast<unsigned char>(size >> 8),
-		static_cast<unsigned char>(size)
+		(unsigned char)(size >> 24),
+		(unsigned char)(size >> 16),
+		(unsigned char)(size >> 8),
+		(unsigned char)(size)
 		});
 
 	//insert the massage

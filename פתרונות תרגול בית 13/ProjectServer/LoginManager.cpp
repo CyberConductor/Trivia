@@ -1,7 +1,9 @@
 #include "LoginManager.h"
 
 LoggedUser::LoggedUser(string username, SOCKET sock) 
-	: m_username(username), m_socket(sock){}
+	: m_username(username),
+	m_socket(sock)
+{}
 
 LoggedUser::~LoggedUser() { closesocket(m_socket); }
 

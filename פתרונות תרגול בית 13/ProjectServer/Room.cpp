@@ -2,7 +2,8 @@
 #include "IRequestHandler.h"
 #include "RoomAdminRequestHandler.h"
 
-Room::Room(RoomData data) : m_metadata(data)
+Room::Room(RoomData data) 
+    : m_metadata(data)
 {
     currentUsers = 0;
 }

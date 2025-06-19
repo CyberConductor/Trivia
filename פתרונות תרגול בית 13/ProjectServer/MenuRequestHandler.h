@@ -11,7 +11,7 @@ class MenuRequestHandler : public IRequestHandler
 {
 public:
 	//Constructor
-	MenuRequestHandler(RequestHandlerFactory&, LoggedUser&);
+	MenuRequestHandler(RequestHandlerFactory&, LoggedUser);
 	//virtual functions
 	virtual bool isRequestRelevant(RequestInfo);
 	virtual RequestResult handleRequest(RequestInfo);

@@ -3,36 +3,37 @@
 #include <string>
 #include "WSAInitializer.h"
 #include <fstream>
+#include <thread>
 
 using std::string;
 using std::cin;
 using std::cout;
 using std::endl;
-
-// In a lot of places in the code we pass to function constant reference (const Bla&)
-// to an object and not the object itself, 
+using std::thread;
 
 int main()
 {
-	// Q: why is this try necessarily ? 
-	// A: we want to know what happened that made the server crash
 	try
 	{
 		TRACE("Starting...");
-		// NOTICE at the end of this block the WSA will be closed 
 		WSAInitializer wsa_init;
+
 		Server md_server;
 
-		// Infinite loop to listen for user input
+		// launch the server in a separate thread
+		thread serverThread(&Server::run, &md_server);
+		serverThread.detach(); // allows main thread to stay responsive
+
+		// input loop for admin
 		string userInput;
 		while (true)
 		{
-			std::getline(cin, userInput);  // Read user input
+			std::getline(cin, userInput);
 
 			if (userInput == "EXIT" || userInput == "exit")
 			{
 				TRACE("Exiting server...");
-				break;  // Exit the loop and end the program
+				break;
 			}
 		}
 	}
@@ -45,4 +46,3 @@ int main()
 		cout << "Unknown exception in main!" << endl;
 	}
 }
-
