@@ -4,21 +4,21 @@
 #include <vector>
 #include <Windows.h>
 
+using std::string;
+using std::vector;
+
 class RecvMessage
 {
 public:
-	RecvMessage(const SOCKET sock, const int messageCode);
-
-	RecvMessage(const SOCKET sock, const int messageCode, const std::vector<std::string> values);
+	RecvMessage(const SOCKET, const int messageCode);
+	RecvMessage(const SOCKET, const int messageCode, const vector<string> values);
 
 	SOCKET getSock();
 	int getMessageCode();
-
-	std::vector<std::string>& getValues();
-
+	vector<string>& getValues();
 private:
 	SOCKET _sock;
 	int _messageCode;
-	std::vector<std::string> _values;
+	vector<string> _values;
 };
 

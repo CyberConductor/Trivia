@@ -6,7 +6,7 @@ RecvMessage::RecvMessage(const SOCKET sock, const int messageCode)
 	_messageCode = messageCode;
 }
 
-RecvMessage::RecvMessage(const SOCKET sock, const int messageCode, std::vector<std::string> values) : RecvMessage(sock, messageCode)
+RecvMessage::RecvMessage(const SOCKET sock, const int messageCode, vector<string> values) : RecvMessage(sock, messageCode)
 {
 	_values = values;
 }
@@ -23,7 +23,7 @@ int RecvMessage::getMessageCode()
 }
 
 
-std::vector<std::string>& RecvMessage::getValues()
+vector<string>& RecvMessage::getValues()
 {
 	return _values;
 }

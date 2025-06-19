@@ -1,5 +1,4 @@
 #pragma once
-
 #include <string>
 #include <vector>
 #include "json.hpp"
@@ -23,9 +22,47 @@ typedef struct SignupRequest
 	string email;
 }SignupRequest;
 
+typedef struct GetPlayersInRoomRequest
+{
+	unsigned int roomId;
+}GetPlayersInRoomRequest;
+
+typedef struct JoinRoomRequest
+{
+	unsigned int roomId;
+}JoinRoomRequest;
+
+typedef struct CreateRoomRequest
+{
+	string roomName;
+	unsigned int maxUsers;
+	unsigned int questionCount;
+	unsigned int answerTimeOut;
+}CreateRoomRequest;
+
+enum Requests : unsigned char
+{
+	Request_Login = 0,
+	Request_Signup,
+	Request_Signout,
+	//Request_Logout,
+	Request_GetRooms,
+	Request_GetPlayersInRoom,
+	Request_getStatistics,
+	Request_GetPersonalStats,
+	Request_GetHighScore,
+	Request_JoinRoom,
+	Request_CreateRoom
+};
+
 class JsonRequestPacketDeserializer
 {
 public:
 	static LoginRequest deserializeLoginRequest(const Buffer& buffer);
 	static SignupRequest deserializeSignupRequest(const Buffer& buffer);
+	static GetPlayersInRoomRequest deserializeGetPlayersInRoomRequest(const Buffer& buffer);
+	static JoinRoomRequest deserializeJoinRoomRequest(const Buffer& buffer);
+	static CreateRoomRequest deserializeCreateRoomRequest(const Buffer& buffer);
+	//Helpers
+	static void CheckErrors(unsigned char code, const Buffer& buffer);
 };

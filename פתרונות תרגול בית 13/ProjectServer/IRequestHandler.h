@@ -1,8 +1,12 @@
 #pragma once
 
 #include <vector>
+#include <string>
+#include <ctime> 
+#include "JsonResponsePacketSerializer.h" 
 
 using std::vector;
+using std::string;
 
 typedef vector<unsigned char> Buffer;
 
@@ -20,6 +24,7 @@ class IRequestHandler
 public:
 	virtual bool isRequestRelevant(RequestInfo) = 0;
 	virtual RequestResult handleRequest(RequestInfo) = 0;
+	static RequestResult generateErrorResponse(string, IRequestHandler*);
 };
 
 struct RequestResult
@@ -27,3 +32,14 @@ struct RequestResult
 	Buffer response;
 	IRequestHandler* newHandler;
 };
+
+RequestResult IRequestHandler::generateErrorResponse(string str, IRequestHandler* handler)
+{
+	ErrorResponse err = { str };
+
+	RequestResult result;
+	result.response = JsonResponsePacketSerializer::serializeErrorResponse(err);
+	result.newHandler = handler;
+
+	return result;
+}
