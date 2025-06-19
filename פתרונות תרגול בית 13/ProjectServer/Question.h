@@ -9,11 +9,12 @@ class Question
 {
 public:
 	Question(string, string, vector<string>);
-
+	
 	//Methods:
 	string getQuestion();
 	vector<string> getPossibleAnswers();
 	int getCorrectAnswerId();
+
 private:
 	string m_question;
 	string m_rightAnswer;
