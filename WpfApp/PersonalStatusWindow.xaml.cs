@@ -1,27 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using TriviaClient.Network; // <-- Ensure you have a reference to this namespace
+using WpfApp;
 
 namespace WpfApp1
 {
-    /// <summary>
-    /// Interaction logic for PersonalStatusWindow.xaml
-    /// </summary>
     public partial class PersonalStatusWindow : Window
     {
         public PersonalStatusWindow()
         {
             InitializeComponent();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            
+            var requestPayload = new
+            {
+                
+            };
+
+            string json = JsonSerializer.Serialize(requestPayload);
+
+            byte requestCode = (byte)Requests.Request_GetPersonalStats;
+
+            string response = ServerCommunicator.SendRequest(requestCode, json);
+
+            PersonalStatsTextBlock.Text = response;
+            MessageBox.Show(response, "Server Response");
         }
     }
 }

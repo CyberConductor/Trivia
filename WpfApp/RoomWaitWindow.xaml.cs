@@ -10,7 +10,7 @@ namespace WpfApp
 {
     public partial class RoomWaitWindow : Window
     {
-        private DispatcherTimer refreshTimer;
+        private DispatcherTimer refreshTimer; //time to refresh
         private int roomId;
 
         public RoomWaitWindow(int roomId)
@@ -19,7 +19,7 @@ namespace WpfApp
             this.roomId = roomId;
 
             refreshTimer = new DispatcherTimer();
-            refreshTimer.Interval = TimeSpan.FromSeconds(3);
+            refreshTimer.Interval = TimeSpan.FromSeconds(3); //time object for 3 seconds
             refreshTimer.Tick += RefreshRoomState;
             refreshTimer.Start();
         }
@@ -47,7 +47,7 @@ namespace WpfApp
                     //open new game window
                     //
                 }
-
+                //get status
                 if (data.TryGetProperty("status", out var status) && status.GetInt32() == 0)
                 {
                     MessageBox.Show("Room was closed.");

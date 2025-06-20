@@ -1,13 +1,17 @@
-﻿ ﻿<Window x:Class="WpfApp1.PersonalStatusWindow"
-
+﻿<Window x:Class="WpfApp1.PersonalStatusWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="PersonalStatusWindow" Height="450" Width="800">
+        Title="PersonalStatusWindow" Height="450" Width="800"
+        Loaded="Window_Loaded">
     <Grid>
-
+        <TextBlock x:Name="PersonalStatsTextBlock" 
+                   Text="Loading..." 
+                   VerticalAlignment="Top"
+                   Margin="10"
+                   FontSize="16"/>
     </Grid>
 </Window>

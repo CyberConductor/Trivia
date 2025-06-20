@@ -22,7 +22,7 @@ namespace WpfApp1
             string questionTimeStr = QuestionTimeTextBox.Text;
             string playersCountStr = PlayersCountTextBox.Text;
 
-            // Basic validation
+            //check if values are valid:
             if (string.IsNullOrWhiteSpace(roomName) ||
                 !int.TryParse(questionTimeStr, out int questionTime) ||
                 !int.TryParse(playersCountStr, out int playersCount))
@@ -31,16 +31,16 @@ namespace WpfApp1
                 return;
             }
 
-            // Build the JSON payload
+            //build the JSON payload
             var payload = JsonSerializer.Serialize(new
             {
                 roomName = roomName,
                 answerTimeOut = questionTime,
-                questionCount = 5, // or make this user-input later
+                questionCount = 5, //
                 maxUsers = playersCount
             });
 
-            // Send to server
+            //send code to server
             string response = ServerCommunicator.SendRequest((byte)Requests.Request_CreateRoom, payload);
 
             MessageBox.Show(response, "Server Response", MessageBoxButton.OK, MessageBoxImage.Information);
