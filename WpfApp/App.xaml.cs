@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using TriviaClient.Network;
 
 namespace WpfApp
 {
@@ -13,5 +14,12 @@ namespace WpfApp
     /// </summary>
     public partial class App : Application
     {
+        public static ServerCommunicator Communicator { get; private set; }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            Communicator = new ServerCommunicator();
+            base.OnStartup(e);
+        }
     }
 }

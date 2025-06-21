@@ -27,8 +27,7 @@ bool SqliteDatabase::open()
         "CREATE TABLE IF NOT EXISTS users("
         "username TEXT PRIMARY KEY, "
         "password TEXT, "
-        "email TEXT), "
-        "score";
+        "email TEXT) ";
 
     res = sqlite3_exec(this->_db, createUsersQuery.c_str(), nullptr, nullptr, nullptr);
     if (res != SQLITE_OK)
@@ -53,7 +52,7 @@ bool SqliteDatabase::open()
         "total_answers INTEGER NOT NULL,"
         "correct_answers INTEGER NOT NULL,"
         "games_played INTEGER NOT NULL,"
-        "total_score INTEGER NOT NULL"
+        "total_score INTEGER NOT NULL,"
         "FOREIGN KEY(username) REFERENCES users(username));";
 
     res = sqlite3_exec(this->_db, createStatsQuery.c_str(), nullptr, nullptr, nullptr);
@@ -76,21 +75,24 @@ bool SqliteDatabase::close()
 /*
 return value: if found->1, if not->0.
 */
-int SqliteDatabase::doesUserExist(string username)
+bool SqliteDatabase::doesUserExist(string username)
 {
-    int found = 0;
+    bool found = false;
     const char* query = "SELECT 1 FROM users WHERE username = ? LIMIT 1;";
     sqlite3_stmt* stmt = nullptr;
 
     if (sqlite3_prepare_v2(this->_db, query, -1, &stmt, nullptr) != SQLITE_OK)
-        return 0; // prepare failed
+    {
+        std::cerr << "SQLite prepare error: " << sqlite3_errmsg(this->_db) << std::endl;
+        return false;
+    } // prepare failed
 
     // bind the username safely
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
 
     // check if a row was returned
     if (sqlite3_step(stmt) == SQLITE_ROW)
-        found = 1;
+        found = true;
 
     sqlite3_finalize(stmt);
     return found;
@@ -99,20 +101,23 @@ int SqliteDatabase::doesUserExist(string username)
 /*
 return value: if match->1, if not->0.
 */
-int SqliteDatabase::doesPasswordMatch(string username, string password)
+bool SqliteDatabase::doesPasswordMatch(string username, string password)
 {
-    int match = 0;
+    int match = false;
     const char* query = "SELECT 1 FROM users WHERE username = ? AND password = ? LIMIT 1;";
     sqlite3_stmt* stmt = nullptr;
 
     if (sqlite3_prepare_v2(this->_db, query, -1, &stmt, nullptr) != SQLITE_OK)
-        return 0;
+    {
+        std::cerr << "SQLite prepare error: " << sqlite3_errmsg(this->_db) << std::endl;
+        return false;
+    }
 
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_STATIC);
 
     if (sqlite3_step(stmt) == SQLITE_ROW)
-        match = 1;
+        match = true;
 
     sqlite3_finalize(stmt);
     return match;
@@ -124,7 +129,11 @@ int SqliteDatabase::addNewUser(string username, string password, string emailAdd
     sqlite3_stmt* stmt = nullptr;
 
     if (sqlite3_prepare_v2(this->_db, query, -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        std::cerr << "SQLite prepare error: " << sqlite3_errmsg(this->_db) << std::endl;
         return SQLITE_ERROR;
+    }
+
 
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_STATIC);

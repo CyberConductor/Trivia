@@ -41,7 +41,7 @@ namespace WpfApp1
             });
 
             //send code to server
-            string response = ServerCommunicator.SendRequest((byte)Requests.Request_CreateRoom, payload);
+            string response = App.Communicator.SendRequest((byte)Requests.Request_CreateRoom, payload);
 
             MessageBox.Show(response, "Server Response", MessageBoxButton.OK, MessageBoxImage.Information);
         }

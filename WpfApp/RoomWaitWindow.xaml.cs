@@ -28,7 +28,7 @@ namespace WpfApp
         {
             string json = JsonSerializer.Serialize(new { roomId = this.roomId });
 
-            string response = ServerCommunicator.SendRequest((byte)Requests.Request_GetRoomState, json);
+            string response = App.Communicator.SendRequest((byte)Requests.Request_GetRoomState, json);
 
             try
             {

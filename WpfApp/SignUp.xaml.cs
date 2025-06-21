@@ -7,7 +7,6 @@ using WpfApp;
 
 namespace WpfApp1
 {
-  
     public partial class SignUp : Window
     {
         public SignUp()
@@ -52,7 +51,7 @@ namespace WpfApp1
                 email = email
             });
 
-            string response = ServerCommunicator.SendRequest((int)Requests.Request_Signup, payload);
+            string response = App.Communicator.SendRequest((int)Requests.Request_Signup, payload);
 
             MessageBox.Show(response);
         }

@@ -33,7 +33,6 @@ void Room::removeUser(LoggedUser user)
     {
         if (pair.first.getUsername() == user.getUsername())
         {
-            closesocket(pair.first.getSocket());
             delete(pair.second);
             m_users.erase(user);
             if (--currentUsers == 0)

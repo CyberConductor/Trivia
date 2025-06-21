@@ -36,7 +36,7 @@ namespace WpfApp
 
         private void LoadRooms()
         {
-            string response = ServerCommunicator.SendRequest((byte)Requests.Request_GetRooms, "{}");
+            string response = App.Communicator.SendRequest((byte)Requests.Request_GetRooms, "{}");
 
             try
             {
@@ -69,7 +69,7 @@ namespace WpfApp
             var payload = new { roomId = selectedRoom.id };
             string json = JsonSerializer.Serialize(payload);
 
-            string response = ServerCommunicator.SendRequest((byte)Requests.Request_GetPlayersInRoom, json);
+            string response = App.Communicator.SendRequest((byte)Requests.Request_GetPlayersInRoom, json);
 
             try
             {

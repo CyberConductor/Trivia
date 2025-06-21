@@ -11,7 +11,6 @@ using std::vector;
 class LoggedUser {
 public:
 	LoggedUser(string, SOCKET);
-	~LoggedUser();
 	string getUsername() const;
 	SOCKET getSocket() const;
 

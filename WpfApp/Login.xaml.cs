@@ -47,7 +47,7 @@ namespace WpfApp
                 {
                     var payload = new { username = username, password = password };
                     string json = JsonSerializer.Serialize(payload);
-                    string response = ServerCommunicator.SendRequest((byte)Requests.Request_Login, json);
+                    string response = App.Communicator.SendRequest((byte)Requests.Request_Login, json);
 
                     
                     //deserialize response

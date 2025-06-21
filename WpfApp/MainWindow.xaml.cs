@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Transactions;
+using System.Windows;
+using TriviaClient.Network;
 using WpfApp;
 using WpfApp1;
 
@@ -18,15 +20,12 @@ namespace SimpleWpfGui
             this.Close();
         }
 
-
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             Login loginWindow = new Login();
             loginWindow.Show();
             this.Close();
         }
-
-
 
         private void CreateRoomButton_Click(object sender, RoutedEventArgs e)
         {
