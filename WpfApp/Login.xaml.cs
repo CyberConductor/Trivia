@@ -75,10 +75,14 @@ namespace WpfApp
 
             if (success)
             {
-                StatusTextBlock.Foreground = System.Windows.Media.Brushes.Green;
+                StatusTextBlock.Foreground = Brushes.Green;
                 StatusTextBlock.Text = "Login successful!";
-                
+
+                Menu menuWindow = new Menu();
+                menuWindow.Show();
+                this.Close();
             }
+
             else
             {
                 StatusTextBlock.Foreground = System.Windows.Media.Brushes.Red;
