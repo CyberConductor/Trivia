@@ -23,6 +23,7 @@ namespace TriviaClient.Network
         {
             try
             {
+                // Prepare request
                 byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
                 byte[] lengthBytes = BitConverter.GetBytes(jsonBytes.Length);
                 if (BitConverter.IsLittleEndian)
@@ -35,15 +36,40 @@ namespace TriviaClient.Network
 
                 stream.Write(message, 0, message.Length);
 
-                byte[] buffer = new byte[4096];
-                int read = stream.Read(buffer, 0, buffer.Length);
-                return Encoding.UTF8.GetString(buffer, 0, read);
+                // Read response code (1 byte)
+                int responseCode = stream.ReadByte();
+                if (responseCode == -1)
+                    return "Error: No response code received";
+
+                // Read length (4 bytes)
+                byte[] lenBuf = new byte[4];
+                int lenRead = stream.Read(lenBuf, 0, 4);
+                if (lenRead < 4)
+                    return "Error: Could not read response length";
+
+                if (BitConverter.IsLittleEndian)
+                    Array.Reverse(lenBuf);
+                int payloadLength = BitConverter.ToInt32(lenBuf, 0);
+
+                // Read payload
+                byte[] payload = new byte[payloadLength];
+                int totalRead = 0;
+                while (totalRead < payloadLength)
+                {
+                    int read = stream.Read(payload, totalRead, payloadLength - totalRead);
+                    if (read == 0)
+                        break; // connection closed
+                    totalRead += read;
+                }
+
+                return Encoding.UTF8.GetString(payload, 0, totalRead);
             }
             catch (Exception ex)
             {
                 return $"Error: {ex.Message}";
             }
         }
+
 
         public void Close()
         {
