@@ -6,24 +6,61 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp"
         mc:Ignorable="d"
-        Title="Menu" Height="450" Width="800">
+        Title="Main Menu"
+        Height="500" Width="800"
+        Background="#FFFAFAFA"
+        WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <!-- Optional: style to avoid repeating properties -->
-        <Style x:Key="MenuButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Width" Value="200"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
+        <Style x:Key="MenuButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="10 5"/>
+            <Setter Property="Margin" Value="0 10 0 0"/>
+            <Setter Property="Width" Value="220"/>
+            <Setter Property="Height" Value="50"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#3F51B5"/>
+            <Setter Property="BorderBrush" Value="#303F9F"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#5C6BC0"/>
+                    <Setter Property="BorderBrush" Value="#3949AB"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
 
-    <Grid>
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <Button Content="Join Room" Click="JoinRoom_Click" Style="{StaticResource MenuButtonStyle}"/>
-            <Button Content="Create Room" Click="CreateRoom_Click" Style="{StaticResource MenuButtonStyle}"/>
-            <Button Content="High Score" Click="HighScore_Click" Style="{StaticResource MenuButtonStyle}"/>
-            <Button Content="Statistics" Click="Statistics_Click" Style="{StaticResource MenuButtonStyle}"/>
-        </StackPanel>
+    <Grid Margin="0,0,0,-127">
+        <Border Background="White" CornerRadius="10" Padding="30" Margin="100" Effect="{DynamicResource materialDesignElevation3}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="Main Menu"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="#3F51B5"
+                           HorizontalAlignment="Center"
+                           Margin="0 0 0 20"/>
+
+                <Button Content="Join Room" Click="JoinRoom_Click" Style="{StaticResource MenuButtonStyle}"/>
+                <Button Content="Create Room" Click="CreateRoom_Click" Style="{StaticResource MenuButtonStyle}"/>
+                <Button Content="High Score" Click="HighScore_Click" Style="{StaticResource MenuButtonStyle}"/>
+                <Button Content="Statistics" Click="Statistics_Click" Style="{StaticResource MenuButtonStyle}"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>
