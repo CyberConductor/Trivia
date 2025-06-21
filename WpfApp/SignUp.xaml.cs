@@ -14,6 +14,13 @@ namespace WpfApp1
             InitializeComponent();
         }
 
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            Login loginWindow = new Login(); // ודא שהמחלקה קיימת בפרויקט שלך
+            loginWindow.Show();
+            this.Close();
+        }
+
         private void RemoveText(object sender, RoutedEventArgs e)
         {
             TextBox tb = sender as TextBox;

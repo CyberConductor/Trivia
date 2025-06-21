@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Text.Json;
 using TriviaClient.Network;
+using WpfApp1;
 
 namespace WpfApp
 {
@@ -26,9 +27,16 @@ namespace WpfApp
             InitializeComponent();
         }
 
+        private void SignUp_Click(object sender, RoutedEventArgs e)
+        {
+            SignUp signupWindow = new SignUp();
+            signupWindow.Show();
+            this.Close();
+        }
+
         private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            string username = UsernameTextBox.Text.Trim();
+            string username = UsernameBox.Text.Trim();
             string password = PasswordBox.Password;
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
