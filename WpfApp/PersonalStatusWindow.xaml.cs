@@ -24,7 +24,7 @@ namespace WpfApp1
 
             byte requestCode = (byte)Requests.Request_GetPersonalStats;
 
-            string response = ServerCommunicator.SendRequest(requestCode, json);
+            string response = App.Communicator.SendRequest(requestCode, json);
 
             PersonalStatsTextBlock.Text = response;
             MessageBox.Show(response, "Server Response");

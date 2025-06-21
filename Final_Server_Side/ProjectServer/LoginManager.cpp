@@ -5,8 +5,6 @@ LoggedUser::LoggedUser(string username, SOCKET sock)
 	m_socket(sock)
 {}
 
-LoggedUser::~LoggedUser() { closesocket(m_socket); }
-
 string LoggedUser::getUsername() const { return m_username; }
 SOCKET LoggedUser::getSocket() const { return m_socket; }
 
@@ -28,16 +26,16 @@ LoginManager::~LoginManager()
 
 bool LoginManager::signup(string username, string password, string email, SOCKET sock)
 {
-	int res = m_database->doesUserExist(username);
-	if (res == SQLITE_OK)
+	if (!m_database->doesUserExist(username))
 	{
-		res = m_database->addNewUser(username, password, email);
-		if (res == SQLITE_OK)
+		if (m_database->addNewUser(username, password, email) == SQLITE_OK)
 		{
+			std::cout << "new client added\n";
 			m_loggedUsers.push_back(LoggedUser(username, sock));
 			return true;
 		}
 	}
+	std::cout << "existing user already existing\n";
 	return false;
 }
 

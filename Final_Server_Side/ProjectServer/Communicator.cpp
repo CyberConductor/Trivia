@@ -70,41 +70,51 @@ void Communicator::handleNewClient()
     // create a thread for the new client
     std::thread clientThread([this, clientSocket]()
     {
+        bool handlerAddedToMap = false;
+        IRequestHandler* handler = nullptr;
+
         try
         {
-            //craete new login handler
-            LoginRequestHandler* handler = (LoginRequestHandler*)m_handlerFactory.createLoginRequestHandler(clientSocket);
-            // get the client's request
+            handler = m_handlerFactory.createLoginRequestHandler(clientSocket);
             RequestInfo requestInfo = Helper::getRequestInfo(clientSocket);
-            // process the request
             RequestResult result = handler->handleRequest(requestInfo);
-            //deserialize the response
-            Buffer buffer = result.response;
+
+            auto buffer = result.response;
             int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
-            string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
+            std::string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
             json j = json::parse(jsonStr);
             LoginResponse loginResponse;
             loginResponse.status = j["status"];
             //check the client status
             if (loginResponse.status)
+
             {
+                Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                {
+                    m_clients[clientSocket] = result.newHandler;
+                    handlerAddedToMap = true;
+                }
+
                 delete handler;
-                m_clients[clientSocket] = result.newHandler;
-
-                Helper::sendData(clientSocket, std::string(result.response.begin(), result.response.end()));
-
                 std::thread([this, clientSocket]() {
                     handleClient(clientSocket);
                     }).detach();
             }
             else
-                // send back fail response
-                Helper::sendData(clientSocket, string(result.response.begin(), result.response.end()));
+            {
+                Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+            }
         }
-        catch (const exception& ex)
+        catch (const std::exception& ex)
         {
-            Buffer errorBuffer = JsonResponsePacketSerializer::serializeErrorResponse({ ex.what() });
-            Helper::sendData(clientSocket, string(errorBuffer.begin(), errorBuffer.end()));
+            std::cerr << "Client " << clientSocket << " error: " << ex.what() << std::endl;
+
+            if (handlerAddedToMap)
+            {
+                delete m_clients[clientSocket];
+                m_clients.erase(clientSocket);
+            }
+            closesocket(clientSocket);
         }
     });
     clientThread.detach();// don't wait for the thread
@@ -130,18 +140,21 @@ void Communicator::handleClient(SOCKET sock)
                 // check if the new handler is RoomAdminRequestHandler
                 if (auto adminHandler = dynamic_cast<RoomAdminRequestHandler*>(handler))
                 {
-                    for (auto& userPair : adminHandler->m_room.m_users)
+                    if (dynamic_cast<GameRequestHandler*>(result.newHandler))
                     {
-                        const LoggedUser& user = userPair.first;
-                        IRequestHandler*& userHandler = userPair.second;
+                        for (auto& userPair : adminHandler->m_room.m_users)
+                        {
+                            const LoggedUser& user = userPair.first;
+                            IRequestHandler*& userHandler = userPair.second;
 
-                        // convert all the room members to game request handlers
-                        if (adminHandler != userHandler)
-                            if (auto memberHandler = dynamic_cast<RoomMember*>(userHandler))
-                                userPair.second = (IRequestHandler*)m_handlerFactory.createGameRequestHandler(user, adminHandler->m_room, memberHandler);
+                            // convert all the room members to game request handlers
+                            if (adminHandler != userHandler)
+                                if (auto memberHandler = dynamic_cast<RoomMember*>(userHandler))
+                                    userPair.second = (IRequestHandler*)m_handlerFactory.createGameRequestHandler(user, adminHandler->m_room, memberHandler);
+                        }
+                        handler = result.newHandler;
+                        m_clients[sock] = handler;
                     }
-                    handler = result.newHandler;
-                    m_clients[sock] = handler;
                 }
                 if (auto gameHandler = dynamic_cast<GameRequestHandler*>(handler))
                 {

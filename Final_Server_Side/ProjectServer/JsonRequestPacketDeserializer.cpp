@@ -1,13 +1,10 @@
 #include "JsonRequestPacketDeserializer.h"
 #include <stdexcept>
+#include <iostream>
 
 LoginRequest JsonRequestPacketDeserializer::deserializeLoginRequest(const Buffer& buffer)
 {
-	CheckErrors(Request_Login, buffer);
-	int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
-
-	string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
-	json j = json::parse(jsonStr);
+	json j = json::parse(string(buffer.begin(), buffer.end()));
 
 	LoginRequest req;
 	req.username = j["username"];
@@ -17,11 +14,7 @@ LoginRequest JsonRequestPacketDeserializer::deserializeLoginRequest(const Buffer
 
 SignupRequest JsonRequestPacketDeserializer::deserializeSignupRequest(const Buffer& buffer)
 {
-	CheckErrors(Request_Signup, buffer);
-	int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
-
-	string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
-	json j = json::parse(jsonStr);
+	json j = json::parse(string(buffer.begin(), buffer.end()));
 
 	SignupRequest req;
 	req.username = j["username"];
@@ -32,11 +25,7 @@ SignupRequest JsonRequestPacketDeserializer::deserializeSignupRequest(const Buff
 
 GetPlayersInRoomRequest JsonRequestPacketDeserializer::deserializeGetPlayersInRoomRequest(const Buffer& buffer)
 {
-	CheckErrors(Request_GetPlayersInRoom, buffer);
-	int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
-	
-	string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
-	json j = json::parse(jsonStr);
+	json j = json::parse(string(buffer.begin(), buffer.end()));
 
 	GetPlayersInRoomRequest req;
 	req.roomId = j["roomId"];
@@ -45,11 +34,7 @@ GetPlayersInRoomRequest JsonRequestPacketDeserializer::deserializeGetPlayersInRo
 
 JoinRoomRequest JsonRequestPacketDeserializer::deserializeJoinRoomRequest(const Buffer& buffer)
 {
-	CheckErrors(Request_JoinRoom, buffer);
-	int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
-
-	string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
-	json j = json::parse(jsonStr);
+	json j = json::parse(string(buffer.begin(), buffer.end()));
 
 	JoinRoomRequest req;
 	req.roomId = j["roomId"];
@@ -58,11 +43,7 @@ JoinRoomRequest JsonRequestPacketDeserializer::deserializeJoinRoomRequest(const 
 
 CreateRoomRequest JsonRequestPacketDeserializer::deserializeCreateRoomRequest(const Buffer& buffer)
 {
-	CheckErrors(Request_CreateRoom, buffer);
-	int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
-
-	string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
-	json j = json::parse(jsonStr);
+	json j = json::parse(string(buffer.begin(), buffer.end()));
 
 	CreateRoomRequest req;
 	req.roomName = j["roomName"];
@@ -74,25 +55,9 @@ CreateRoomRequest JsonRequestPacketDeserializer::deserializeCreateRoomRequest(co
 
 SubmitAnswerRequest JsonRequestPacketDeserializer::deserializeSubmitAnswerRequest(const Buffer& buffer)
 {
-	CheckErrors(Request_SubmitAnswer, buffer);
-	int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
-
-	string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
-	json j = json::parse(jsonStr);
+	json j = json::parse(string(buffer.begin(), buffer.end()));
 
 	SubmitAnswerRequest req;
 	req.answerId = j["answerId"];
 	return req;
 }
-
-void JsonRequestPacketDeserializer::CheckErrors(unsigned char code, const Buffer& buffer)
-{
-	int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
-	if (buffer.size() < 5 + jsonSize)
-		throw std::invalid_argument("Json size mismatch");
-
-	// Check if the message code matches
-	if (buffer[0] != code)
-		throw std::invalid_argument("Message code mismatch");
-}
-

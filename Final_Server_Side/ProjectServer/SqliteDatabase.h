@@ -9,8 +9,8 @@ public:
 
     bool open() override;
     bool close() override;
-    int doesUserExist(string) override;
-    int doesPasswordMatch(string, string) override;
+    bool doesUserExist(string) override;
+    bool doesPasswordMatch(string, string) override;
     int addNewUser(string, string, string) override;
 
     virtual vector<Question> getQuestion(int);
