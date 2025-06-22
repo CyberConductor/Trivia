@@ -64,7 +64,7 @@ RequestResult MenuRequestHandler::signout(RequestInfo requestInfo)
 RequestResult MenuRequestHandler::getRooms(RequestInfo requestInfo)
 {
     vector<RoomData> rooms = m_handlerFactory.getRoomManager().getRooms();
-
+    
     RequestResult result;
     result.response = JsonResponsePacketSerializer::serializeGetRoomsResponse({ 1, rooms });
     result.newHandler = this;

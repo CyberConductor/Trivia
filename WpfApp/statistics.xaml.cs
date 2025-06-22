@@ -10,6 +10,10 @@ namespace WpfApp
             InitializeComponent();
         }
 
+        private void HighScoresButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
 
         private void PersonalStatsButton_Click(object sender, RoutedEventArgs e)
         {

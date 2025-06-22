@@ -42,7 +42,9 @@ namespace WpfApp
 
         private void LoadRooms()
         {
-            string response = App.Communicator.SendRequest((byte)Requests.Request_GetRooms, "{}");
+            string response = App.Communicator.SendRequest((byte)Requests.Request_GetRooms,"");
+
+            MessageBox.Show(response, "GetRooms Response");
 
             try
             {
@@ -51,16 +53,20 @@ namespace WpfApp
                 if (root != null && root.ContainsKey("rooms"))
                 {
                     var rooms = root["rooms"].Deserialize<List<RoomData>>();
-                    RoomsListBox.ItemsSource = rooms;
+
+                    if (rooms != null && rooms.Count > 0)
+                        RoomsListBox.ItemsSource = rooms;
+                    else
+                        MessageBox.Show("Server returned empty rooms list.");
                 }
                 else
                 {
-                    RoomsListBox.ItemsSource = null;
+                    MessageBox.Show("JSON does not contain a 'rooms' array.");
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Error loading room list.\nRaw response:\n" + response);
+                MessageBox.Show($"Error loading room list:\n{ex.Message}\nRaw response:\n{response}");
             }
         }
 
@@ -76,6 +82,7 @@ namespace WpfApp
             string json = JsonSerializer.Serialize(payload);
 
             string response = App.Communicator.SendRequest((byte)Requests.Request_GetPlayersInRoom, json);
+          
 
             try
             {
@@ -87,9 +94,9 @@ namespace WpfApp
                 MessageBox.Show($"Players in Room '{selectedRoom.roomName}':\n" +
                                 $"{string.Join("\n", players)}\n\nAdmin: {admin}");
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Error parsing players list.\nRaw response:\n" + response);
+                MessageBox.Show("Error loading room list:\n" + ex.Message + "\n\nRaw response:\n" + response);
             }
         }
 
