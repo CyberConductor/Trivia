@@ -9,7 +9,7 @@ MenuRequestHandler::MenuRequestHandler(RequestHandlerFactory& factory, LoggedUse
 
 bool MenuRequestHandler::isRequestRelevant(RequestInfo req)
 {
-    return (req.id >= Request_Signout && req.id <= Request_CreateRoom);
+    return (req.id >= Request_Signout && req.id <= Request_GetPersonalStats);
 }
 
 RequestResult MenuRequestHandler::handleRequest(RequestInfo req)
