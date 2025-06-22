@@ -77,9 +77,8 @@ void Communicator::handleNewClient()
         }
         catch (const std::exception& ex)
         {
-            ErrorResponse errorResponse = { ex.what() };
-            Buffer errorBuffer = JsonResponsePacketSerializer::serializeResponse(errorResponse);
-            Helper::sendData(clientSocket, string(errorBuffer.begin(), errorBuffer.end()));
+            std::cerr << "Client " << clientSocket << " error: " << ex.what() << std::endl;
+            closesocket(clientSocket);
         }
     });
     clientThread.detach();// don't wait for the thread
