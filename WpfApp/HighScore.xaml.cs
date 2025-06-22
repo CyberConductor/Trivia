@@ -18,7 +18,7 @@ namespace WpfApp1
         {
             try
             {
-                // Simulating a request to the server
+                
                 string responseJson = App.Communicator.SendRequest((byte)Requests.Request_GetHighScore, "{}");
 
                 using JsonDocument doc = JsonDocument.Parse(responseJson);

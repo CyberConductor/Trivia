@@ -47,7 +47,12 @@
     </Window.Resources>
 
     <Grid Margin="0,0,0,-127">
-        <Border Background="White" CornerRadius="10" Padding="30" Margin="100" Effect="{DynamicResource materialDesignElevation3}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="27*"/>
+            <ColumnDefinition Width="9*"/>
+            <ColumnDefinition Width="764*"/>
+        </Grid.ColumnDefinitions>
+        <Border Background="White" CornerRadius="10" Padding="30" Margin="80,100,100,151" Effect="{DynamicResource materialDesignElevation3}" Grid.Column="2">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="Main Menu"
                            FontSize="28"
