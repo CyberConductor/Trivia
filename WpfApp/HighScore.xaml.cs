@@ -13,12 +13,17 @@ namespace WpfApp1
             InitializeComponent();
             LoadHighScores();
         }
+        public class HighScoreEntry
+        {
+            public string Username { get; set; }
+            public int Score { get; set; }
+        }
+
 
         private void LoadHighScores()
         {
             try
             {
-                
                 string responseJson = App.Communicator.SendRequest((byte)Requests.Request_GetHighScore, "{}");
 
                 using JsonDocument doc = JsonDocument.Parse(responseJson);
@@ -26,11 +31,17 @@ namespace WpfApp1
 
                 if (root.TryGetProperty("status", out JsonElement statusElem) && statusElem.GetInt32() == 1)
                 {
-                    if (root.TryGetProperty("statistics", out JsonElement scoresElem) && scoresElem.ValueKind == JsonValueKind.Array)
+                    if (root.TryGetProperty("statistics", out JsonElement scoresElem) && scoresElem.ValueKind == JsonValueKind.Object)
                     {
-                        foreach (JsonElement playerElem in scoresElem.EnumerateArray())
+                        ScoresListView.Items.Clear();
+
+                        foreach (JsonProperty scoreEntry in scoresElem.EnumerateObject())
                         {
-                            ScoresListBox.Items.Add(playerElem.GetString());
+                            ScoresListView.Items.Add(new HighScoreEntry
+                            {
+                                Username = scoreEntry.Name,
+                                Score = scoreEntry.Value.GetInt32()
+                            });
                         }
                     }
                     else
@@ -48,6 +59,8 @@ namespace WpfApp1
                 MessageBox.Show("Error loading high scores:\n" + ex.Message, "Exception", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
