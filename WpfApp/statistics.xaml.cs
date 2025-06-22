@@ -13,13 +13,16 @@ namespace WpfApp
 
         private void PersonalStatsButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Personal statistics window would open here.");
+            
            
         }
 
-        private void HighScoresButton_Click(object sender, RoutedEventArgs e)
+        
+        private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("High scores table would open here.");
+            Menu menu = new Menu();
+            menu.Show();
+            this.Close();
         }
     }
 }

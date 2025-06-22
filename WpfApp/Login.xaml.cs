@@ -56,12 +56,14 @@ namespace WpfApp
                     var payload = new { username = username, password = password };
                     string json = JsonSerializer.Serialize(payload);
                     string response = App.Communicator.SendRequest((byte)Requests.Request_Login, json);
+                    MessageBox.Show(response);
 
                     
                     //deserialize response
                     var respObj = JsonSerializer.Deserialize<JsonElement>(response);
 
                     if (respObj.TryGetProperty("status", out JsonElement statusElement) && statusElement.GetInt32() == 1)
+                        
                         return true;
 
                     return false;

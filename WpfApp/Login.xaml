@@ -4,6 +4,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="Login" Height="450" Width="800" Background="#f2f2f2" WindowStartupLocation="CenterScreen">
     <Grid Margin="20">
+        
         <!-- טופס הרשמה -->
         <Border Background="White" CornerRadius="10" Padding="30" Width="350" HorizontalAlignment="Center" VerticalAlignment="Center" >
             <StackPanel>

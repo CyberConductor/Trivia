@@ -1,24 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using System.Windows.Threading;
 using TriviaClient.Network;
 
 namespace WpfApp
 {
-    /// <summary>
-    /// Interaction logic for JoinRoom.xaml
-    /// </summary>
     public partial class JoinRoom : Window
     {
         private class RoomData
@@ -28,10 +16,28 @@ namespace WpfApp
             public int maxPlayers { get; set; }
             public int numOfQuestionsInGame { get; set; }
             public int timePerQuestion { get; set; }
+
+            public override string ToString()
+            {
+                return $"{roomName} (ID: {id}) - {maxPlayers} Players, {numOfQuestionsInGame} Qs, {timePerQuestion}s";
+            }
         }
+
+        private DispatcherTimer _refreshTimer;
+
         public JoinRoom()
         {
             InitializeComponent();
+
+            _refreshTimer = new DispatcherTimer();
+            _refreshTimer.Interval = TimeSpan.FromSeconds(3);
+            _refreshTimer.Tick += RefreshTimer_Tick;
+            _refreshTimer.Start();
+        }
+
+        private void RefreshTimer_Tick(object sender, EventArgs e)
+        {
+            LoadRooms();
         }
 
         private void LoadRooms()
@@ -49,7 +55,7 @@ namespace WpfApp
                 }
                 else
                 {
-                    MessageBox.Show("No rooms found.");
+                    RoomsListBox.ItemsSource = null;
                 }
             }
             catch
@@ -86,5 +92,11 @@ namespace WpfApp
                 MessageBox.Show("Error parsing players list.\nRaw response:\n" + response);
             }
         }
-    }   
+
+        protected override void OnClosed(EventArgs e)
+        {
+            _refreshTimer.Stop();
+            base.OnClosed(e);
+        }
+    }
 }

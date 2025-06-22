@@ -45,5 +45,11 @@ namespace WpfApp1
 
             MessageBox.Show(response, "Server Response", MessageBoxButton.OK, MessageBoxImage.Information);
         }
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            Menu menuWindow = new Menu();
+            menuWindow.Show();
+            this.Close();
+        }
     }
 }
