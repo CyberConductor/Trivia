@@ -9,17 +9,18 @@ namespace WpfApp
 {
     public partial class JoinRoom : Window
     {
+        // Updated RoomData class
         private class RoomData
         {
             public int id { get; set; }
-            public string roomName { get; set; }
+            public string name { get; set; }  // Changed from roomName to name
             public int maxPlayers { get; set; }
             public int numOfQuestionsInGame { get; set; }
             public int timePerQuestion { get; set; }
 
             public override string ToString()
             {
-                return $"{roomName} (ID: {id}) - {maxPlayers} Players, {numOfQuestionsInGame} Qs, {timePerQuestion}s";
+                return $"{name} (ID: {id}) - {maxPlayers} Players, {numOfQuestionsInGame} Qs, {timePerQuestion}s";
             }
         }
 
@@ -42,7 +43,7 @@ namespace WpfApp
 
         private void LoadRooms()
         {
-            string response = App.Communicator.SendRequest((byte)Requests.Request_GetRooms,"");
+            string response = App.Communicator.SendRequest((byte)Requests.Request_GetRooms, "");
 
             MessageBox.Show(response, "GetRooms Response");
 
@@ -55,9 +56,14 @@ namespace WpfApp
                     var rooms = root["rooms"].Deserialize<List<RoomData>>();
 
                     if (rooms != null && rooms.Count > 0)
+                    {
                         RoomsListBox.ItemsSource = rooms;
+                        RoomsListBox.Items.Refresh();  // Refresh the ListBox
+                    }
                     else
+                    {
                         MessageBox.Show("Server returned empty rooms list.");
+                    }
                 }
                 else
                 {
@@ -82,7 +88,6 @@ namespace WpfApp
             string json = JsonSerializer.Serialize(payload);
 
             string response = App.Communicator.SendRequest((byte)Requests.Request_GetPlayersInRoom, json);
-          
 
             try
             {
@@ -91,7 +96,8 @@ namespace WpfApp
 
                 string admin = players.Count > 0 ? players[0] : "Unknown";
 
-                MessageBox.Show($"Players in Room '{selectedRoom.roomName}':\n" +
+                // Change from 'selectedRoom.roomName' to 'selectedRoom.name'
+                MessageBox.Show($"Players in Room '{selectedRoom.name}':\n" +
                                 $"{string.Join("\n", players)}\n\nAdmin: {admin}");
             }
             catch (Exception ex)
