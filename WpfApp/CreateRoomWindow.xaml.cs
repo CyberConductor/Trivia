@@ -36,7 +36,7 @@ namespace WpfApp1
             {
                 roomName = roomName,
                 answerTimeOut = questionTime,
-                questionCount = 5, //
+                questionCount = 5, 
                 maxUsers = playersCount
             });
 
@@ -45,11 +45,14 @@ namespace WpfApp1
 
             MessageBox.Show(response, "Server Response", MessageBoxButton.OK, MessageBoxImage.Information);
         }
-        private void BackButton_Click(object sender, RoutedEventArgs e)
+        private void BackArrowButton_Click(object sender, RoutedEventArgs e)
         {
+            this.Close();
+
             Menu menuWindow = new Menu();
             menuWindow.Show();
-            this.Close();
         }
+
     }
 }
+

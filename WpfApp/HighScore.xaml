@@ -13,6 +13,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <!-- TextBlock with Title -->
         <TextBlock Text="🏆 High Scores"
                    FontSize="32"
                    FontWeight="Bold"
@@ -20,6 +21,29 @@
                    HorizontalAlignment="Center"
                    Margin="0,0,0,20"/>
 
+        <!-- Arrow Back Button -->
+        <Button Grid.Row="0"
+                Width="50"
+                Height="50"
+                Background="Transparent"
+                BorderBrush="Transparent"
+                Click="BackButton_Click"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="0,0,0,20">
+            <!-- Left Arrow Icon -->
+            <Button.Content>
+                <Path Data="M15,0 L0,15 L15,30 Z" 
+                      Fill="#3498db" 
+                      HorizontalAlignment="Center" 
+                      VerticalAlignment="Center" 
+                      Stroke="Transparent" 
+                      StrokeThickness="2" 
+                      RenderTransformOrigin="0.5,0.5" />
+            </Button.Content>
+        </Button>
+
+        <!-- ListView for Scores -->
         <ListView x:Name="ScoresListView"
                   Grid.Row="1"
                   AlternationCount="2"
@@ -55,6 +79,7 @@
             </ListView.View>
         </ListView>
 
+        <!-- Close Button -->
         <Button Content="Close"
                 Grid.Row="2"
                 Width="100"
