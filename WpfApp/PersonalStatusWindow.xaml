@@ -5,13 +5,37 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="PersonalStatusWindow" Height="450" Width="800"
+        Title="Personal Statistics" Height="400" Width="400"
         Loaded="Window_Loaded">
-    <Grid>
-        <TextBlock x:Name="PersonalStatsTextBlock" 
-                   Text="Loading..." 
-                   VerticalAlignment="Top"
-                   Margin="10"
-                   FontSize="16"/>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Labels -->
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Username:" FontWeight="Bold" Margin="5"/>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Average Answer Time:" FontWeight="Bold" Margin="5"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Total Answers:" FontWeight="Bold" Margin="5"/>
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Correct Answers:" FontWeight="Bold" Margin="5"/>
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Games Played:" FontWeight="Bold" Margin="5"/>
+        <TextBlock Grid.Row="5" Grid.Column="0" Text="Total Score:" FontWeight="Bold" Margin="5"/>
+
+        <!-- Dynamic Values -->
+        <TextBlock Grid.Row="0" Grid.Column="1" x:Name="UsernameText" Margin="5"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" x:Name="AvgAnswerTimeText" Margin="5"/>
+        <TextBlock Grid.Row="2" Grid.Column="1" x:Name="TotalAnswersText" Margin="5"/>
+        <TextBlock Grid.Row="3" Grid.Column="1" x:Name="CorrectAnswersText" Margin="5"/>
+        <TextBlock Grid.Row="4" Grid.Column="1" x:Name="GamesPlayedText" Margin="5"/>
+        <TextBlock Grid.Row="5" Grid.Column="1" x:Name="TotalScoreText" Margin="5"/>
     </Grid>
 </Window>
