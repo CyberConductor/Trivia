@@ -16,7 +16,7 @@ namespace WpfApp1
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            Login loginWindow = new Login(); // ודא שהמחלקה קיימת בפרויקט שלך
+            Login loginWindow = new Login(); 
             loginWindow.Show();
             this.Close();
         }

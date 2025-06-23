@@ -63,7 +63,7 @@
 
                 <Button Content="Join Room" Click="JoinRoom_Click" Style="{StaticResource MenuButtonStyle}"/>
                 <Button Content="Create Room" Click="CreateRoom_Click" Style="{StaticResource MenuButtonStyle}"/>
-                <Button Content="High Score" Click="HighScore_Click" Style="{StaticResource MenuButtonStyle}"/>
+                <!--//<Button Content="High Score" Click="HighScore_Click" Style="{StaticResource MenuButtonStyle}"/>-->
                 <Button Content="Statistics" Click="Statistics_Click" Style="{StaticResource MenuButtonStyle}"/>
             </StackPanel>
         </Border>

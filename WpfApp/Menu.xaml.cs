@@ -25,20 +25,21 @@ namespace WpfApp
             this.Close();
         }
 
-        private void HighScore_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("High Score clicked");
-            HighScore highscore = new HighScore();
-            highscore.Show();
-            this.Close();
-        }
+        //private void HighScore_Click(object sender, RoutedEventArgs e)
+        //{
+        //    //MessageBox.Show("High Score clicked");
+        //    //HighScore highscore = new HighScore();
+        //    //highscore.Show();
+        //    //this.Close();
+        //}
 
         private void Statistics_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Statistics clicked");
-            PersonalStatusWindow personalstatus = new PersonalStatusWindow();
-            personalstatus.Show();
+            Statistics statistics = new Statistics();
+            statistics.Show();
             this.Close();
+
+                
         }
     }
 }
