@@ -84,26 +84,12 @@ namespace WpfApp
                 return;
             }
 
-            var payload = new { roomId = selectedRoom.id };
-            string json = JsonSerializer.Serialize(payload);
+            // Open RoomWaitWindow and pass the roomId
+            var waitWindow = new RoomWaitWindow(selectedRoom.id);
+            waitWindow.Show();
 
-            string response = App.Communicator.SendRequest((byte)Requests.Request_GetPlayersInRoom, json);
-
-            try
-            {
-                var data = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(response);
-                var players = data["players"].Deserialize<List<string>>();
-
-                string admin = players.Count > 0 ? players[0] : "Unknown";
-
-                // Change from 'selectedRoom.roomName' to 'selectedRoom.name'
-                MessageBox.Show($"Players in Room '{selectedRoom.name}':\n" +
-                                $"{string.Join("\n", players)}\n\nAdmin: {admin}");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error loading room list:\n" + ex.Message + "\n\nRaw response:\n" + response);
-            }
+            // Close JoinRoom window
+            this.Close();
         }
 
         protected override void OnClosed(EventArgs e)
