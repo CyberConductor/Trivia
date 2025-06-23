@@ -76,33 +76,40 @@ void Communicator::handleNewClient()
         try
         {
             handler = m_handlerFactory.createLoginRequestHandler(clientSocket);
-            RequestInfo requestInfo = Helper::getRequestInfo(clientSocket);
-            RequestResult result = handler->handleRequest(requestInfo);
 
-            auto buffer = result.response;
-            int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
-            std::string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
-            json j = json::parse(jsonStr);
-            LoginResponse loginResponse;
-            loginResponse.status = j["status"];
-            //check the client status
-            if (loginResponse.status)
-
+            while(true)
             {
-                Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                RequestInfo requestInfo = Helper::getRequestInfo(clientSocket);
+                RequestResult result = handler->handleRequest(requestInfo);
+
+                auto buffer = result.response;
+                int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
+                std::string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
+                json j = json::parse(jsonStr);
+                LoginResponse loginResponse;
+                loginResponse.status = j["status"];
+                //check the client status
+                if (loginResponse.status)
+
                 {
-                    m_clients[clientSocket] = result.newHandler;
-                    handlerAddedToMap = true;
-                }
+                    Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                    {
+                        m_clients[clientSocket] = result.newHandler;
+                        handlerAddedToMap = true;
+                    }
 
-                delete handler;
-                std::thread([this, clientSocket]() {
-                    handleClient(clientSocket);
-                    }).detach();
-            }
-            else
-            {
-                Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                    delete handler;
+                    std::thread([this, clientSocket]() {
+                        handleClient(clientSocket);
+                        }).detach();
+                        
+                    //break the current thread    
+                    break;    
+                }
+                else
+                {
+                    Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                }
             }
         }
         catch (const std::exception& ex)
