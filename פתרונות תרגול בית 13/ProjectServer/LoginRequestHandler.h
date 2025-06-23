@@ -1,20 +1,20 @@
 #pragma once
-
-#include <string>
-#include "IRequestHandler.h"
 #include "RequestHandlerFactory.h"
-
+#include "JsonResponsePacketSerializer.h"
+#include "JsonRequestPacketDeserializer.h"
 
 class LoginRequestHandler : public IRequestHandler
 {
 public:
-	LoginRequestHandler(RequestHandlerFactory& factory); 
-
+	LoginRequestHandler(RequestHandlerFactory&);
 	//virtual functions
 	virtual bool isRequestRelevant(RequestInfo) override;
 	virtual RequestResult handleRequest(RequestInfo) override;
-	RequestResult login(RequestInfo requestInfo);
-	RequestResult signup(RequestInfo requestInfo);
 private:
+	//Methods
+	RequestResult login(RequestInfo);
+	RequestResult signup(RequestInfo);
+	//fields
 	RequestHandlerFactory& m_handlerFactory;
+	LoginManager& m_loginManager;
 };

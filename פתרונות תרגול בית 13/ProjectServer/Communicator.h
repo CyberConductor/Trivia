@@ -24,11 +24,9 @@ public:
 	void handleNewClient();
 
 private:
-	//TODO: create handler factory
+	void handleClient(SOCKET);
 
-	// Map for all the Login Requests
-	// SOCKET: client socket
-	// LoginRequestHandler: client login request
+	
 	map<SOCKET, IRequestHandler*> m_clients;
 	SOCKET m_serverSocket;
 };

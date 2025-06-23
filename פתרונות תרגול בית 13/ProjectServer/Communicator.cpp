@@ -1,8 +1,29 @@
 #include "Communicator.h"
 
-// copied from Server.cpp
 static const unsigned short PORT = 8826;
 static const unsigned int IFACE = 0;
+
+Communicator::Communicator(RequestHandlerFactory& factory) 
+    : m_handlerFactory(factory)
+{
+    m_serverSocket = INVALID_SOCKET;
+}
+
+Communicator::~Communicator()
+{
+    // close the main server socket
+    closesocket(m_serverSocket);
+
+    // clean up all allocated request handlers
+    for (auto& pair : m_clients)
+    {
+        delete pair.second; // free IRequestHandler*
+        closesocket(pair.first); // close client socket
+    }
+
+    // clear the map
+    m_clients.clear();
+}
 
 // listen to connecting requests from clients
 // accept them, and create thread for each client
@@ -10,7 +31,7 @@ void Communicator::bindAndListen()
 {
     m_serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (m_serverSocket == INVALID_SOCKET)
-        throw std::exception(__FUNCTION__ " - socket");
+        throw exception(__FUNCTION__ " - socket");
 
     struct sockaddr_in sa = { 0 };
     sa.sin_port = htons(PORT);
@@ -18,14 +39,13 @@ void Communicator::bindAndListen()
     sa.sin_addr.s_addr = IFACE; // 0 = INADDR_ANY
 
     if (::bind(m_serverSocket, (struct sockaddr*)&sa, sizeof(sa)) == SOCKET_ERROR)
-        throw std::exception(__FUNCTION__ " - bind");
+        throw exception(__FUNCTION__ " - bind");
     TRACE("binded");
 
     if (::listen(m_serverSocket, SOMAXCONN) == SOCKET_ERROR)
-        throw std::exception(__FUNCTION__ " - listen");
+        throw exception(__FUNCTION__ " - listen");
     TRACE("listening...");
 }
-
 
 void Communicator::startHandleRequests()
 {
@@ -38,48 +58,95 @@ void Communicator::startHandleRequests()
     }
 }
 
-
 void Communicator::handleNewClient()
 {
-
-    SOCKET clientSocket = ::accept(m_serverSocket, NULL, NULL);
+    SOCKET clientSocket = accept(m_serverSocket, NULL, NULL);
     if (clientSocket == INVALID_SOCKET)
     {
-        throw std::exception(__FUNCTION__ " - accept");
+        throw exception(__FUNCTION__ " - accept");
     }
     TRACE("new client accepted");
 
     // create a thread for the new client
     std::thread clientThread([this, clientSocket]()
     {
+        bool handlerAddedToMap = false;
+        IRequestHandler* handler = nullptr;
+
         try
         {
-            // get the client's request
+            handler = m_handlerFactory.createLoginRequestHandler(clientSocket);
             RequestInfo requestInfo = Helper::getRequestInfo(clientSocket);
+            RequestResult result = handler->handleRequest(requestInfo);
 
-            // create the first handler - login/signup stage
-            LoginRequestHandler handler;
-
-            // check if the request is relevant
-            if (!handler.isRequestRelevant(requestInfo))
+            auto buffer = result.response;
+            int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
+            std::string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
+            json j = json::parse(jsonStr);
+            LoginResponse loginResponse;
+            loginResponse.status = j["status"];
+            
+            //check the client status
+            if (loginResponse.status)
             {
-                ErrorResponse errorResponse = { "Unrecognized request type" };
-                Buffer errorBuffer = JsonResponsePacketSerializer::serializeResponse(errorResponse);
-                Helper::sendData(clientSocket, string(errorBuffer.begin(), errorBuffer.end()));
-                return;
+                Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                {
+                    m_clients[clientSocket] = result.newHandler;
+                    handlerAddedToMap = true;
+                }
+
+                delete handler;
+                std::thread([this, clientSocket]() {
+                    handleClient(clientSocket);
+                    }).detach();
             }
-
-            // process the request
-            RequestResult result = handler.handleRequest(requestInfo);
-
-            // send back the response
-            Helper::sendData(clientSocket, string(result.response.begin(), result.response.end()));
+            else
+            {
+                Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+            }
         }
         catch (const std::exception& ex)
         {
             std::cerr << "Client " << clientSocket << " error: " << ex.what() << std::endl;
+
+            if (handlerAddedToMap)
+            {
+                delete m_clients[clientSocket];
+                m_clients.erase(clientSocket);
+            }
             closesocket(clientSocket);
         }
     });
     clientThread.detach();// don't wait for the thread
+}
+
+void Communicator::handleClient(SOCKET sock)
+{
+    IRequestHandler* handler = m_clients[sock];
+
+    try
+    {
+        while (true)
+        {
+            RequestInfo request = Helper::getRequestInfo(sock);
+            RequestResult result = handler->handleRequest(request);
+            Helper::sendData(sock, string(result.response.begin(), result.response.end()));
+            
+            // if the handler changed, replace and delete the old one
+            if (result.newHandler != handler)
+            {
+                delete handler;
+                handler = result.newHandler;
+                m_clients[sock] = handler;
+            }
+        }
+    }
+    catch (const exception& e)
+    {
+        std::cerr << "Client disconnected or error: " << e.what() << std::endl;
+
+        delete handler;
+        closesocket(sock);
+        m_clients.erase(sock);
+    }
 }
