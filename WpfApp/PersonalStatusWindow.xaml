@@ -9,33 +9,51 @@
         Loaded="Window_Loaded">
 
     <Grid Margin="20">
+        <!-- Grid structure -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <!-- Row 0: Back button -->
             <RowDefinition Height="Auto"/>
+            <!-- Row 1: Username -->
             <RowDefinition Height="Auto"/>
+            <!-- Row 2: Average Answer Time -->
             <RowDefinition Height="Auto"/>
+            <!-- Row 3: Total Answers -->
             <RowDefinition Height="Auto"/>
+            <!-- Row 4: Correct Answers -->
             <RowDefinition Height="Auto"/>
+            <!-- Row 5: Games Played -->
+            <RowDefinition Height="Auto"/>
+            <!-- Row 6: Total Score -->
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <!-- Back Arrow Button (top-left corner) -->
+        <Button Grid.Row="0" Grid.Column="0" Content="←"
+                Click="BackButton_Click"
+                FontSize="20" FontWeight="Bold"
+                Width="40" Height="40"
+                HorizontalAlignment="Left" VerticalAlignment="Top"
+                Background="Transparent" BorderThickness="0"
+                ToolTip="Go Back"/>
+
         <!-- Labels -->
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Username:" FontWeight="Bold" Margin="5"/>
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="Average Answer Time:" FontWeight="Bold" Margin="5"/>
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="Total Answers:" FontWeight="Bold" Margin="5"/>
-        <TextBlock Grid.Row="3" Grid.Column="0" Text="Correct Answers:" FontWeight="Bold" Margin="5"/>
-        <TextBlock Grid.Row="4" Grid.Column="0" Text="Games Played:" FontWeight="Bold" Margin="5"/>
-        <TextBlock Grid.Row="5" Grid.Column="0" Text="Total Score:" FontWeight="Bold" Margin="5"/>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Username:" FontWeight="Bold" Margin="5"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Average Answer Time:" FontWeight="Bold" Margin="5"/>
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Total Answers:" FontWeight="Bold" Margin="5"/>
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Correct Answers:" FontWeight="Bold" Margin="5"/>
+        <TextBlock Grid.Row="5" Grid.Column="0" Text="Games Played:" FontWeight="Bold" Margin="5"/>
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="Total Score:" FontWeight="Bold" Margin="5"/>
 
         <!-- Dynamic Values -->
-        <TextBlock Grid.Row="0" Grid.Column="1" x:Name="UsernameText" Margin="5"/>
-        <TextBlock Grid.Row="1" Grid.Column="1" x:Name="AvgAnswerTimeText" Margin="5"/>
-        <TextBlock Grid.Row="2" Grid.Column="1" x:Name="TotalAnswersText" Margin="5"/>
-        <TextBlock Grid.Row="3" Grid.Column="1" x:Name="CorrectAnswersText" Margin="5"/>
-        <TextBlock Grid.Row="4" Grid.Column="1" x:Name="GamesPlayedText" Margin="5"/>
-        <TextBlock Grid.Row="5" Grid.Column="1" x:Name="TotalScoreText" Margin="5"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" x:Name="UsernameText" Margin="5"/>
+        <TextBlock Grid.Row="2" Grid.Column="1" x:Name="AvgAnswerTimeText" Margin="5"/>
+        <TextBlock Grid.Row="3" Grid.Column="1" x:Name="TotalAnswersText" Margin="5"/>
+        <TextBlock Grid.Row="4" Grid.Column="1" x:Name="CorrectAnswersText" Margin="5"/>
+        <TextBlock Grid.Row="5" Grid.Column="1" x:Name="GamesPlayedText" Margin="5"/>
+        <TextBlock Grid.Row="6" Grid.Column="1" x:Name="TotalScoreText" Margin="5"/>
     </Grid>
 </Window>
