@@ -6,7 +6,8 @@
 #include "GameRequestHandler.h"
 
 RequestHandlerFactory::RequestHandlerFactory()
-    : m_roomManager(RoomManager(this)),
+    : m_loginManager(),
+    m_roomManager(RoomManager(this)),
     m_database(new SqliteDatabase()),
     m_statisticsManager(m_database),
     m_gameManager(m_database)
