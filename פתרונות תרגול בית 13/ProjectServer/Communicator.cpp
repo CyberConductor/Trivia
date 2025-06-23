@@ -60,7 +60,6 @@ void Communicator::startHandleRequests()
 
 void Communicator::handleNewClient()
 {
-
     SOCKET clientSocket = accept(m_serverSocket, NULL, NULL);
     if (clientSocket == INVALID_SOCKET)
     {
@@ -71,45 +70,83 @@ void Communicator::handleNewClient()
     // create a thread for the new client
     std::thread clientThread([this, clientSocket]()
     {
+        bool handlerAddedToMap = false;
+        IRequestHandler* handler = nullptr;
+
         try
         {
-            //craete new login handler
-            m_clients.emplace(clientSocket, m_handlerFactory.createLoginRequestHandler());
-
-            // get the client's request
+            handler = m_handlerFactory.createLoginRequestHandler(clientSocket);
             RequestInfo requestInfo = Helper::getRequestInfo(clientSocket);
+            RequestResult result = handler->handleRequest(requestInfo);
 
-            // process the request
-            LoginRequestHandler handler = LoginRequestHandler(m_handlerFactory);
-            RequestResult result = handler.handleRequest(requestInfo);
-
-            //deserialize the response
-            Buffer buffer = result.response;
+            auto buffer = result.response;
             int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
-            string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
+            std::string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
             json j = json::parse(jsonStr);
             LoginResponse loginResponse;
             loginResponse.status = j["status"];
             
             //check the client status
-            if (loginResponse.status == 1)
+            if (loginResponse.status)
+            {
+                Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                {
+                    m_clients[clientSocket] = result.newHandler;
+                    handlerAddedToMap = true;
+                }
+
+                delete handler;
+                std::thread([this, clientSocket]() {
+                    handleClient(clientSocket);
+                    }).detach();
+            }
+            else
+            {
+                Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+            }
+        }
+        catch (const std::exception& ex)
+        {
+            std::cerr << "Client " << clientSocket << " error: " << ex.what() << std::endl;
+
+            if (handlerAddedToMap)
             {
                 delete m_clients[clientSocket];
-                LoginRequest req = JsonRequestPacketDeserializer::deserializeLoginRequest(requestInfo.buffer);
-                m_clients[clientSocket] = m_handlerFactory.createMenuRequestHandler(LoggedUser(req.username));
+                m_clients.erase(clientSocket);
             }
-
-            // send back the response
-            Helper::sendData(clientSocket, string(result.response.begin(), result.response.end()));
-        }
-        catch (const exception& ex)
-        {
-            ErrorResponse errorResponse = { ex.what() };
-            Buffer errorBuffer = JsonResponsePacketSerializer::serializeErrorResponse(errorResponse);
-            Helper::sendData(clientSocket, string(errorBuffer.begin(), errorBuffer.end()));
-            delete m_clients[clientSocket];
-            m_clients[clientSocket] = nullptr;
+            closesocket(clientSocket);
         }
     });
     clientThread.detach();// don't wait for the thread
+}
+
+void Communicator::handleClient(SOCKET sock)
+{
+    IRequestHandler* handler = m_clients[sock];
+
+    try
+    {
+        while (true)
+        {
+            RequestInfo request = Helper::getRequestInfo(sock);
+            RequestResult result = handler->handleRequest(request);
+            Helper::sendData(sock, string(result.response.begin(), result.response.end()));
+            
+            // if the handler changed, replace and delete the old one
+            if (result.newHandler != handler)
+            {
+                delete handler;
+                handler = result.newHandler;
+                m_clients[sock] = handler;
+            }
+        }
+    }
+    catch (const exception& e)
+    {
+        std::cerr << "Client disconnected or error: " << e.what() << std::endl;
+
+        delete handler;
+        closesocket(sock);
+        m_clients.erase(sock);
+    }
 }
