@@ -84,13 +84,33 @@ namespace WpfApp
                 return;
             }
 
-            // Open RoomWaitWindow and pass the roomId
-            var waitWindow = new RoomWaitWindow(selectedRoom.id);
-            waitWindow.Show();
+            // Send join room request to server
+            string joinJson = JsonSerializer.Serialize(new { roomId = selectedRoom.id });
+            string joinResponse = App.Communicator.SendRequest((byte)Requests.Request_JoinRoom, joinJson);
 
-            // Close JoinRoom window
-            this.Close();
+            try
+            {
+                var joinData = JsonSerializer.Deserialize<JsonElement>(joinResponse);
+                if (joinData.TryGetProperty("status", out var status) && status.GetInt32() == 1)
+                {
+                    // Success - open wait window
+                    var waitWindow = new RoomWaitWindow(selectedRoom.id);
+                    waitWindow.Show();
+
+                    // Close JoinRoom window
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show("Failed to join the room.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error joining room: " + ex.Message + "\nResponse: " + joinResponse);
+            }
         }
+
 
         protected override void OnClosed(EventArgs e)
         {

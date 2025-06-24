@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Windows;
@@ -9,31 +10,36 @@ namespace WpfApp
 {
     public partial class RoomWaitWindow : Window
     {
-        private DispatcherTimer refreshTimer;
-        private int roomId;
-        private string admin;
+        private readonly DispatcherTimer refreshTimer;
+        private readonly int roomId;
+        private string admin = "";
 
         public RoomWaitWindow(int roomId)
         {
             InitializeComponent();
             this.roomId = roomId;
 
-            refreshTimer = new DispatcherTimer();
-            refreshTimer.Interval = TimeSpan.FromSeconds(3);
+            refreshTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(3)
+            };
             refreshTimer.Tick += RefreshRoomState;
             refreshTimer.Start();
+
+            RefreshRoomState(null, null); // Immediate load
         }
 
         private void RefreshRoomState(object sender, EventArgs e)
         {
-            string json = JsonSerializer.Serialize(new { roomId = this.roomId });
-            string response = App.Communicator.SendRequest((byte)Requests.Request_GetRoomState, json);
+            // First: Get players in the room
+            string playerJson = JsonSerializer.Serialize(new { roomId = this.roomId });
+            string playerResponse = App.Communicator.SendRequest((byte)Requests.Request_GetPlayersInRoom, playerJson);
 
             try
             {
-                var data = JsonSerializer.Deserialize<JsonElement>(response);
+                var playersData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(playerResponse);
 
-                if (data.TryGetProperty("players", out JsonElement playersElement))
+                if (playersData != null && playersData.TryGetValue("players", out JsonElement playersElement))
                 {
                     var playersList = playersElement.EnumerateArray()
                         .Select(p => p.GetString())
@@ -42,23 +48,41 @@ namespace WpfApp
 
                     PlayersListBox.ItemsSource = playersList;
 
-                    admin = playersList.FirstOrDefault() ?? "Unknown";
-                    AdminTextBlock.Text = $"Admin: {admin}";
-
-                    AdminControlsPanel.Visibility = (App.CurrentUser == admin)
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
+                    if (playersList.Count > 0)
+                    {
+                        admin = playersList[0];
+                        AdminTextBlock.Text = $"Admin: {admin}";
+                        AdminControlsPanel.Visibility = (App.CurrentUser == admin) ? Visibility.Visible : Visibility.Collapsed;
+                    }
                 }
+                else
+                {
+                    AdminTextBlock.Text = "No players found.";
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error getting players:\n" + ex.Message + "\nRaw response:\n" + playerResponse);
+                return;
+            }
 
-                if (data.TryGetProperty("hasGameBegun", out var started) && started.GetBoolean())
+            // Second: Check if game has started or room is closed
+            string stateJson = JsonSerializer.Serialize(new { roomId = this.roomId });
+            string stateResponse = App.Communicator.SendRequest((byte)Requests.Request_GetRoomState, stateJson);
+
+            try
+            {
+                var stateData = JsonSerializer.Deserialize<JsonElement>(stateResponse);
+
+                if (stateData.TryGetProperty("hasGameBegun", out JsonElement started) && started.GetBoolean())
                 {
                     refreshTimer.Stop();
                     MessageBox.Show("Game has started!");
-                    // TODO: Open actual game window here
+                    // TODO: Open game window
                     this.Close();
                 }
 
-                if (data.TryGetProperty("status", out var status) && status.GetInt32() == 0)
+                if (stateData.TryGetProperty("status", out JsonElement status) && status.GetInt32() == 0)
                 {
                     refreshTimer.Stop();
                     MessageBox.Show("Room was closed.");
@@ -67,9 +91,10 @@ namespace WpfApp
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error parsing room state: " + ex.Message);
+                MessageBox.Show("Error checking room state:\n" + ex.Message + "\nRaw response:\n" + stateResponse);
             }
         }
+
 
         private void StartGameButton_Click(object sender, RoutedEventArgs e)
         {
