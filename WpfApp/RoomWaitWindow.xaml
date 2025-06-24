@@ -45,6 +45,7 @@
                     Margin="10,0"
                     Click="CloseRoomButton_Click"/>
         </StackPanel>
+        
 
         <!-- Leave Room Button for all players -->
         <Button Content="Leave Room"

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Threading;
@@ -58,7 +59,7 @@ namespace WpfApp
                     if (rooms != null && rooms.Count > 0)
                     {
                         RoomsListBox.ItemsSource = rooms;
-                        RoomsListBox.Items.Refresh();  // Refresh the ListBox
+                        RoomsListBox.Items.Refresh();  
                     }
                     else
                     {
@@ -76,6 +77,10 @@ namespace WpfApp
             }
         }
 
+        
+           
+      
+
         private void JoinRoomButton_Click(object sender, RoutedEventArgs e)
         {
             if (RoomsListBox.SelectedItem is not RoomData selectedRoom)
@@ -87,6 +92,7 @@ namespace WpfApp
             // Send join room request to server
             string joinJson = JsonSerializer.Serialize(new { roomId = selectedRoom.id });
             string joinResponse = App.Communicator.SendRequest((byte)Requests.Request_JoinRoom, joinJson);
+            
 
             try
             {
