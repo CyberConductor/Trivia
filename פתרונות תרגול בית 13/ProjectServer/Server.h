@@ -5,12 +5,17 @@
 #include <map> 
 #include <mutex>
 #include <condition_variable>
-#include "Chat.h"
-#include "RecvMessage.h"
 #include "LoginRequestHandler.h"
 #include "Communicator.h"
 
 using std::thread;
+using std::string;
+using std::queue;
+using std::deque;
+using std::map;
+using std::mutex;
+using std::condition_variable;
+using::std::pair;
 
 // Q: why do we need this class ?
 // A: this is the main class which holds all the resources,
@@ -23,39 +28,8 @@ public:
 	void run();
 
 private:
-	void bindAndListen();
-	void acceptClient();
-	void clientHandler(const SOCKET client_socket);
-	void safeDeleteUser(const SOCKET id);
-
-	void handleReceivedMessages();
-	std::string getCurrentUser();
-	std::string getNextUser();
-	std::string get_user_name(const SOCKET id);
-	void addReceivedMessage(RecvMessage*);
-	static RecvMessage* build_receive_message(const SOCKET client_socket, const int msg_code);
-	std::string getAllUsernames();
-		
-	SOCKET _socket;
-	Chat _doc;
-
-	// Queue for all clients. This way we will know who's the current writer.
-		// SOCKET: client socket
-		// string: userName
-	std::deque<std::pair<SOCKET, std::string>> _clients;
-
-
-	// Queue for messages - Will hold the mssage code and the file data. To add messages use std::ref<const ClientSocket>
-	// SOCKET: client socket
-	// string: message
-	std::queue<RecvMessage*> _messageHandler;
-
-	std::mutex _mtxReceivedMessages;
-	std::condition_variable _msgQueueCondition;
-
-	//TODO: create HandlerFactory
-	//IDatabase m_database;
+	SqliteDatabase m_database;
 	Communicator m_communicator;
-	//RequestHandlerFactory m_handlerFactory;
+	RequestHandlerFactory m_handlerFactory;
 };
 

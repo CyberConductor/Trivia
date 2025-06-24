@@ -105,7 +105,7 @@ void Communicator::handleNewClient()
                 Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
             }
         }
-        catch (const std::exception& ex)
+        catch (const exception& ex)
         {
             std::cerr << "Client " << clientSocket << " error: " << ex.what() << std::endl;
 

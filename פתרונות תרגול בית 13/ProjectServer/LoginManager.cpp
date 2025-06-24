@@ -1,18 +1,17 @@
 #include "LoginManager.h"
 
+LoggedUser::LoggedUser(string username) 
+	: m_username(username){}
+
 string LoggedUser::getUsername()
 {
-	return this->m_username;
-}
-
-LoggedUser::LoggedUser(string username)
-{
-	this->m_username = username;
+	return m_username;
 }
 
 LoginManager::LoginManager()
 {
 	m_database = new SqliteDatabase();
+	m_database->open();
 }
 
 LoginManager::~LoginManager()
@@ -23,7 +22,7 @@ LoginManager::~LoginManager()
 bool LoginManager::signup(string username, string password, string email)
 {
 	int res = m_database->doesUserExist(username);
-	if (res == 0)
+	if (res == SQLITE_OK)
 	{
 		res = m_database->addNewUser(username, password, email);
 		if (res == SQLITE_OK)

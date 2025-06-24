@@ -1,0 +1,60 @@
+﻿using System.Text.Json;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using TriviaClient.Network;
+namespace WpfApp1
+{
+    /// <summary>
+    /// Interaction logic for SignUp.xaml
+    /// </summary>
+    public partial class SignUp : Window
+    {
+        public SignUp()
+        {
+            InitializeComponent();
+        }
+
+        private void RemoveText(object sender, RoutedEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+            if (tb != null && tb.Foreground == Brushes.Gray)
+            {
+                tb.Text = "";
+                tb.Foreground = Brushes.Black;
+            }
+        }
+
+        private void AddText(object sender, RoutedEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+            if (tb != null && string.IsNullOrWhiteSpace(tb.Text))
+            {
+                tb.Foreground = Brushes.Gray;
+
+                if (tb == UsernameBox)
+                    tb.Text = "Username";
+                else if (tb == EmailBox)
+                    tb.Text = "Email";
+            }
+        }
+
+        private void SignUp_Click(object sender, RoutedEventArgs e)
+        {
+            var username = UsernameBox.Text;
+            var password = PasswordBox.Password;
+            var email = EmailBox.Text;
+
+            var payload = JsonSerializer.Serialize(new
+            {
+                username = username,
+                password = password,
+                email = email
+            });
+
+            string response = ServerCommunicator.SendRequest(2, payload); // Code 2 = Sign Up
+
+            MessageBox.Show(response);
+        }
+    }
+}

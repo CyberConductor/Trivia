@@ -8,6 +8,7 @@ class LoginRequestHandler : public IRequestHandler
 public:
 	LoginRequestHandler(RequestHandlerFactory&);
 	//virtual functions
+
 	virtual bool isRequestRelevant(RequestInfo) override;
 	virtual RequestResult handleRequest(RequestInfo) override;
 private:
