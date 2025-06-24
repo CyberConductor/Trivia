@@ -1,4 +1,5 @@
 #pragma once
+#include "IRequestHandler.h"
 #include "GameManager.h"
 #include "RequestHandlerFactory.h"
 #include "JsonRequestPacketDeserializer.h"

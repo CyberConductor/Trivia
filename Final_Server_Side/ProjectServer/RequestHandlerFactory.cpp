@@ -20,11 +20,11 @@ IRequestHandler* RequestHandlerFactory::createLoginRequestHandler(SOCKET sock)
 { return new LoginRequestHandler(*this, sock); }
 IRequestHandler* RequestHandlerFactory::createMenuRequestHandler(LoggedUser user) 
 { return new MenuRequestHandler(*this, user); }
-RoomAdminRequestHandler* RequestHandlerFactory::createRoomAdminRequestHandler(LoggedUser user, Room& room)
+IRequestHandler* RequestHandlerFactory::createRoomAdminRequestHandler(LoggedUser user, Room& room)
 { return new RoomAdminRequestHandler(*this, user, room); }
-RoomMemberRequestHandler* RequestHandlerFactory::createRoomMemberRequestHandler(LoggedUser user, Room& room)
+IRequestHandler* RequestHandlerFactory::createRoomMemberRequestHandler(LoggedUser user, Room& room)
 { return new RoomMemberRequestHandler(*this, user, room); }
-GameRequestHandler* RequestHandlerFactory::createGameRequestHandler(LoggedUser user, Room& room, RoomMember* preHandler)
+IRequestHandler* RequestHandlerFactory::createGameRequestHandler(LoggedUser user, Room& room, RoomMember* preHandler)
 {
     return new GameRequestHandler(*this, user, m_gameManager.createGame(room), preHandler);
 }

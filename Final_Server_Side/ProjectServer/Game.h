@@ -35,7 +35,7 @@ class Game
 {
 public:
 	//Constructor
-	Game(Room, vector<Question>);
+	Game(Room&, vector<Question>);
 	//methods
 	Question getQuestionForUser(LoggedUser);
 	void submitAnswer();
@@ -47,7 +47,7 @@ private:
 	vector<Question> m_questions;
 	map<LoggedUser, GameData> m_players;
 	unsigned int m_gameId;
-	Room m_room;
+	Room& m_room;
 
 	friend GameManager;
 	friend GameRequestHandler;

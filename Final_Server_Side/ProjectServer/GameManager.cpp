@@ -5,12 +5,19 @@
 GameManager::GameManager(IDatabase* database)
 	: m_database(database){}
 
-Game& GameManager::createGame(Room room)
+GameManager::~GameManager()
+{
+    for (Game* game : m_games)
+        delete game;
+    m_games.clear();
+}
+
+Game& GameManager::createGame(Room& room)
 {
     // check if a game for this room already exists
-    for (Game& game : m_games)
+    for (Game* game : m_games)
     {
-        if (room.m_metadata.id == game.m_gameId)
+        if (room.m_metadata.id == game->m_gameId)
             throw std::runtime_error("game for this room already exists");
     }
 
@@ -27,13 +34,12 @@ Game& GameManager::createGame(Room room)
         questions.insert(questions.end(), fromAPI.begin(), fromAPI.begin() + need);
     }
     // create the game
-    Game game(room, questions);
+    Game* game = new Game(room, questions);
 
     // add the game to the list
     m_games.push_back(game);
 
-    // return a reference to the last game in the vector
-    return m_games.back();
+    return *game;
 }
 
 
@@ -41,11 +47,14 @@ void GameManager::deleteGame(int id)
 {
 	for (auto it = m_games.begin(); it != m_games.end(); ++it)
 	{
-		if (id == it->m_gameId)
+		if (id == (*it)->m_gameId)
 		{
-			for (auto player : it->m_players)
-				it->removePlayer(player.first.getUsername());
+			for (auto player : (*it)->m_players)
+                (*it)->removePlayer(player.first.getUsername());
+
+            delete *it;
 			m_games.erase(it);
+            break;
 		}
 	}
 }
@@ -54,7 +63,7 @@ int GameManager::submitGameStatsToDB(GameData data)
 {
 	StatisticsManager statsManager = StatisticsManager((SqliteDatabase*)m_database);
 	for (auto game : m_games)
-		for (auto player : game.m_players)
+		for (auto player : game->m_players)
 			if (player.second == data)
 				return statsManager.submitGameStatistics(player.first.getUsername(), data);
 	return SQLITE_ERROR;
