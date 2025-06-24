@@ -16,8 +16,9 @@ class GameManager
 public:
 	//Constructor
 	GameManager(IDatabase*);
+	~GameManager();
 	//methods
-	Game& createGame(Room);
+	Game& createGame(Room&);
 	void deleteGame(int);
 	int submitGameStatsToDB(GameData);
 private:
@@ -25,6 +26,6 @@ private:
 	static size_t WriteCallback(void*, size_t, size_t, string*);
 	vector<Question> fetchQuestionsFromAPI(const RoomData&);
 
-	vector<Game> m_games;
+	vector<Game*> m_games;
 	IDatabase* m_database;
 };

@@ -72,37 +72,41 @@ void Communicator::handleNewClient()
     {
         bool handlerAddedToMap = false;
         IRequestHandler* handler = nullptr;
-
         try
         {
-            handler = m_handlerFactory.createLoginRequestHandler(clientSocket);
-            RequestInfo requestInfo = Helper::getRequestInfo(clientSocket);
-            RequestResult result = handler->handleRequest(requestInfo);
-
-            auto buffer = result.response;
-            int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
-            std::string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
-            json j = json::parse(jsonStr);
-            LoginResponse loginResponse;
-            loginResponse.status = j["status"];
-            //check the client status
-            if (loginResponse.status)
-
+            while (true)
             {
-                Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                handler = m_handlerFactory.createLoginRequestHandler(clientSocket);
+                RequestInfo requestInfo = Helper::getRequestInfo(clientSocket);
+                RequestResult result = handler->handleRequest(requestInfo);
+
+                auto buffer = result.response;
+                int jsonSize = (buffer[1] << 24) | (buffer[2] << 16) | (buffer[3] << 8) | buffer[4];
+                std::string jsonStr(buffer.begin() + 5, buffer.begin() + 5 + jsonSize);
+                json j = json::parse(jsonStr);
+                LoginResponse loginResponse;
+                loginResponse.status = j["status"];
+                //check the client status
+                if (loginResponse.status)
+
                 {
-                    m_clients[clientSocket] = result.newHandler;
-                    handlerAddedToMap = true;
-                }
+                    Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                    {
+                        m_clients[clientSocket] = result.newHandler;
+                        handlerAddedToMap = true;
+                    }
 
-                delete handler;
-                std::thread([this, clientSocket]() {
-                    handleClient(clientSocket);
-                    }).detach();
-            }
-            else
-            {
-                Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                    delete handler;
+                    std::thread([this, clientSocket]() {
+                        handleClient(clientSocket);
+                        }).detach();
+
+                    break;
+                }
+                else
+                {
+                    Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                }
             }
         }
         catch (const std::exception& ex)
@@ -148,9 +152,8 @@ void Communicator::handleClient(SOCKET sock)
                             IRequestHandler*& userHandler = userPair.second;
 
                             // convert all the room members to game request handlers
-                            if (adminHandler != userHandler)
-                                if (auto memberHandler = dynamic_cast<RoomMember*>(userHandler))
-                                    userPair.second = (IRequestHandler*)m_handlerFactory.createGameRequestHandler(user, adminHandler->m_room, memberHandler);
+                            if (auto memberHandler = dynamic_cast<RoomMemberRequestHandler*>(userHandler))
+                                userPair.second = m_handlerFactory.createGameRequestHandler(user, adminHandler->m_room, memberHandler);
                         }
                         handler = result.newHandler;
                         m_clients[sock] = handler;

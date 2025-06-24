@@ -21,7 +21,7 @@ namespace WpfApp
 
             refreshTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(3)
+                Interval = TimeSpan.FromSeconds(15)
             };
             refreshTimer.Tick += RefreshRoomState;
             refreshTimer.Start();
