@@ -130,5 +130,5 @@ RequestResult MenuRequestHandler::createRoom(RequestInfo requestInfo)
     Room& room = m_handlerFactory.getRoomManager().createRoom(m_user, roomData);
 
     IRequestHandler* handler = (IRequestHandler*)m_handlerFactory.createRoomAdminRequestHandler(m_user, room);
-    return { JsonResponsePacketSerializer::serializeCreateRoomResponse({ 1 }), handler };
+    return { JsonResponsePacketSerializer::serializeCreateRoomResponse({ 1 , room.m_metadata.id }), handler };
 }
