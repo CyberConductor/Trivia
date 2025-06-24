@@ -47,7 +47,7 @@ namespace WpfApp1
 
             // Send request to server
             string response = App.Communicator.SendRequest((byte)Requests.Request_CreateRoom, payload);
-            System.Threading.Thread.Sleep(1000);
+            
             try
             {
                 var roomResponse = JsonSerializer.Deserialize<CreateRoomResponse>(response);

@@ -13,6 +13,7 @@ namespace WpfApp
         private readonly DispatcherTimer refreshTimer;
         private readonly int roomId;
         private string admin = "";
+        private int tickCount = 0;
 
         public RoomWaitWindow(int roomId)
         {
@@ -26,19 +27,55 @@ namespace WpfApp
             refreshTimer.Tick += RefreshRoomState;
             refreshTimer.Start();
 
-            RefreshRoomState(null, null); // Immediate load
+            RefreshRoomState(null, null); // Initial immediate refresh
         }
 
         private void RefreshRoomState(object sender, EventArgs e)
         {
+            tickCount++;
+
+            // Every third tick, update player list
+            if (tickCount % 3 == 0)
+            {
+                UpdatePlayersListFromGetPlayersInRoom();
+            }
+
             try
             {
                 string stateJson = JsonSerializer.Serialize(new { roomId = this.roomId });
                 string stateResponse = App.Communicator.SendRequest((byte)Requests.Request_GetRoomState, stateJson);
+                MessageBox.Show(stateResponse);
                 var stateData = JsonSerializer.Deserialize<JsonElement>(stateResponse);
+                
+                if (stateData.TryGetProperty("hasGameBegun", out JsonElement started) && started.GetBoolean())
+                {
+                    refreshTimer.Stop();
+                    GoToGame();
+                    return;
+                }
 
-                // Update players list from "players" property
-                if (stateData.TryGetProperty("players", out JsonElement playersElement))
+                if (stateData.TryGetProperty("status", out JsonElement status) && status.GetInt32() == 0)
+                {
+                    refreshTimer.Stop();
+                    GoToMenu("Room was closed.");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error refreshing room state:\n" + ex.Message);
+            }
+        }
+
+        private void UpdatePlayersListFromGetPlayersInRoom()
+        {
+            try
+            {
+                string json = JsonSerializer.Serialize(new { roomId = this.roomId });
+                string response = App.Communicator.SendRequest((byte)Requests.Request_GetPlayersInRoom, json);
+                var data = JsonSerializer.Deserialize<JsonElement>(response);
+
+                if (data.TryGetProperty("players", out JsonElement playersElement))
                 {
                     var playersList = playersElement.EnumerateArray()
                         .Select(p => p.GetString())
@@ -59,42 +96,25 @@ namespace WpfApp
                         AdminControlsPanel.Visibility = Visibility.Collapsed;
                     }
                 }
-
-                // Check if the game has started
-                if (stateData.TryGetProperty("hasGameBegun", out JsonElement started) && started.GetBoolean())
-                {
-                    refreshTimer.Stop();
-                    GoToGame();
-                    return;
-                }
-
-                // Check if the room was closed
-                if (stateData.TryGetProperty("status", out JsonElement status) && status.GetInt32() == 0)
-                {
-                    refreshTimer.Stop();
-                    GoToMenu("Room was closed.");
-                    return;
-                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error refreshing room state:\n" + ex.Message);
+                MessageBox.Show("Error fetching players:\n" + ex.Message);
             }
         }
 
         private void StartGameButton_Click(object sender, RoutedEventArgs e)
         {
             string json = JsonSerializer.Serialize(new { roomId = this.roomId });
-            string response = App.Communicator.SendRequest((byte)Requests.Request_StartGame, json);
-
-            // Do NOT open game window here — wait for RefreshRoomState to detect change
-            // You can optionally parse response and show error messages if needed
+            string res = App.Communicator.SendRequest((byte)Requests.Request_StartGame, json);
+            MessageBox.Show(res);
         }
 
         private void CloseRoomButton_Click(object sender, RoutedEventArgs e)
         {
             string json = JsonSerializer.Serialize(new { roomId = this.roomId });
-            string response = App.Communicator.SendRequest((byte)Requests.Request_CloseRoom, json);
+            string res = App.Communicator.SendRequest((byte)Requests.Request_CloseRoom, json);
+            MessageBox.Show(res);
 
             refreshTimer.Stop();
             GoToMenu("Room was closed.");
@@ -157,7 +177,6 @@ namespace WpfApp
             gameWindow.Show();
             this.Close();
         }
-
 
         private void GoToMenu(string message = null)
         {
