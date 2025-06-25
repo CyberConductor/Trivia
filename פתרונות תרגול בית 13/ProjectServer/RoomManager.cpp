@@ -74,3 +74,14 @@ int RoomManager::getFreeId()
 			return randId;
 	}
 }
+
+Room& RoomManager::getUserRoom(string username)
+{
+	for (auto& room : m_rooms)
+	{
+		vector<string> users = room.second.getAllUsers();
+		if (std::find(users.begin(), users.end(), username) != users.end())
+			return room.second;
+	}
+	return Room()
+}

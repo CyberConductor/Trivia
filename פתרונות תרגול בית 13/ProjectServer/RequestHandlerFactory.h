@@ -20,6 +20,7 @@ public:
 	LoginManager& getLoginManager();
 	StatisticsManager& getStatisticsManager();
 	RoomManager& getRoomManager();
+
 private:
 	LoginManager m_loginManager;
 	SqliteDatabase* m_database;

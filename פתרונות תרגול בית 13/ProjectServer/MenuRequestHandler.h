@@ -11,10 +11,20 @@ class MenuRequestHandler : public IRequestHandler
 {
 public:
 	//Constructor
-	MenuRequestHandler();
+	MenuRequestHandler(RequestHandlerFactory&, LoggedUser&);
 	//virtual functions
 	virtual bool isRequestRelevant(RequestInfo);
 	virtual RequestResult handleRequest(RequestInfo);
 private:
 	//Methods
+	RequestResult signout(RequestInfo);
+	RequestResult getRooms(RequestInfo);
+	RequestResult getPlayersInRoom(RequestInfo);
+	RequestResult getPersonalStats(RequestInfo);
+	RequestResult getHighScore(RequestInfo);
+	RequestResult joinRoom(RequestInfo);
+	RequestResult createRoom(RequestInfo);
+
+	LoggedUser m_user;
+	RequestHandlerFactory& m_handlerFactory;
 };
