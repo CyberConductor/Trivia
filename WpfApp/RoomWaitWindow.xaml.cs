@@ -54,14 +54,22 @@ namespace WpfApp
                         {
                             admin = playersList[0];
                             AdminTextBlock.Text = $"Admin: {admin}";
-                            AdminControlsPanel.Visibility = (App.CurrentUser == admin)
+
+                            bool isAdmin = (App.CurrentUser == admin);
+
+                            AdminControlsPanel.Visibility = isAdmin
                                 ? Visibility.Visible
                                 : Visibility.Collapsed;
+
+                            LeaveRoomButton.Visibility = isAdmin
+                                ? Visibility.Collapsed
+                                : Visibility.Visible;
                         }
                         else
                         {
                             AdminTextBlock.Text = "No players found.";
                             AdminControlsPanel.Visibility = Visibility.Collapsed;
+                            LeaveRoomButton.Visibility = Visibility.Visible;
                         }
                     });
                 }
