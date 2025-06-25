@@ -112,7 +112,24 @@ namespace WpfApp
         {
             string json = JsonSerializer.Serialize(new { roomId = this.roomId });
             string res = App.Communicator.SendRequest((byte)Requests.Request_StartGame, json);
-            MessageBox.Show(res);
+
+            try
+            {
+                var data = JsonSerializer.Deserialize<JsonElement>(res);
+
+                if (data.TryGetProperty("status", out JsonElement status) && status.GetInt32() == 1)
+                {
+                    GoToGame(); 
+                }
+                else
+                {
+                    MessageBox.Show("Failed to start game. Server response: " + res);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error parsing server response: " + ex.Message);
+            }
         }
 
         private void CloseRoomButton_Click(object sender, RoutedEventArgs e)
@@ -128,7 +145,7 @@ namespace WpfApp
 
         private void LeaveRoomButton_Click(object sender, RoutedEventArgs e)
         {
-            refreshTimer.Stop(); // Stop before making network calls
+            refreshTimer.Stop(); 
 
             string json = JsonSerializer.Serialize(new { roomId = this.roomId });
             string response;
