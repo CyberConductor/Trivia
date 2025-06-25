@@ -30,7 +30,7 @@ namespace WpfApp
         public JoinRoom()
         {
             InitializeComponent();
-
+            UpdateSignOutButtonVisibility();
             _refreshTimer = new DispatcherTimer();
             _refreshTimer.Interval = TimeSpan.FromSeconds(3);
             _refreshTimer.Tick += RefreshTimer_Tick;
@@ -116,8 +116,30 @@ namespace WpfApp
                 MessageBox.Show("Error joining room: " + ex.Message + "\nResponse: " + joinResponse);
             }
         }
+        private void UpdateSignOutButtonVisibility()
+        {
+            SignOutButton.Visibility = string.IsNullOrEmpty(App.CurrentUser) ? Visibility.Collapsed : Visibility.Visible;
+        }
+        private void SignOutButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string json = JsonSerializer.Serialize(new { }); // if no params needed
+                string response = App.Communicator.SendRequest((byte)Requests.Request_Signout, json);
 
+                // Clear current user info
+                App.CurrentUser = null;
 
+                MessageBox.Show("You have signed out.");
+
+                // Redirect to menu or login screen
+                //;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Sign out failed: " + ex.Message);
+            }
+        }
         protected override void OnClosed(EventArgs e)
         {
             _refreshTimer.Stop();
