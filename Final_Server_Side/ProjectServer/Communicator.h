@@ -24,6 +24,10 @@ public:
 	void handleNewClient();
 private:
 	void handleClient(SOCKET);
+<<<<<<< HEAD:Final_Server_Side/ProjectServer/Communicator.h
+=======
+
+>>>>>>> b2ee5add6bbab06d883a999d61c983eff6764292:פתרונות תרגול בית 13/ProjectServer/Communicator.h
 	map<SOCKET, IRequestHandler*> m_clients;
 	RequestHandlerFactory& m_handlerFactory;
 	SOCKET m_serverSocket;
