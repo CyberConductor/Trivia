@@ -46,6 +46,7 @@ namespace WpfApp
             try
             {
                 string response = App.Communicator.SendRequest((byte)Requests.Request_GetQuestion, "{}");
+                MessageBox.Show(response);
                 var jsonDoc = JsonDocument.Parse(response);
                 var root = jsonDoc.RootElement;
 
