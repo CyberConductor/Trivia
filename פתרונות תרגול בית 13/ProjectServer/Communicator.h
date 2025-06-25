@@ -25,6 +25,8 @@ public:
 	void handleNewClient();
 
 private:
+	void handleClient(SOCKET);
+
 	map<SOCKET, IRequestHandler*> m_clients;
 	RequestHandlerFactory& m_handlerFactory;
 	SOCKET m_serverSocket;

@@ -10,36 +10,27 @@ using std::string;
 
 typedef vector<unsigned char> Buffer;
 
-typedef struct RequestInfo
+struct RequestInfo
 {
 	int id;
 	time_t receivalTime;
 	Buffer buffer;
-}RequestInfo;
+};
 
-typedef struct RequestResult RequestResult;
+class IRequestHandler;// RequestResult uses IRequestHandler before it has been defined
+struct RequestResult
+{
+	Buffer response;
+	IRequestHandler* newHandler = nullptr;
+};
 
 class IRequestHandler
 {
 public:
 	virtual bool isRequestRelevant(RequestInfo) = 0;
 	virtual RequestResult handleRequest(RequestInfo) = 0;
-	static RequestResult generateErrorResponse(string, IRequestHandler*);
+	static RequestResult generateErrorResponse(string str, IRequestHandler* handler)
+	{
+		return { JsonResponsePacketSerializer::serializeErrorResponse({ str }), handler };
+	}
 };
-
-struct RequestResult
-{
-	Buffer response;
-	IRequestHandler* newHandler;
-};
-
-RequestResult IRequestHandler::generateErrorResponse(string str, IRequestHandler* handler)
-{
-	ErrorResponse err = { str };
-
-	RequestResult result;
-	result.response = JsonResponsePacketSerializer::serializeErrorResponse(err);
-	result.newHandler = handler;
-
-	return result;
-}
