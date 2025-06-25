@@ -14,7 +14,7 @@ namespace WpfApp
         private class RoomData
         {
             public int id { get; set; }
-            public string name { get; set; }  // Changed from roomName to name
+            public string name { get; set; }
             public int maxPlayers { get; set; }
             public int numOfQuestionsInGame { get; set; }
             public int timePerQuestion { get; set; }
@@ -89,7 +89,7 @@ namespace WpfApp
                 return;
             }
 
-            // Send join room request to server
+
             string joinJson = JsonSerializer.Serialize(new { roomId = selectedRoom.id });
             string joinResponse = App.Communicator.SendRequest((byte)Requests.Request_JoinRoom, joinJson);
             
@@ -99,11 +99,11 @@ namespace WpfApp
                 var joinData = JsonSerializer.Deserialize<JsonElement>(joinResponse);
                 if (joinData.TryGetProperty("status", out var status) && status.GetInt32() == 1)
                 {
-                    // Success - open wait window
+                   
                     var waitWindow = new RoomWaitWindow(selectedRoom.id);
                     waitWindow.Show();
 
-                    // Close JoinRoom window
+                 
                     this.Close();
                 }
                 else

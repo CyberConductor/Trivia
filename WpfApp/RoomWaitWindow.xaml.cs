@@ -21,7 +21,7 @@ namespace WpfApp
 
             refreshTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(60)
+                Interval = TimeSpan.FromSeconds(3)
             };
             refreshTimer.Tick += RefreshRoomState;
             refreshTimer.Start();
@@ -82,19 +82,28 @@ namespace WpfApp
                     return;
                 }
 
-                // Check if room closed
+                
                 if (stateData.TryGetProperty("status", out JsonElement status) && status.GetInt32() == 0)
                 {
                     refreshTimer.Stop();
                     GoToMenu("Room was closed.");
                     return;
                 }
+
             }
             catch (Exception ex)
             {
                 Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show("Error refreshing room state:\n" + ex.Message);
+                    //means that room was closed:
+                    if (ex.Message.Contains("'E' is an invalid start of a value"))
+                    {
+                        GoToMenu("Room was closed or no longer exists.");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error refreshing room state:\n" + ex.Message);
+                    }
                 });
             }
         }
@@ -109,12 +118,12 @@ namespace WpfApp
         private void CloseRoomButton_Click(object sender, RoutedEventArgs e)
         {
             string json = JsonSerializer.Serialize(new { roomId = this.roomId });
-			
+
             string response = App.Communicator.SendRequest((byte)Requests.Request_CloseRoom, json);
             MessageBox.Show(response);
 
-            refreshTimer.Stop();
-            GoToMenu("Room was closed.");
+            refreshTimer.Stop(); 
+            GoToMenu("Room was closed."); 
         }
 
         private void LeaveRoomButton_Click(object sender, RoutedEventArgs e)

@@ -45,14 +45,14 @@
                     Margin="10,0"
                     Click="CloseRoomButton_Click"/>
         </StackPanel>
-        
 
-        <!-- Leave Room Button for all players -->
-        <Button Content="Leave Room"
-                Grid.Row="3"
-                Width="120"
-                HorizontalAlignment="Center"
-                Margin="0,20,0,0"
-                Click="LeaveRoomButton_Click"/>
+
+        <Button x:Name="LeaveRoomButton"
+        Content="Leave Room"
+        Grid.Row="3"
+        Width="120"
+        HorizontalAlignment="Center"
+        Margin="0,20,0,0"
+        Click="LeaveRoomButton_Click"/>
     </Grid>
 </Window>
