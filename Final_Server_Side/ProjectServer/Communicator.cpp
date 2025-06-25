@@ -90,7 +90,7 @@ void Communicator::handleNewClient()
                 if (loginResponse.status)
 
                 {
-                    Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                    Helper::sendData(clientSocket, buffer);
                     {
                         m_clients[clientSocket] = result.newHandler;
                         handlerAddedToMap = true;
@@ -105,7 +105,7 @@ void Communicator::handleNewClient()
                 }
                 else
                 {
-                    Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                    Helper::sendData(clientSocket, buffer);
                 }
             }
         }
@@ -137,7 +137,7 @@ void Communicator::handleClient(SOCKET sock)
             // process the request through the current handler
             RequestResult result = handler->handleRequest(request);
             // send back the response
-            Helper::sendData(sock, string(result.response.begin(), result.response.end()));
+            Helper::sendData(sock, result.response);
             // if the handler changed, replace and delete the old one
             if (result.newHandler != handler)
             {
@@ -174,7 +174,7 @@ void Communicator::handleClient(SOCKET sock)
 
                         request = Helper::getRequestInfo(sock);
                         result = handler->handleRequest(request);
-                        Helper::sendData(sock, string(result.response.begin(), result.response.end()));
+                        Helper::sendData(sock, result.response);
                     }
                 }
                 else

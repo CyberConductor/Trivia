@@ -24,6 +24,7 @@ void Room::addUser(LoggedUser user, IRequestHandler* handler)
         if (pair.first.getUsername() == user.getUsername())
             return;
     m_users.insert({ user, handler });
+    m_joinOrder.push_back(user.getUsername());
     currentUsers++;
 }
 
@@ -33,7 +34,6 @@ void Room::removeUser(LoggedUser user)
     {
         if (pair.first.getUsername() == user.getUsername())
         {
-            delete(pair.second);
             m_users.erase(user);
             if (--currentUsers == 0)
                 m_metadata.status = false;
@@ -44,8 +44,5 @@ void Room::removeUser(LoggedUser user)
 
 vector<string> Room::getAllUsers()
 {
-    vector<string> res;
-    for (auto& user : m_users)
-        res.push_back(user.first.getUsername());
-    return res;
+    return m_joinOrder;
 }

@@ -57,7 +57,8 @@ vector<RoomData> RoomManager::getRooms()
 	vector<RoomData> res;
 
 	for (auto it = m_rooms.begin(); it != m_rooms.end(); ++it)
-		res.push_back( it->second.m_metadata );
+		if(it->second.getAllUsers().size() < it->second.m_metadata.maxPlayers)//check if there a place avilable for more players
+			res.push_back( it->second.m_metadata );
 
 	return res;
 }

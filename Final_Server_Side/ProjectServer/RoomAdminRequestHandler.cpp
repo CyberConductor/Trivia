@@ -37,7 +37,7 @@ RequestResult RoomAdminRequestHandler::closeRoom(RequestInfo requestInfo)
 			dynamic_cast<RoomAdminRequestHandler*>(user.second))
 		{
 			Buffer buffer = JsonResponsePacketSerializer::serializeLeaveRoomResponse({ 1 });
-			Helper::sendData(user.first.getSocket(), std::string(buffer.begin(), buffer.end()));
+			Helper::sendData(user.first.getSocket(), buffer);
 		}
 	}
 
@@ -56,7 +56,7 @@ RequestResult RoomAdminRequestHandler::startGame(RequestInfo)
 		if (RoomMemberRequestHandler* memberHandler = dynamic_cast<RoomMemberRequestHandler*>(user.second))
 		{
 			Buffer buffer = JsonResponsePacketSerializer::serializeStartGameResponse({ 1 });
-			Helper::sendData(user.first.getSocket(), std::string(buffer.begin(), buffer.end()));
+			Helper::sendData(user.first.getSocket(), buffer);
 
 			// convert to game request handler
 			user.second = m_handlerFactory.createGameRequestHandler(user.first, m_room, memberHandler);

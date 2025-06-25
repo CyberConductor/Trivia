@@ -18,7 +18,7 @@ RequestHandlerFactory::~RequestHandlerFactory() { delete m_database; }
 
 IRequestHandler* RequestHandlerFactory::createLoginRequestHandler(SOCKET sock)
 { return new LoginRequestHandler(*this, sock); }
-IRequestHandler* RequestHandlerFactory::createMenuRequestHandler(LoggedUser user) 
+IRequestHandler* RequestHandlerFactory::createMenuRequestHandler(LoggedUser user)
 { return new MenuRequestHandler(*this, user); }
 IRequestHandler* RequestHandlerFactory::createRoomAdminRequestHandler(LoggedUser user, Room& room)
 { return new RoomAdminRequestHandler(*this, user, room); }

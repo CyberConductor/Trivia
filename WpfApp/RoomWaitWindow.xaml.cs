@@ -21,7 +21,7 @@ namespace WpfApp
 
             refreshTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(15)
+                Interval = TimeSpan.FromSeconds(60)
             };
             refreshTimer.Tick += RefreshRoomState;
             refreshTimer.Start();
@@ -101,8 +101,9 @@ namespace WpfApp
         private void CloseRoomButton_Click(object sender, RoutedEventArgs e)
         {
             string json = JsonSerializer.Serialize(new { roomId = this.roomId });
-            string res = App.Communicator.SendRequest((byte)Requests.Request_CloseRoom, json);
-            MessageBox.Show(res);
+			
+            string response = App.Communicator.SendRequest((byte)Requests.Request_CloseRoom, json);
+            MessageBox.Show(response);
 
             refreshTimer.Stop();
             GoToMenu("Room was closed.");

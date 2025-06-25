@@ -42,6 +42,7 @@ public:
 	RoomData m_metadata;
 private:
 	map<LoggedUser, IRequestHandler*> m_users;
+	vector<string> m_joinOrder;
 	//Helper count
 	unsigned int currentUsers;
 

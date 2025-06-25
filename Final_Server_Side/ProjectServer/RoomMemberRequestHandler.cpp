@@ -27,5 +27,9 @@ RequestResult RoomMemberRequestHandler::leaveRoom(RequestInfo)
 	m_room.removeUser(m_user);
 
 	Buffer buffer = JsonResponsePacketSerializer::serializeLeaveRoomResponse({ 1 });
+	//debug
+	std::cout << "buffer size: " << buffer.size() << std::endl;
+	for (uint8_t b : buffer) std::cout << (int)b << " ";
+
 	return RequestResult({ buffer, m_handlerFactory.createMenuRequestHandler(m_user) });
 }
