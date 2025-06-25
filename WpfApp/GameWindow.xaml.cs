@@ -46,19 +46,17 @@ namespace WpfApp
             try
             {
                 string response = App.Communicator.SendRequest((byte)Requests.Request_GetQuestion, "{}");
-                MessageBox.Show(response);
                 var jsonDoc = JsonDocument.Parse(response);
                 var root = jsonDoc.RootElement;
 
                 if (root.GetProperty("status").GetInt32() == 1)
                 {
                     string question = root.GetProperty("question").GetString();
-                    var answersJson = root.GetProperty("answers").EnumerateObject();
 
-                    currentAnswers = answersJson.ToDictionary(
-                        a => int.Parse(a.Name),
-                        a => a.Value.GetString()
-                    );
+                    // Fix: extract numeric properties only
+                    currentAnswers = root.EnumerateObject()
+                        .Where(p => int.TryParse(p.Name, out _))
+                        .ToDictionary(p => int.Parse(p.Name), p => p.Value.GetString());
 
                     QuestionTextBlock.Text = $"Q{currentQuestionIndex + 1}: {question}";
                     AnswersListBox.ItemsSource = currentAnswers.ToList();
@@ -79,6 +77,7 @@ namespace WpfApp
                 MessageBox.Show("Error loading question: " + ex.Message);
             }
         }
+
 
         private void SubmitAnswerButton_Click(object sender, RoutedEventArgs e)
         {
