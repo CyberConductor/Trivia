@@ -110,15 +110,18 @@ namespace WpfApp
 
         private void LeaveRoomButton_Click(object sender, RoutedEventArgs e)
         {
+            refreshTimer.Stop(); // Stop before making network calls
+
             string json = JsonSerializer.Serialize(new { roomId = this.roomId });
-            string response = App.Communicator.SendRequest((byte)Requests.Request_LeaveRoom, json);
+            string response;
 
             try
             {
+                response = App.Communicator.SendRequest((byte)Requests.Request_LeaveRoom, json);
+
                 var data = JsonSerializer.Deserialize<JsonElement>(response);
                 if (data.TryGetProperty("status", out var status) && status.GetInt32() == 1)
                 {
-                    refreshTimer.Stop();
                     MessageBox.Show("You have left the room.");
                     GoToMenu();
                 }
