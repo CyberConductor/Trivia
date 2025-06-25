@@ -13,7 +13,6 @@ namespace WpfApp
         private readonly DispatcherTimer refreshTimer;
         private readonly int roomId;
         private string admin = "";
-        private int tickCount = 0;
 
         public RoomWaitWindow(int roomId)
         {
@@ -32,21 +31,42 @@ namespace WpfApp
 
         private void RefreshRoomState(object sender, EventArgs e)
         {
-            tickCount++;
-
-            // Every third tick, update player list
-            if (tickCount % 3 == 0)
-            {
-                UpdatePlayersListFromGetPlayersInRoom();
-            }
-
             try
             {
                 string stateJson = JsonSerializer.Serialize(new { roomId = this.roomId });
                 string stateResponse = App.Communicator.SendRequest((byte)Requests.Request_GetRoomState, stateJson);
-                MessageBox.Show(stateResponse);
                 var stateData = JsonSerializer.Deserialize<JsonElement>(stateResponse);
-                
+
+                // Update players and admin controls
+                if (stateData.TryGetProperty("players", out JsonElement playersElement))
+                {
+                    var playersList = playersElement.EnumerateArray()
+                        .Select(p => p.GetString())
+                        .Where(p => !string.IsNullOrEmpty(p))
+                        .ToList();
+
+                    Dispatcher.Invoke(() =>
+                    {
+                        PlayersListBox.ItemsSource = null;
+                        PlayersListBox.ItemsSource = playersList;
+
+                        if (playersList.Count > 0)
+                        {
+                            admin = playersList[0];
+                            AdminTextBlock.Text = $"Admin: {admin}";
+                            AdminControlsPanel.Visibility = (App.CurrentUser == admin)
+                                ? Visibility.Visible
+                                : Visibility.Collapsed;
+                        }
+                        else
+                        {
+                            AdminTextBlock.Text = "No players found.";
+                            AdminControlsPanel.Visibility = Visibility.Collapsed;
+                        }
+                    });
+                }
+
+                // Check if game started
                 if (stateData.TryGetProperty("hasGameBegun", out JsonElement started) && started.GetBoolean())
                 {
                     refreshTimer.Stop();
@@ -54,6 +74,7 @@ namespace WpfApp
                     return;
                 }
 
+                // Check if room closed
                 if (stateData.TryGetProperty("status", out JsonElement status) && status.GetInt32() == 0)
                 {
                     refreshTimer.Stop();
@@ -63,43 +84,10 @@ namespace WpfApp
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error refreshing room state:\n" + ex.Message);
-            }
-        }
-
-        private void UpdatePlayersListFromGetPlayersInRoom()
-        {
-            try
-            {
-                string json = JsonSerializer.Serialize(new { roomId = this.roomId });
-                string response = App.Communicator.SendRequest((byte)Requests.Request_GetPlayersInRoom, json);
-                var data = JsonSerializer.Deserialize<JsonElement>(response);
-
-                if (data.TryGetProperty("players", out JsonElement playersElement))
+                Dispatcher.Invoke(() =>
                 {
-                    var playersList = playersElement.EnumerateArray()
-                        .Select(p => p.GetString())
-                        .Where(p => !string.IsNullOrEmpty(p))
-                        .ToList();
-
-                    PlayersListBox.ItemsSource = playersList;
-
-                    if (playersList.Count > 0)
-                    {
-                        admin = playersList[0];
-                        AdminTextBlock.Text = $"Admin: {admin}";
-                        AdminControlsPanel.Visibility = (App.CurrentUser == admin) ? Visibility.Visible : Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        AdminTextBlock.Text = "No players found.";
-                        AdminControlsPanel.Visibility = Visibility.Collapsed;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error fetching players:\n" + ex.Message);
+                    MessageBox.Show("Error refreshing room state:\n" + ex.Message);
+                });
             }
         }
 
