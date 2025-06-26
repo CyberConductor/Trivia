@@ -113,14 +113,15 @@ namespace WpfApp
             {
                 questionTimer.Stop();
 
-                int answerId = selectedAnswer.Key;
+
+                // ✅ Calculate time taken to answer
                 double timeTakenSeconds = (DateTime.Now - questionStartTime).TotalSeconds;
 
                 var json = JsonSerializer.Serialize(new
                 {
                     answerId = answerId,
                     roomId = roomId,
-                    timeTaken = Math.Round(timeTakenSeconds, 2) // Optional: send this to server
+                    timeTaken = Math.Round(timeTakenSeconds, 2) // Round to 2 decimals
                 });
 
                 try
@@ -140,6 +141,7 @@ namespace WpfApp
                 MessageBox.Show("Please select an answer before submitting.");
             }
         }
+
 
         private void LeaveGameButton_Click(object sender, RoutedEventArgs e)
         {
@@ -183,7 +185,7 @@ namespace WpfApp
                         int correct = player.GetProperty("correctAnswersCount").GetInt32();
                         int wrong = player.GetProperty("wrongAnswersCount").GetInt32();
 
-                        scores.Add($"{username}: ✔️ {correct} | ❌ {wrong}");
+                        scores.Add($"{username}: Correct: {correct} | Worng: {wrong}");
                     }
 
                     string message = "Game Over!\n\nResults:\n" + string.Join("\n", scores);
