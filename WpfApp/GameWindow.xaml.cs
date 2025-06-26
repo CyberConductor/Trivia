@@ -22,6 +22,8 @@ namespace WpfApp
         private int secondsRemaining;
         private DateTime questionStartTime;
 
+        private int correctAnswersCount = 0;
+
         public GameWindow(int roomId, List<string> players, int questionCount, int answerTimeOut)
         {
             InitializeComponent();
@@ -41,6 +43,8 @@ namespace WpfApp
         private void InitializeGame()
         {
             currentQuestionIndex = 0;
+            correctAnswersCount = 0;
+            CorrectAnswersTextBlock.Text = $"Correct answers: {correctAnswersCount}";
             LoadNextQuestion();
         }
 
@@ -78,6 +82,7 @@ namespace WpfApp
                     secondsRemaining = answerTimeOut;
                     questionStartTime = DateTime.Now;
                     TimeRemainingTextBlock.Text = $"Time left: {secondsRemaining}s";
+
                     questionTimer.Start();
                 }
                 else
@@ -114,22 +119,32 @@ namespace WpfApp
                 questionTimer.Stop();
 
                 int answerId = selectedAnswer.Key;
-
-                // ✅ Calculate time taken to answer
                 double timeTakenSeconds = (DateTime.Now - questionStartTime).TotalSeconds;
 
                 var json = JsonSerializer.Serialize(new
                 {
                     answerId = answerId,
                     roomId = roomId,
-                    //time taken with 2 decimals after the dot:
-                    timeTaken = Math.Round(timeTakenSeconds, 2) 
+                    timeTaken = Math.Round(timeTakenSeconds, 2)
                 });
 
                 try
                 {
                     string response = App.Communicator.SendRequest((byte)Requests.Request_SubmitAnswer, json);
-                    MessageBox.Show(response);
+
+                    var jsonDoc = JsonDocument.Parse(response);
+                    var root = jsonDoc.RootElement;
+
+                    if (root.TryGetProperty("correctAnswerId", out var correctAnswerIdProp))
+                    {
+                        int correctAnswerId = correctAnswerIdProp.GetInt32();
+
+                        if (answerId == correctAnswerId)
+                        {
+                            correctAnswersCount++;
+                            CorrectAnswersTextBlock.Text = $"Correct answers: {correctAnswersCount}";
+                        }
+                    }
 
                     currentQuestionIndex++;
                     LoadNextQuestion();
@@ -144,7 +159,6 @@ namespace WpfApp
                 MessageBox.Show("Please select an answer before submitting.");
             }
         }
-
 
         private void LeaveGameButton_Click(object sender, RoutedEventArgs e)
         {
@@ -187,11 +201,22 @@ namespace WpfApp
                         string username = player.GetProperty("username").GetString();
                         int correct = player.GetProperty("correctAnswersCount").GetInt32();
                         int wrong = player.GetProperty("wrongAnswersCount").GetInt32();
+                        double avgTime = root.GetProperty("averageAnswerTime").GetDouble();
 
-                        scores.Add($"{username}: Correct: {correct} | Worng: {wrong}");
+                        scores.Add($"{username}: Correct: {correct} | Wrong: {wrong} | Avg Time: {avgTime:F2} sec");
                     }
 
                     string message = "Game Over!\n\nResults:\n" + string.Join("\n", scores);
+
+                    // Determine winner by highest correct answers (tie possible)
+                    int maxCorrect = resultsElement.EnumerateArray().Max(p => p.GetProperty("correctAnswersCount").GetInt32());
+                    var winners = resultsElement.EnumerateArray()
+                        .Where(p => p.GetProperty("correctAnswersCount").GetInt32() == maxCorrect)
+                        .Select(p => p.GetProperty("username").GetString())
+                        .ToList();
+
+                    message += "\n\nWinner(s): " + string.Join(", ", winners);
+
                     MessageBox.Show(message, "Game Results");
                 }
                 else
