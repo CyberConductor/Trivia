@@ -1,12 +1,74 @@
-﻿<Window x:Class="WpfApp.statistics"
+﻿<Window x:Class="WpfApp.Statistics"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfApp"
-        mc:Ignorable="d"
-        Title="statistics" Height="450" Width="800">
-    <Grid>
-        
+        Title="Statistics Menu" Height="350" Width="350"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#f7f9fc">
+
+    <Grid Margin="20">
+
+        <!-- Main Content Box -->
+        <Border CornerRadius="10"
+                Background="White"
+                Padding="20"
+                BorderBrush="#cccccc"
+                BorderThickness="1"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Width="280"
+                Height="250">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="220">
+
+                <!-- Title -->
+                <TextBlock Text="📊 Statistics Menu"
+                           FontSize="22"
+                           FontWeight="SemiBold"
+                           Foreground="#2c3e50"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,20"/>
+
+                <!-- Personal Statistics Button -->
+                <Button Name="PersonalStatsButton"
+                        Content="Personal Statistics"
+                        Height="40"
+                        Width="200"
+                        Margin="0,0,0,10"
+                        Background="#3498db"
+                        Foreground="White"
+                        FontWeight="Bold"
+                        BorderBrush="#2980b9"
+                        Cursor="Hand"
+                        Click="PersonalStatsButton_Click"/>
+
+                <!-- High Scores Table Button -->
+                <Button Name="HighScoresButton"
+                        Content="High Scores Table"
+                        Height="40"
+                        Width="200"
+                        Background="#2ecc71"
+                        Foreground="White"
+                        FontWeight="Bold"
+                        BorderBrush="#27ae60"
+                        Cursor="Hand"
+                        Click="HighScoresButton_Click"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Back Button on Top Right -->
+        <Button x:Name="BackButton"
+                Content="←"
+                Width="50"
+                Height="30"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Background="Transparent"
+                Foreground="#2c3e50"
+                BorderBrush="Transparent"
+                FontSize="16"
+                FontWeight="Bold"
+                ToolTip="Back to Menu"
+                Cursor="Hand"
+                Click="BackButton_Click" Margin="0,22,10,0" RenderTransformOrigin="5.64,1.301"/>
     </Grid>
 </Window>

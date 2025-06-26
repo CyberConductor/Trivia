@@ -3,16 +3,22 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using TriviaClient.Network;
+using WpfApp;
+
 namespace WpfApp1
 {
-    /// <summary>
-    /// Interaction logic for SignUp.xaml
-    /// </summary>
     public partial class SignUp : Window
     {
         public SignUp()
         {
             InitializeComponent();
+        }
+
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            Login loginWindow = new Login(); 
+            loginWindow.Show();
+            this.Close();
         }
 
         private void RemoveText(object sender, RoutedEventArgs e)
@@ -52,7 +58,7 @@ namespace WpfApp1
                 email = email
             });
 
-            string response = ServerCommunicator.SendRequest(2, payload); // Code 2 = Sign Up
+            string response = App.Communicator.SendRequest((int)Requests.Request_Signup, payload);
 
             MessageBox.Show(response);
         }

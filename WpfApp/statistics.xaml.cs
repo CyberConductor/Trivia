@@ -1,27 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using WpfApp1;
 
 namespace WpfApp
 {
-    /// <summary>
-    /// Interaction logic for statistics.xaml
-    /// </summary>
-    public partial class statistics : Window
+    public partial class Statistics : Window
     {
-        public statistics()
+        public Statistics()
         {
             InitializeComponent();
+        }
+
+        private void HighScoresButton_Click(object sender, RoutedEventArgs e)
+        {
+            HighScore highscore = new HighScore();
+            highscore.Show();
+            this.Close();
+        }
+
+        private void PersonalStatsButton_Click(object sender, RoutedEventArgs e)
+        {
+            PersonalStatusWindow stWindow = new PersonalStatusWindow();
+            stWindow.Show();
+            this.Close();
+
+        }
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            Menu menu = new Menu(); 
+            menu.Show();
+            this.Close();
+        }
+
+
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            Menu menu = new Menu();
+            menu.Show();
+            this.Close();
         }
     }
 }
