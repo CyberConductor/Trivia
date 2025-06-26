@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace WpfApp
 {
@@ -17,6 +18,10 @@ namespace WpfApp
         private int currentQuestionIndex = 0;
         private Dictionary<int, string> currentAnswers = new();
 
+        private DispatcherTimer questionTimer;
+        private int secondsRemaining;
+        private DateTime questionStartTime;
+
         public GameWindow(int roomId, List<string> players, int questionCount, int answerTimeOut)
         {
             InitializeComponent();
@@ -25,6 +30,10 @@ namespace WpfApp
             this.players = players;
             this.questionCount = questionCount;
             this.answerTimeOut = answerTimeOut;
+
+            questionTimer = new DispatcherTimer();
+            questionTimer.Interval = TimeSpan.FromSeconds(1);
+            questionTimer.Tick += QuestionTimer_Tick;
 
             InitializeGame();
         }
@@ -53,7 +62,6 @@ namespace WpfApp
                 {
                     string question = root.GetProperty("question").GetString();
 
-                    // Fix: extract numeric properties only
                     currentAnswers = root.EnumerateObject()
                         .Where(p => int.TryParse(p.Name, out _))
                         .ToDictionary(p => int.Parse(p.Name), p => p.Value.GetString());
@@ -65,6 +73,12 @@ namespace WpfApp
                     AnswersListBox.SelectedIndex = -1;
 
                     TimerTextBlock.Text = $"Question {currentQuestionIndex + 1} of {questionCount}";
+
+                    // Start timer
+                    secondsRemaining = answerTimeOut;
+                    questionStartTime = DateTime.Now;
+                    TimeRemainingTextBlock.Text = $"Time left: {secondsRemaining}s";
+                    questionTimer.Start();
                 }
                 else
                 {
@@ -78,23 +92,40 @@ namespace WpfApp
             }
         }
 
+        private void QuestionTimer_Tick(object sender, EventArgs e)
+        {
+            secondsRemaining--;
+            TimeRemainingTextBlock.Text = $"Time left: {secondsRemaining}s";
+
+            if (secondsRemaining <= 0)
+            {
+                questionTimer.Stop();
+                MessageBox.Show("Time's up! Moving to next question.");
+
+                currentQuestionIndex++;
+                LoadNextQuestion();
+            }
+        }
 
         private void SubmitAnswerButton_Click(object sender, RoutedEventArgs e)
         {
             if (AnswersListBox.SelectedItem is KeyValuePair<int, string> selectedAnswer)
             {
+                questionTimer.Stop();
+
                 int answerId = selectedAnswer.Key;
+                double timeTakenSeconds = (DateTime.Now - questionStartTime).TotalSeconds;
 
                 var json = JsonSerializer.Serialize(new
                 {
                     answerId = answerId,
-                    roomId = roomId
+                    roomId = roomId,
+                    timeTaken = Math.Round(timeTakenSeconds, 2) // Optional: send this to server
                 });
 
                 try
                 {
                     string response = App.Communicator.SendRequest((byte)Requests.Request_SubmitAnswer, json);
-
 
                     currentQuestionIndex++;
                     LoadNextQuestion();
@@ -117,8 +148,8 @@ namespace WpfApp
             {
                 try
                 {
+                    questionTimer.Stop();
                     string leaveResponse = App.Communicator.SendRequest((byte)Requests.Request_LeaveGame, "{}");
-
 
                     Menu menu = new Menu();
                     menu.Show();
@@ -135,6 +166,8 @@ namespace WpfApp
         {
             try
             {
+                questionTimer.Stop();
+
                 string response = App.Communicator.SendRequest((byte)Requests.Request_GetGameResults, "{}");
                 var jsonDoc = JsonDocument.Parse(response);
                 var root = jsonDoc.RootElement;
