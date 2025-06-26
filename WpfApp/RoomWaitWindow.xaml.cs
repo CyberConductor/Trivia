@@ -26,104 +26,122 @@ namespace WpfApp
             refreshTimer.Tick += RefreshRoomState;
             refreshTimer.Start();
 
-            RefreshRoomState(null, null); // Immediate load
+            RefreshRoomState(null, null); // Initial immediate refresh
         }
 
         private void RefreshRoomState(object sender, EventArgs e)
         {
-            // First: Get players in the room
-            string playerJson = JsonSerializer.Serialize(new { roomId = this.roomId });
-            string playerResponse = App.Communicator.SendRequest((byte)Requests.Request_GetPlayersInRoom, playerJson);
-
             try
             {
-                var playersData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(playerResponse);
+                string stateJson = JsonSerializer.Serialize(new { roomId = this.roomId });
+                string stateResponse = App.Communicator.SendRequest((byte)Requests.Request_GetRoomState, stateJson);
+                var stateData = JsonSerializer.Deserialize<JsonElement>(stateResponse);
 
-                if (playersData != null && playersData.TryGetValue("players", out JsonElement playersElement))
+                // Update players and admin controls
+                if (stateData.TryGetProperty("players", out JsonElement playersElement))
                 {
                     var playersList = playersElement.EnumerateArray()
                         .Select(p => p.GetString())
                         .Where(p => !string.IsNullOrEmpty(p))
                         .ToList();
 
-                    PlayersListBox.ItemsSource = playersList;
-
-                    if (playersList.Count > 0)
+                    Dispatcher.Invoke(() =>
                     {
-                        admin = playersList[0];
-                        AdminTextBlock.Text = $"Admin: {admin}";
-                        AdminControlsPanel.Visibility = (App.CurrentUser == admin) ? Visibility.Visible : Visibility.Collapsed;
-                    }
+                        PlayersListBox.ItemsSource = null;
+                        PlayersListBox.ItemsSource = playersList;
+
+                        if (playersList.Count > 0)
+                        {
+                            admin = playersList[0];
+                            AdminTextBlock.Text = $"Admin: {admin}";
+
+                            bool isAdmin = (App.CurrentUser == admin);
+
+                            AdminControlsPanel.Visibility = isAdmin
+                                ? Visibility.Visible
+                                : Visibility.Collapsed;
+
+                            LeaveRoomButton.Visibility = isAdmin
+                                ? Visibility.Collapsed
+                                : Visibility.Visible;
+                        }
+                        else
+                        {
+                            AdminTextBlock.Text = "No players found.";
+                            AdminControlsPanel.Visibility = Visibility.Collapsed;
+                            LeaveRoomButton.Visibility = Visibility.Visible;
+                        }
+                    });
                 }
-                else
-                {
-                    AdminTextBlock.Text = "No players found.";
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error getting players:\n" + ex.Message + "\nRaw response:\n" + playerResponse);
-                return;
-            }
 
-            // Second: Check if game has started or room is closed
-            string stateJson = JsonSerializer.Serialize(new { roomId = this.roomId });
-            string stateResponse = App.Communicator.SendRequest((byte)Requests.Request_GetRoomState, stateJson);
-
-            try
-            {
-                var stateData = JsonSerializer.Deserialize<JsonElement>(stateResponse);
-
+                // Check if game started
                 if (stateData.TryGetProperty("hasGameBegun", out JsonElement started) && started.GetBoolean())
                 {
                     refreshTimer.Stop();
-                    MessageBox.Show("Game has started!");
-                    // TODO: Open game window
-                    this.Close();
+                    GoToGame();
+                    return;
                 }
 
+                
                 if (stateData.TryGetProperty("status", out JsonElement status) && status.GetInt32() == 0)
                 {
                     refreshTimer.Stop();
-                    MessageBox.Show("Room was closed.");
-                    this.Close();
+                    GoToMenu("Room was closed.");
+                    return;
                 }
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error checking room state:\n" + ex.Message + "\nRaw response:\n" + stateResponse);
+                Dispatcher.Invoke(() =>
+                {
+                    //means that room was closed:
+                    if (ex.Message.Contains("'E' is an invalid start of a value"))
+                    {
+                        GoToMenu("Room was closed or no longer exists.");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error refreshing room state:\n" + ex.Message);
+                    }
+                });
             }
         }
-
 
         private void StartGameButton_Click(object sender, RoutedEventArgs e)
         {
             string json = JsonSerializer.Serialize(new { roomId = this.roomId });
-            string response = App.Communicator.SendRequest((byte)Requests.Request_StartGame, json);
+            string res = App.Communicator.SendRequest((byte)Requests.Request_StartGame, json);
+            MessageBox.Show(res);
         }
 
         private void CloseRoomButton_Click(object sender, RoutedEventArgs e)
         {
             string json = JsonSerializer.Serialize(new { roomId = this.roomId });
+
             string response = App.Communicator.SendRequest((byte)Requests.Request_CloseRoom, json);
-            refreshTimer.Stop();
-            MessageBox.Show("Room closed.");
-            this.Close();
+            MessageBox.Show(response);
+
+            refreshTimer.Stop(); 
+            GoToMenu("Room was closed."); 
         }
 
         private void LeaveRoomButton_Click(object sender, RoutedEventArgs e)
         {
+            refreshTimer.Stop(); // Stop before making network calls
+
             string json = JsonSerializer.Serialize(new { roomId = this.roomId });
-            string response = App.Communicator.SendRequest((byte)Requests.Request_LeaveRoom, json);
+            string response;
 
             try
             {
+                response = App.Communicator.SendRequest((byte)Requests.Request_LeaveRoom, json);
+
                 var data = JsonSerializer.Deserialize<JsonElement>(response);
                 if (data.TryGetProperty("status", out var status) && status.GetInt32() == 1)
                 {
-                    refreshTimer.Stop();
                     MessageBox.Show("You have left the room.");
-                    this.Close();
+                    GoToMenu();
                 }
                 else
                 {
@@ -134,6 +152,51 @@ namespace WpfApp
             {
                 MessageBox.Show("Error processing leave room response: " + ex.Message);
             }
+        }
+
+        private void GoToGame()
+        {
+            string stateJson = JsonSerializer.Serialize(new { roomId = this.roomId });
+            string stateResponse = App.Communicator.SendRequest((byte)Requests.Request_GetRoomState, stateJson);
+            var stateData = JsonSerializer.Deserialize<JsonElement>(stateResponse);
+
+            List<string> playersList = new List<string>();
+            int questionCount = 5;
+            int answerTimeOut = 10;
+
+            if (stateData.TryGetProperty("players", out JsonElement playersElement))
+            {
+                playersList = playersElement.EnumerateArray()
+                    .Select(p => p.GetString())
+                    .Where(p => !string.IsNullOrEmpty(p))
+                    .ToList();
+            }
+
+            if (stateData.TryGetProperty("questionCount", out JsonElement questionCountElement))
+            {
+                questionCount = questionCountElement.GetInt32();
+            }
+
+            if (stateData.TryGetProperty("answerTimeOut", out JsonElement answerTimeOutElement))
+            {
+                answerTimeOut = answerTimeOutElement.GetInt32();
+            }
+
+            GameWindow gameWindow = new GameWindow(this.roomId, playersList, questionCount, answerTimeOut);
+            gameWindow.Show();
+            this.Close();
+        }
+
+        private void GoToMenu(string message = null)
+        {
+            if (!string.IsNullOrEmpty(message))
+            {
+                MessageBox.Show(message);
+            }
+
+            Menu menu = new Menu();
+            menu.Show();
+            this.Close();
         }
 
         protected override void OnClosed(EventArgs e)

@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Text.Json;
+using System;
+using System.Windows;
 using WpfApp1;
 
 namespace WpfApp
@@ -8,6 +10,7 @@ namespace WpfApp
         public Menu()
         {
             InitializeComponent();
+            UpdateSignOutButtonVisibility();
         }
 
         private void JoinRoom_Click(object sender, RoutedEventArgs e)
@@ -39,7 +42,32 @@ namespace WpfApp
             statistics.Show();
             this.Close();
 
-                
+
+        }
+        private void UpdateSignOutButtonVisibility()
+        {
+            SignOutButton.Visibility = string.IsNullOrEmpty(App.CurrentUser) ? Visibility.Collapsed : Visibility.Visible;
+        }
+        private void SignOutButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string json = JsonSerializer.Serialize(new { }); // if no params needed
+                string response = App.Communicator.SendRequest((byte)Requests.Request_Signout, json);
+
+                // Clear current user info
+                App.CurrentUser = null;
+
+                MessageBox.Show("You have signed out.");
+
+                Login login = new Login();
+                login.Show();
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Sign out failed: " + ex.Message);
+            }
         }
     }
 }

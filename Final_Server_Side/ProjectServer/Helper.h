@@ -4,6 +4,7 @@
 #include <WinSock2.h>
 #include "IRequestHandler.h"
 
+using Buffer = vector<unsigned char>;
 using std::string;
 
 enum MessageType : byte
@@ -17,7 +18,7 @@ class Helper
 {
 public:
 	static RequestInfo getRequestInfo(const SOCKET sc);
-	static void sendData(const SOCKET, string);
+	static void sendData(const SOCKET, const Buffer&);
 
 private:
 	static string getPartFromSocket(const SOCKET sc, const int bytesNum);

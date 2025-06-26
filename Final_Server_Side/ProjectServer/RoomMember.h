@@ -1,5 +1,4 @@
 #pragma once
-
 #include "IRequestHandler.h"
 #include "RoomManager.h"
 #include "RequestHandlerFactory.h"
@@ -32,10 +31,7 @@ protected:
 			m_room.m_metadata.timePerQuestion 
 		};
 		Buffer buffer = JsonResponsePacketSerializer::serializeGetRoomStateResponse({ state });
-		RequestResult result;
-		result.response = buffer;
-		result.newHandler = m_handlerFactory.createMenuRequestHandler(m_user);
-		return result;
+		return { buffer , this };
 	}
 	//attributes
 	Room& m_room;

@@ -55,6 +55,7 @@ struct JoinRoomResponse
 struct CreateRoomResponse
 {
 	unsigned int status;
+	unsigned int id;
 };
 
 struct getHighScoreResponse

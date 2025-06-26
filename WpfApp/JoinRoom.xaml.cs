@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Threading;
@@ -13,7 +14,7 @@ namespace WpfApp
         private class RoomData
         {
             public int id { get; set; }
-            public string name { get; set; }  // Changed from roomName to name
+            public string name { get; set; }
             public int maxPlayers { get; set; }
             public int numOfQuestionsInGame { get; set; }
             public int timePerQuestion { get; set; }
@@ -29,7 +30,7 @@ namespace WpfApp
         public JoinRoom()
         {
             InitializeComponent();
-
+            UpdateSignOutButtonVisibility();
             _refreshTimer = new DispatcherTimer();
             _refreshTimer.Interval = TimeSpan.FromSeconds(3);
             _refreshTimer.Tick += RefreshTimer_Tick;
@@ -58,7 +59,7 @@ namespace WpfApp
                     if (rooms != null && rooms.Count > 0)
                     {
                         RoomsListBox.ItemsSource = rooms;
-                        RoomsListBox.Items.Refresh();  // Refresh the ListBox
+                        RoomsListBox.Items.Refresh();  
                     }
                     else
                     {
@@ -76,6 +77,10 @@ namespace WpfApp
             }
         }
 
+        
+           
+      
+
         private void JoinRoomButton_Click(object sender, RoutedEventArgs e)
         {
             if (RoomsListBox.SelectedItem is not RoomData selectedRoom)
@@ -84,20 +89,21 @@ namespace WpfApp
                 return;
             }
 
-            // Send join room request to server
+
             string joinJson = JsonSerializer.Serialize(new { roomId = selectedRoom.id });
             string joinResponse = App.Communicator.SendRequest((byte)Requests.Request_JoinRoom, joinJson);
+            
 
             try
             {
                 var joinData = JsonSerializer.Deserialize<JsonElement>(joinResponse);
                 if (joinData.TryGetProperty("status", out var status) && status.GetInt32() == 1)
                 {
-                    // Success - open wait window
+                   
                     var waitWindow = new RoomWaitWindow(selectedRoom.id);
                     waitWindow.Show();
 
-                    // Close JoinRoom window
+                 
                     this.Close();
                 }
                 else
@@ -110,8 +116,30 @@ namespace WpfApp
                 MessageBox.Show("Error joining room: " + ex.Message + "\nResponse: " + joinResponse);
             }
         }
+        private void UpdateSignOutButtonVisibility()
+        {
+            SignOutButton.Visibility = string.IsNullOrEmpty(App.CurrentUser) ? Visibility.Collapsed : Visibility.Visible;
+        }
+        private void SignOutButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string json = JsonSerializer.Serialize(new { }); // if no params needed
+                string response = App.Communicator.SendRequest((byte)Requests.Request_Signout, json);
 
+                // Clear current user info
+                App.CurrentUser = null;
 
+                MessageBox.Show("You have signed out.");
+
+                // Redirect to menu or login screen
+                //;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Sign out failed: " + ex.Message);
+            }
+        }
         protected override void OnClosed(EventArgs e)
         {
             _refreshTimer.Stop();

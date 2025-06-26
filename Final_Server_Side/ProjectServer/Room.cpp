@@ -1,6 +1,7 @@
 #include "Room.h"
 #include "IRequestHandler.h"
 #include "RoomAdminRequestHandler.h"
+#include <algorithm> 
 
 Room::Room(RoomData data) 
     : m_metadata(data)
@@ -24,6 +25,7 @@ void Room::addUser(LoggedUser user, IRequestHandler* handler)
         if (pair.first.getUsername() == user.getUsername())
             return;
     m_users.insert({ user, handler });
+    m_joinOrder.push_back(user.getUsername());
     currentUsers++;
 }
 
@@ -33,8 +35,12 @@ void Room::removeUser(LoggedUser user)
     {
         if (pair.first.getUsername() == user.getUsername())
         {
-            delete(pair.second);
             m_users.erase(user);
+            m_joinOrder.erase(
+                std::remove(m_joinOrder.begin(), m_joinOrder.end(), user.getUsername()),
+                m_joinOrder.end()
+            );
+
             if (--currentUsers == 0)
                 m_metadata.status = false;
             return;
@@ -44,8 +50,5 @@ void Room::removeUser(LoggedUser user)
 
 vector<string> Room::getAllUsers()
 {
-    vector<string> res;
-    for (auto& user : m_users)
-        res.push_back(user.first.getUsername());
-    return res;
+    return m_joinOrder;
 }
