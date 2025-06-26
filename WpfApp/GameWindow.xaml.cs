@@ -113,6 +113,7 @@ namespace WpfApp
             {
                 questionTimer.Stop();
 
+                int answerId = selectedAnswer.Key;
 
                 // ✅ Calculate time taken to answer
                 double timeTakenSeconds = (DateTime.Now - questionStartTime).TotalSeconds;
@@ -121,12 +122,14 @@ namespace WpfApp
                 {
                     answerId = answerId,
                     roomId = roomId,
-                    timeTaken = Math.Round(timeTakenSeconds, 2) // Round to 2 decimals
+                    //time taken with 2 decimals after the dot:
+                    timeTaken = Math.Round(timeTakenSeconds, 2) 
                 });
 
                 try
                 {
                     string response = App.Communicator.SendRequest((byte)Requests.Request_SubmitAnswer, json);
+                    MessageBox.Show(response);
 
                     currentQuestionIndex++;
                     LoadNextQuestion();
