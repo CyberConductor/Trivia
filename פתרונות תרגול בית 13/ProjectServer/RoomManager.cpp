@@ -1,16 +1,10 @@
 #include "RoomManager.h"
-#include "RoomAdminRequestHandler.h"
-#include "RequestHandlerFactory.h"
 #include <cstdlib>
 #include <ctime>
 
-RoomManager::RoomManager(RequestHandlerFactory* factory) : m_handlerFactory(factory){}
+RoomManager::RoomManager(){}
 
-RoomManager::~RoomManager() 
-{ 
-	m_rooms.clear(); 
-	delete(m_handlerFactory);
-}
+RoomManager::~RoomManager() { m_rooms.clear(); }
 
 void RoomManager::createRoom(LoggedUser user, RoomData data)
 {
@@ -22,7 +16,7 @@ void RoomManager::createRoom(LoggedUser user, RoomData data)
 	}
 
 	Room room = Room(data);
-	room.addUser(user, m_handlerFactory->createRoomAdminRequestHandler(user, room));
+	room.addUser(user);
 	m_rooms.insert({ data.id, room });
 }
 
@@ -81,6 +75,7 @@ int RoomManager::getFreeId()
 	}
 }
 
+<<<<<<< HEAD
 //Room& RoomManager::getUserRoom(string username)
 //{
 //	for (auto& room : m_rooms)
@@ -91,3 +86,15 @@ int RoomManager::getFreeId()
 //				return room.second;
 //	}
 //}
+=======
+Room& RoomManager::getUserRoom(string username)
+{
+	for (auto& room : m_rooms)
+	{
+		vector<string> users = room.second.getAllUsers();
+		if (std::find(users.begin(), users.end(), username) != users.end())
+			return room.second;
+	}
+	return Room()
+}
+>>>>>>> origin/develop

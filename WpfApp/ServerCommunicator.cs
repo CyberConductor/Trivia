@@ -5,46 +5,76 @@ using System.Text;
 
 namespace TriviaClient.Network
 {
-    public static class ServerCommunicator
+    public class ServerCommunicator
     {
-        //connects to 127.0.0.1:8826, sends 1-byte code + 4-byte length + JSON, receives response
-        public static string SendRequest(byte code, string json)
+        private TcpClient client;
+        private NetworkStream stream;
+        const string SERVER_IP = "127.0.0.1";
+        const int PORT = 8826;
+
+        public ServerCommunicator()
         {
-            const string SERVER_IP = "127.0.0.1";
-            const int PORT = 8826;
+            client = new TcpClient(SERVER_IP, PORT);
+            stream = client.GetStream();
+        }
+
+        //connects to 127.0.0.1:8826, sends 1-byte code + 4-byte length + JSON, receives response
+        public string SendRequest(byte code, string json)
+        {
             try
             {
-                using (TcpClient client = new TcpClient(SERVER_IP, PORT))
-                using (NetworkStream stream = client.GetStream())
+                // Prepare request
+                byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
+                byte[] lengthBytes = BitConverter.GetBytes(jsonBytes.Length);
+                if (BitConverter.IsLittleEndian)
+                    Array.Reverse(lengthBytes);
+
+                byte[] message = new byte[1 + 4 + jsonBytes.Length];
+                message[0] = code;
+                Array.Copy(lengthBytes, 0, message, 1, 4);
+                Array.Copy(jsonBytes, 0, message, 5, jsonBytes.Length);
+
+                stream.Write(message, 0, message.Length);
+
+                // Read response code (1 byte)
+                int responseCode = stream.ReadByte();
+                if (responseCode == -1)
+                    return "Error: No response code received";
+
+                // Read length (4 bytes)
+                byte[] lenBuf = new byte[4];
+                int lenRead = stream.Read(lenBuf, 0, 4);
+                if (lenRead < 4)
+                    return "Error: Could not read response length";
+
+                if (BitConverter.IsLittleEndian)
+                    Array.Reverse(lenBuf);
+                int payloadLength = BitConverter.ToInt32(lenBuf, 0);
+
+                // Read payload
+                byte[] payload = new byte[payloadLength];
+                int totalRead = 0;
+                while (totalRead < payloadLength)
                 {
-                    // encode JSON payload
-                    byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
-
-                    // get 4-byte big-endian length
-                    byte[] lengthBytes = BitConverter.GetBytes(jsonBytes.Length);
-                    if (BitConverter.IsLittleEndian)
-                        Array.Reverse(lengthBytes); // convert to big-endian if needed
-
-                    // build final message: [code][length][json]
-                    byte[] message = new byte[1 + 4 + jsonBytes.Length];
-                    message[0] = code;
-                    Array.Copy(lengthBytes, 0, message, 1, 4);
-                    Array.Copy(jsonBytes, 0, message, 5, jsonBytes.Length);
-
-                    // send message
-                    stream.Write(message, 0, message.Length);
-
-                    // receive response
-                    byte[] responseBuffer = new byte[1024];
-                    int bytesRead = stream.Read(responseBuffer, 0, responseBuffer.Length);
-
-                    return Encoding.UTF8.GetString(responseBuffer, 0, bytesRead);
+                    int read = stream.Read(payload, totalRead, payloadLength - totalRead);
+                    if (read == 0)
+                        break; // connection closed
+                    totalRead += read;
                 }
+
+                return Encoding.UTF8.GetString(payload, 0, totalRead);
             }
             catch (Exception ex)
             {
                 return $"Error: {ex.Message}";
             }
+        }
+
+
+        public void Close()
+        {
+            stream.Close();
+            client.Close();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using WpfApp1;
 
 namespace WpfApp
 {
@@ -10,16 +11,34 @@ namespace WpfApp
             InitializeComponent();
         }
 
+        private void HighScoresButton_Click(object sender, RoutedEventArgs e)
+        {
+            HighScore highscore = new HighScore();
+            highscore.Show();
+            this.Close();
+        }
 
         private void PersonalStatsButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Personal statistics window would open here.");
-           
+            PersonalStatusWindow stWindow = new PersonalStatusWindow();
+            stWindow.Show();
+            this.Close();
+
+        }
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            Menu menu = new Menu(); 
+            menu.Show();
+            this.Close();
         }
 
-        private void HighScoresButton_Click(object sender, RoutedEventArgs e)
+
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("High scores table would open here.");
+            Menu menu = new Menu();
+            menu.Show();
+            this.Close();
         }
     }
 }

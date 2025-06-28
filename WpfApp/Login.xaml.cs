@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Text.Json;
 using TriviaClient.Network;
+using WpfApp1;
 
 namespace WpfApp
 {
@@ -26,9 +27,16 @@ namespace WpfApp
             InitializeComponent();
         }
 
+        private void SignUp_Click(object sender, RoutedEventArgs e)
+        {
+            SignUp signupWindow = new SignUp();
+            signupWindow.Show();
+            this.Close();
+        }
+
         private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            string username = UsernameTextBox.Text.Trim();
+            string username = UsernameBox.Text.Trim();
             string password = PasswordBox.Password;
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
@@ -47,13 +55,15 @@ namespace WpfApp
                 {
                     var payload = new { username = username, password = password };
                     string json = JsonSerializer.Serialize(payload);
-                    string response = ServerCommunicator.SendRequest((byte)Requests.Request_Login, json);
+                    string response = App.Communicator.SendRequest((byte)Requests.Request_Login, json);
+                    MessageBox.Show(response);
 
                     
                     //deserialize response
                     var respObj = JsonSerializer.Deserialize<JsonElement>(response);
 
                     if (respObj.TryGetProperty("status", out JsonElement statusElement) && statusElement.GetInt32() == 1)
+                        
                         return true;
 
                     return false;
@@ -67,10 +77,15 @@ namespace WpfApp
 
             if (success)
             {
-                StatusTextBlock.Foreground = System.Windows.Media.Brushes.Green;
+                App.CurrentUser = username;
+                StatusTextBlock.Foreground = Brushes.Green;
                 StatusTextBlock.Text = "Login successful!";
-                
+
+                Menu menuWindow = new Menu();
+                menuWindow.Show();
+                this.Close();
             }
+
             else
             {
                 StatusTextBlock.Foreground = System.Windows.Media.Brushes.Red;

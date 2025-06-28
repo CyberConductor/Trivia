@@ -6,18 +6,28 @@ using System.Threading.Tasks;
 
 namespace WpfApp
 {
-    public enum Requests
-    {
-        Request_Login = 0,
-        Request_Signup,
-        Request_Signout,
-        Request_GetRooms,
-        Request_GetPlayersInRoom,
-        Request_getStatistics,
-        Request_GetPersonalStats,
-        Request_GetHighScore,
-        Request_JoinRoom,
-        Request_CreateRoom,
-        Request_GetRoomState //this is for the refresh to get current room state
+    public enum Requests 
+	{
+		//1
+		Request_Login = 1,// skip 0 - error
+		Request_Signup,
+		//2
+		Request_Signout,
+		Request_GetRooms,
+		Request_GetPlayersInRoom,
+		Request_JoinRoom,
+		Request_CreateRoom,
+		Request_GetHighScore,
+		Request_GetPersonalStats,
+		//3
+		Request_CloseRoom,
+		Request_StartGame,
+		Request_GetRoomState,
+		Request_LeaveRoom,
+		//4
+		Request_LeaveGame,
+		Request_GetQuestion,
+		Request_SubmitAnswer,
+		Request_GetGameResults
     }
 }

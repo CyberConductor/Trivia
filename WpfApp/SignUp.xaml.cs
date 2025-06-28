@@ -7,12 +7,18 @@ using WpfApp;
 
 namespace WpfApp1
 {
-  
     public partial class SignUp : Window
     {
         public SignUp()
         {
             InitializeComponent();
+        }
+
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            Login loginWindow = new Login(); 
+            loginWindow.Show();
+            this.Close();
         }
 
         private void RemoveText(object sender, RoutedEventArgs e)
@@ -52,9 +58,14 @@ namespace WpfApp1
                 email = email
             });
 
-            string response = ServerCommunicator.SendRequest((int)Requests.Request_Signup, payload);
+            string response = App.Communicator.SendRequest((int)Requests.Request_Signup, payload);
 
             MessageBox.Show(response);
+
+
+            WpfApp.Menu menuWindow = new WpfApp.Menu();
+            menuWindow.Show();
+            this.Close();
         }
     }
 }
