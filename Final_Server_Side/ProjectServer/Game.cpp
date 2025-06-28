@@ -7,7 +7,7 @@
 #include <random>
 #include "StatisticsManager.h"
 
-Game::Game(Room room, vector<Question> questions)
+Game::Game(Room& room, vector<Question> questions)
     : m_room(room),
     m_questions(questions),
     m_gameId(room.m_metadata.id) 
@@ -30,8 +30,11 @@ Question Game::getQuestionForUser(LoggedUser user)
 void Game::submitAnswer()
 {
     m_questions.erase(m_questions.begin());
-    for (auto player : m_players)
-        player.second.currentQuestion = m_questions[0];
+    if (!m_questions.empty())
+    {
+        for (auto& player : m_players)
+            player.second.currentQuestion = m_questions[0];
+    }
 }
 
 bool Game::removePlayer(string username)

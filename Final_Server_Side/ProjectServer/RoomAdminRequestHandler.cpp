@@ -1,7 +1,8 @@
 #include "RoomAdminRequestHandler.h"
+#include "IRequestHandler.h"
 
 RoomAdminRequestHandler::RoomAdminRequestHandler(RequestHandlerFactory& factory, LoggedUser user, Room& room)
-	: RoomMember(user, room,  factory.getRoomManager(), factory)
+	: RoomMember(user, room, factory.getRoomManager(), factory)
 {}
 
 bool RoomAdminRequestHandler::isRequestRelevant(RequestInfo req)
@@ -11,8 +12,9 @@ bool RoomAdminRequestHandler::isRequestRelevant(RequestInfo req)
 
 RequestResult RoomAdminRequestHandler::handleRequest(RequestInfo req)
 {
-	if(!isRequestRelevant(req))
+	if (!isRequestRelevant(req))
 		return generateErrorResponse("Unrecognized request type", this);
+
 	switch (req.id)
 	{
 	case Request_CloseRoom:
@@ -21,6 +23,8 @@ RequestResult RoomAdminRequestHandler::handleRequest(RequestInfo req)
 		return startGame(req);
 	case Request_GetRoomState:
 		return getRoomState(req);
+	default:
+		return generateErrorResponse("Unhandled request type", this);
 	}
 }
 
@@ -28,22 +32,19 @@ RequestResult RoomAdminRequestHandler::closeRoom(RequestInfo requestInfo)
 {
 	for (auto& user : m_room.m_users)
 	{
-		//send LeaveRoomRespone for each user
-		if ((RoomMemberRequestHandler*)user.second)
+		// send LeaveRoomResponse for each user
+		if (dynamic_cast<RoomMemberRequestHandler*>(user.second) ||
+			dynamic_cast<RoomAdminRequestHandler*>(user.second))
 		{
 			Buffer buffer = JsonResponsePacketSerializer::serializeLeaveRoomResponse({ 1 });
-			Helper::sendData(user.first.getSocket(), string(buffer.begin(), buffer.end()));
-		}
-		else if ((RoomAdminRequestHandler*)user.second)
-		{
-			Buffer buffer = JsonResponsePacketSerializer::serializeLeaveRoomResponse({ 1 });
-			Helper::sendData(user.first.getSocket(), string(buffer.begin(), buffer.end()));
+			Helper::sendData(user.first.getSocket(), buffer);
 		}
 	}
+
 	m_room.m_metadata.status = false;
 	m_roomManager.deleteRoom(m_room.m_metadata.id);
 
-	//return response: 1
+	// return response: 1
 	Buffer buffer = JsonResponsePacketSerializer::serializeCloseRoomResponse({ 1 });
 	return { buffer, m_handlerFactory.createMenuRequestHandler(m_user) };
 }
@@ -52,21 +53,19 @@ RequestResult RoomAdminRequestHandler::startGame(RequestInfo)
 {
 	for (auto& user : m_room.m_users)
 	{
-		//send StartGameRespone for each user
-		if (RoomMemberRequestHandler* handler = (RoomMemberRequestHandler*)user.second)
+		if (RoomMemberRequestHandler* memberHandler = dynamic_cast<RoomMemberRequestHandler*>(user.second))
 		{
 			Buffer buffer = JsonResponsePacketSerializer::serializeStartGameResponse({ 1 });
-			Helper::sendData(user.first.getSocket(), string(buffer.begin(), buffer.end()));
-			user.second = (IRequestHandler*)m_handlerFactory.createGameRequestHandler(m_user, m_room, handler);
-		}
-		else if ((RoomAdminRequestHandler*)user.second)
-		{
-			Buffer buffer = JsonResponsePacketSerializer::serializeStartGameResponse({ 1 });
-			Helper::sendData(user.first.getSocket(), string(buffer.begin(), buffer.end()));
+			Helper::sendData(user.first.getSocket(), buffer);
+
+			// convert to game request handler
+			user.second = m_handlerFactory.createGameRequestHandler(user.first, m_room, memberHandler);
 		}
 	}
+
 	m_room.m_metadata.status = true;
-	//return response: 1
+
+	// return response for the admin
 	Buffer buffer = JsonResponsePacketSerializer::serializeStartGameResponse({ 1 });
-	return { buffer, (IRequestHandler*)m_handlerFactory.createGameRequestHandler(m_user, m_room, this) };
+	return { buffer, m_handlerFactory.createGameRequestHandler(m_user, m_room, this) };
 }

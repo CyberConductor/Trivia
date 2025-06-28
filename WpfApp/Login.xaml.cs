@@ -77,6 +77,7 @@ namespace WpfApp
 
             if (success)
             {
+                App.CurrentUser = username;
                 StatusTextBlock.Foreground = Brushes.Green;
                 StatusTextBlock.Text = "Login successful!";
 

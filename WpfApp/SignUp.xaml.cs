@@ -61,6 +61,11 @@ namespace WpfApp1
             string response = App.Communicator.SendRequest((int)Requests.Request_Signup, payload);
 
             MessageBox.Show(response);
+
+
+            WpfApp.Menu menuWindow = new WpfApp.Menu();
+            menuWindow.Show();
+            this.Close();
         }
     }
 }

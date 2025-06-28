@@ -15,6 +15,11 @@ namespace WpfApp1
         {
             InitializeComponent();
         }
+        public class CreateRoomResponse
+        {
+            public int id { get; set; }
+            public int status { get; set; }
+        }
 
         private void CreateRoomButton_Click(object sender, RoutedEventArgs e)
         {
@@ -22,7 +27,7 @@ namespace WpfApp1
             string questionTimeStr = QuestionTimeTextBox.Text;
             string playersCountStr = PlayersCountTextBox.Text;
 
-            //check if values are valid:
+            // Validate input
             if (string.IsNullOrWhiteSpace(roomName) ||
                 !int.TryParse(questionTimeStr, out int questionTime) ||
                 !int.TryParse(playersCountStr, out int playersCount))
@@ -31,26 +36,47 @@ namespace WpfApp1
                 return;
             }
 
-            //build the JSON payload
+            // Build the JSON payload
             var payload = JsonSerializer.Serialize(new
             {
                 roomName = roomName,
                 answerTimeOut = questionTime,
-                questionCount = 5, 
+                questionCount = 5,
                 maxUsers = playersCount
             });
 
-            //send code to server
+            // Send request to server
             string response = App.Communicator.SendRequest((byte)Requests.Request_CreateRoom, payload);
+            
+            try
+            {
+                var roomResponse = JsonSerializer.Deserialize<CreateRoomResponse>(response);
 
-            MessageBox.Show(response, "Server Response", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (roomResponse.status == 1)
+                {
+                    RoomWaitWindow waitRoom = new RoomWaitWindow(roomResponse.id)
+                    {
+
+                    };
+                    waitRoom.Show();
+                    this.Close(); 
+                }
+                else
+                {
+                    MessageBox.Show("Failed to create room. Please try again.", "Server Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Invalid response from server:\n{ex.Message}", "Deserialization Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         private void BackArrowButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
+        {;
 
-            Menu menuWindow = new Menu();
-            menuWindow.Show();
+            //RoomWaitWindow roomwait = new RoomWaitWindow();
+            //roomwait.Show();
+            //this.Close();
         }
 
     }

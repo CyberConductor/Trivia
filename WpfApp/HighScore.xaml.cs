@@ -63,11 +63,11 @@ namespace WpfApp1
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            Menu menuWindow = new Menu(); 
-            menuWindow.Show();
-            this.Close();
+            Statistics st = new Statistics();
+            st.Show();
+            this.Close(); ;
         }
-       
+               
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close();

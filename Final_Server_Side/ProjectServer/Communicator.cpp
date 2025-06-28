@@ -72,13 +72,11 @@ void Communicator::handleNewClient()
     {
         bool handlerAddedToMap = false;
         IRequestHandler* handler = nullptr;
-
         try
         {
-            handler = m_handlerFactory.createLoginRequestHandler(clientSocket);
-
-            while(true)
+            while (true)
             {
+                handler = m_handlerFactory.createLoginRequestHandler(clientSocket);
                 RequestInfo requestInfo = Helper::getRequestInfo(clientSocket);
                 RequestResult result = handler->handleRequest(requestInfo);
 
@@ -92,7 +90,7 @@ void Communicator::handleNewClient()
                 if (loginResponse.status)
 
                 {
-                    Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                    Helper::sendData(clientSocket, buffer);
                     {
                         m_clients[clientSocket] = result.newHandler;
                         handlerAddedToMap = true;
@@ -102,13 +100,12 @@ void Communicator::handleNewClient()
                     std::thread([this, clientSocket]() {
                         handleClient(clientSocket);
                         }).detach();
-                        
-                    //break the current thread    
-                    break;    
+
+                    break;
                 }
                 else
                 {
-                    Helper::sendData(clientSocket, std::string(buffer.begin(), buffer.end()));
+                    Helper::sendData(clientSocket, buffer);
                 }
             }
         }
@@ -140,7 +137,7 @@ void Communicator::handleClient(SOCKET sock)
             // process the request through the current handler
             RequestResult result = handler->handleRequest(request);
             // send back the response
-            Helper::sendData(sock, string(result.response.begin(), result.response.end()));
+            Helper::sendData(sock, result.response);
             // if the handler changed, replace and delete the old one
             if (result.newHandler != handler)
             {
@@ -155,9 +152,8 @@ void Communicator::handleClient(SOCKET sock)
                             IRequestHandler*& userHandler = userPair.second;
 
                             // convert all the room members to game request handlers
-                            if (adminHandler != userHandler)
-                                if (auto memberHandler = dynamic_cast<RoomMember*>(userHandler))
-                                    userPair.second = (IRequestHandler*)m_handlerFactory.createGameRequestHandler(user, adminHandler->m_room, memberHandler);
+                            if (auto memberHandler = dynamic_cast<RoomMemberRequestHandler*>(userHandler))
+                                userPair.second = m_handlerFactory.createGameRequestHandler(user, adminHandler->m_room, memberHandler);
                         }
                         handler = result.newHandler;
                         m_clients[sock] = handler;
@@ -178,7 +174,7 @@ void Communicator::handleClient(SOCKET sock)
 
                         request = Helper::getRequestInfo(sock);
                         result = handler->handleRequest(request);
-                        Helper::sendData(sock, string(result.response.begin(), result.response.end()));
+                        Helper::sendData(sock, result.response);
                     }
                 }
                 else

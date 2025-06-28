@@ -1,10 +1,7 @@
 #pragma once
 
 #include <string>
-#include <cstring>
 #include <vector>
-#include <map>
-#include <ctime>
 #include "json.hpp"
 #include "Room.h"
 #include "StatisticsManager.h"
@@ -12,127 +9,127 @@
 using json = nlohmann::json;
 using std::string;
 using std::vector;
-using std::map;
 
-using Buffer = vector<unsigned char>;
+typedef vector<unsigned char> Buffer;
 
-struct ErrorResponse
+typedef struct ErrorResponse
 {
 	string message;
-};
+}ErrorResponse;
 
-struct LoginResponse
+typedef struct LoginResponse
 {
 	unsigned int status;
-};
+}LoginResponse;
 
-struct SignupResponse
+typedef struct SignupResponse
 {
 	unsigned int status;
-};
+}SignupResponse;
 
-struct LogoutResponse
+typedef struct LogoutResponse
 {
 	unsigned int status;
-};
+}LogoutResponse;
 
-struct GetRoomsResponse
+typedef struct GetRoomsResponse
 {
 	unsigned int status;
 	vector<RoomData> rooms;
-};
+}GetRoomsResponse;
 
-struct GetPlayersInRoomResponse
+typedef struct GetPlayersInRoomResponse
 {
 	vector<string> players;
-};
+}GetPlayersInRoomResponse;
 
-struct JoinRoomResponse
+typedef struct JoinRoomResponse
 {
 	unsigned int status;
-};
+}JoinRoomResponse;
 
-struct CreateRoomResponse
+typedef struct CreateRoomResponse
 {
 	unsigned int status;
-	unsigned int id;
-};
+}CreateRoomResponse;
 
-struct getHighScoreResponse
-{
-	unsigned int status;
-	map<string, int> statistics;
-};
-
-struct getPersonalStatsResponse
+typedef struct getHighScoreResponse
 {
 	unsigned int status;
 	json statistics;
-};
+}getHighScoreResponse;
 
-struct CloseRoomResponse
+typedef struct getPersonalStatsResponse
 {
 	unsigned int status;
-};
+	json statistics;
+}getPersonalStatsResponse;
 
-struct StartGameResponse
+typedef struct CloseRoomResponse
 {
 	unsigned int status;
-};
+}CloseRoomResponse;
 
-struct GetRoomStateResponse
+typedef struct StartGameResponse
+{
+	unsigned int status;
+}StartGameResponse;
+
+typedef struct GetRoomStateResponse
 {
 	unsigned int status;
 	bool hasGameBegun;
 	vector<string> players;
 	unsigned int questionCount;
-	time_t answerTimeOut;
-};
+	unsigned int answerTimeOut;
+}GetRoomStateResponse;
 
-struct LeaveRoomResponse
+typedef struct LeaveRoomResponse
 {
 	unsigned int status;
-};
+}LeaveRoomResponse;
 
-struct LeaveGameResponse
+<<<<<<< HEAD
+typedef struct LeaveGameResponse
 {
 	unsigned int status;
-};
+}LeaveGameResponse;
 
-struct GetQuestionResponse
+typedef struct GetQuestionResponse
 {
 	unsigned int status;
 	string question;
 	map<unsigned int, string> answers;
-};
+}GetQuestionResponse;
 
-struct SubmitAnswerResponse
+typedef struct SubmitAnswerResponse
 {
 	unsigned int status;
 	unsigned int correctAnwserId;
-};
+}SubmitAnswerResponse;
 
-struct PlayerResults
+typedef struct PlayerResults
 {
 	string username;
 	unsigned int correctAnswerCount;
 	unsigned int wrongAnswersCount;
-	time_t avarageAnswerTime;
-};
+	unsigned int avarageAnswerTime;
+}PlayerResults;
 
-struct GetGameResultsResponse
+typedef struct GetGameResultsResponse
 {
 	unsigned int status;
 	vector<PlayerResults> results;
-};
+}GetGameResultsResponse;
 
+
+=======
+>>>>>>> origin/develop
 enum Responses : unsigned char
 {
-	//1
 	Response_Error = 0,
 	Response_Login,
 	Response_Signup,
-	//2
 	Response_Logout,
 	Response_GetRooms,
 	Response_GetPlayersInRoom,
@@ -140,16 +137,18 @@ enum Responses : unsigned char
 	Response_CreateRoom,
 	Response_GetHighScore,
 	Response_GetPersonalStatus,
-	//3
 	Response_CloseRoom,
 	Response_StartGame,
 	Response_GetRoomState,
+<<<<<<< HEAD
 	Response_LeaveRoom,
-	//4
 	Response_LeaveGame,
 	Response_GetQuestion,
 	Response_SubmitAnswer,
 	Response_GetGameResults
+=======
+	Response_LeaveRoom
+>>>>>>> origin/develop
 };
 
 class JsonResponsePacketSerializer
@@ -169,10 +168,14 @@ public:
 	static Buffer serializeStartGameResponse(StartGameResponse);
 	static Buffer serializeGetRoomStateResponse(GetRoomStateResponse);
 	static Buffer serializeLeaveRoomResponse(LeaveRoomResponse);
+<<<<<<< HEAD
 	static Buffer serializeLeaveGameResponse(LeaveGameResponse);
 	static Buffer serializeGetQuestionResponse(GetQuestionResponse);
 	static Buffer serializeSubmitAnswerResponse(SubmitAnswerResponse);
 	static Buffer serializeGetGameResultsResponse(GetGameResultsResponse);
+=======
+
+>>>>>>> origin/develop
 private:
 	static Buffer buildResponseBuffer(unsigned char code, json& j);
 };

@@ -1,35 +1,24 @@
 #include "RoomManager.h"
-#include "RoomAdminRequestHandler.h"
-#include "RequestHandlerFactory.h"
 #include <cstdlib>
 #include <ctime>
 
-RoomManager::RoomManager(RequestHandlerFactory* factory) : m_handlerFactory(factory){}
+RoomManager::RoomManager(){}
 
-RoomManager::~RoomManager() 
-{ 
-	m_rooms.clear(); 
-	delete(m_handlerFactory);
-}
+RoomManager::~RoomManager() { m_rooms.clear(); }
 
-Room& RoomManager::createRoom(LoggedUser user, RoomData data)
+void RoomManager::createRoom(LoggedUser user, RoomData data)
 {
-	// check if room with the same ID already exists
-	if (m_rooms.find(data.id) != m_rooms.end())
-		throw std::runtime_error("Room with this ID already exists");
+	for (auto it = m_rooms.begin(); it != m_rooms.end(); ++it)
+	{
+		roomID id = it->first;
+		if (id == data.id)//check that there are no room existing with the same id
+			return;
+	}
 
-	data.status = false;
-
-	// insert a room directly into the map to avoid local object lifetime issue
-	auto inserted = m_rooms.emplace(data.id, Room(data));
-	Room& room = inserted.first->second;
-
-	// set the admin handler
-	room.addUser(user, m_handlerFactory->createRoomAdminRequestHandler(user, room));
-
-	return room;
+	Room room = Room(data);
+	room.addUser(user);
+	m_rooms.insert({ data.id, room });
 }
-
 
 void RoomManager::deleteRoom(int ID)
 {
@@ -57,19 +46,18 @@ vector<RoomData> RoomManager::getRooms()
 	vector<RoomData> res;
 
 	for (auto it = m_rooms.begin(); it != m_rooms.end(); ++it)
-		if(it->second.getAllUsers().size() < it->second.m_metadata.maxPlayers)//check if there a place avilable for more players
-			res.push_back( it->second.m_metadata );
+		res.push_back( it->second.m_metadata );
 
 	return res;
 }
 
-Room& RoomManager::getRoom(int ID)
+Room* RoomManager::getRoom(int ID)
 {
 	for (auto& room : m_rooms)
 		if (room.first == ID)
-			return room.second;
+			return &room.second;
 
-	throw std::runtime_error("Room with given ID not found");
+	return nullptr;
 }
 
 int RoomManager::getFreeId()
@@ -87,6 +75,7 @@ int RoomManager::getFreeId()
 	}
 }
 
+<<<<<<< HEAD
 //Room& RoomManager::getUserRoom(string username)
 //{
 //	for (auto& room : m_rooms)
@@ -97,3 +86,15 @@ int RoomManager::getFreeId()
 //				return room.second;
 //	}
 //}
+=======
+Room& RoomManager::getUserRoom(string username)
+{
+	for (auto& room : m_rooms)
+	{
+		vector<string> users = room.second.getAllUsers();
+		if (std::find(users.begin(), users.end(), username) != users.end())
+			return room.second;
+	}
+	return Room()
+}
+>>>>>>> origin/develop

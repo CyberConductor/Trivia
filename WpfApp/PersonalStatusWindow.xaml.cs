@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SimpleWpfGui;
+using System;
 using System.Text.Json;
 using System.Windows;
 using TriviaClient.Network;
@@ -11,6 +12,13 @@ namespace WpfApp1
         public PersonalStatusWindow()
         {
             InitializeComponent();
+        }
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+           
+            Statistics prst = new Statistics();
+            prst.Show();
+            this.Close();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

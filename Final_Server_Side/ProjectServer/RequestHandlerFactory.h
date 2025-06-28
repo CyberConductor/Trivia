@@ -25,9 +25,9 @@ public:
 	//creators
 	IRequestHandler* createLoginRequestHandler(SOCKET);
 	IRequestHandler* createMenuRequestHandler(LoggedUser);
-	RoomAdminRequestHandler* createRoomAdminRequestHandler(LoggedUser, Room&);
-	RoomMemberRequestHandler* createRoomMemberRequestHandler(LoggedUser, Room&);
-	GameRequestHandler* createGameRequestHandler(LoggedUser, Room&, RoomMember*);
+	IRequestHandler* createRoomAdminRequestHandler(LoggedUser, Room&);
+	IRequestHandler* createRoomMemberRequestHandler(LoggedUser, Room&);
+	IRequestHandler* createGameRequestHandler(LoggedUser, Room&, RoomMember*);
 
 	//getters
 	LoginManager& getLoginManager();

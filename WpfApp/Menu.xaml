@@ -45,7 +45,7 @@
             </Style.Triggers>
         </Style>
     </Window.Resources>
-
+    
     <Grid Margin="0,0,0,-127">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="27*"/>
@@ -54,6 +54,15 @@
         </Grid.ColumnDefinitions>
         <Border Background="White" CornerRadius="10" Padding="30" Margin="80,100,100,151" Effect="{DynamicResource materialDesignElevation3}" Grid.Column="2">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button x:Name="SignOutButton"
+        Content="Sign Out"
+        Width="100"
+        HorizontalAlignment="Right"
+        VerticalAlignment="Top"
+        Margin="10"
+        Click="SignOutButton_Click"
+        Visibility="Collapsed" />
+
                 <TextBlock Text="Main Menu"
                            FontSize="28"
                            FontWeight="Bold"
@@ -66,6 +75,7 @@
                 <!--//<Button Content="High Score" Click="HighScore_Click" Style="{StaticResource MenuButtonStyle}"/>-->
                 <Button Content="Statistics" Click="Statistics_Click" Style="{StaticResource MenuButtonStyle}"/>
             </StackPanel>
+            
         </Border>
     </Grid>
 </Window>

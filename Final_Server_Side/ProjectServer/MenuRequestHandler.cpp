@@ -51,12 +51,12 @@ RequestResult MenuRequestHandler::signout(RequestInfo requestInfo)
 
         RequestResult result;
         result.response = JsonResponsePacketSerializer::serializeLogoutResponse({ 1 });
-        result.newHandler = (IRequestHandler*)m_handlerFactory.createLoginRequestHandler(m_user.getSocket());
+        result.newHandler = m_handlerFactory.createLoginRequestHandler(m_user.getSocket());
         return result;
     }
     catch(...)
     {
-        IRequestHandler* handler = (IRequestHandler*)m_handlerFactory.createLoginRequestHandler(m_user.getSocket());
+        IRequestHandler* handler = m_handlerFactory.createLoginRequestHandler(m_user.getSocket());
         return generateErrorResponse("failed to signout" + username, handler);
     }
 }
@@ -115,7 +115,7 @@ RequestResult MenuRequestHandler::joinRoom(RequestInfo requestInfo)
 {
     JoinRoomRequest request = JsonRequestPacketDeserializer::deserializeJoinRoomRequest(requestInfo.buffer);
     Room& room = m_handlerFactory.getRoomManager().getRoom(request.roomId);
-    IRequestHandler* handler = (IRequestHandler*)m_handlerFactory.createRoomMemberRequestHandler(m_user, room);
+    IRequestHandler* handler = m_handlerFactory.createRoomMemberRequestHandler(m_user, room);
     room.addUser(m_user, handler);
 
     return { JsonResponsePacketSerializer::serializeJoinRoomResponse({ 1 }), handler };
@@ -129,6 +129,10 @@ RequestResult MenuRequestHandler::createRoom(RequestInfo requestInfo)
     RoomData roomData = { id, request.roomName, request.maxUsers, request.questionCount, request.answerTimeOut, false };
     Room& room = m_handlerFactory.getRoomManager().createRoom(m_user, roomData);
 
-    IRequestHandler* handler = (IRequestHandler*)m_handlerFactory.createRoomAdminRequestHandler(m_user, room);
-    return { JsonResponsePacketSerializer::serializeCreateRoomResponse({ 1 }), handler };
+<<<<<<< HEAD:פתרונות תרגול בית 13/ProjectServer/MenuRequestHandler.cpp
+    return { JsonResponsePacketSerializer::serializeCreateRoomResponse({ 1 }), this };
+=======
+    IRequestHandler* handler = m_handlerFactory.createRoomAdminRequestHandler(m_user, room);
+    return { JsonResponsePacketSerializer::serializeCreateRoomResponse({ 1 , room.m_metadata.id }), handler };
+>>>>>>> origin/develop:Final_Server_Side/ProjectServer/MenuRequestHandler.cpp
 }
