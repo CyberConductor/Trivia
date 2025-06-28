@@ -89,6 +89,42 @@ typedef struct LeaveRoomResponse
 	unsigned int status;
 }LeaveRoomResponse;
 
+<<<<<<< HEAD
+typedef struct LeaveGameResponse
+{
+	unsigned int status;
+}LeaveGameResponse;
+
+typedef struct GetQuestionResponse
+{
+	unsigned int status;
+	string question;
+	map<unsigned int, string> answers;
+}GetQuestionResponse;
+
+typedef struct SubmitAnswerResponse
+{
+	unsigned int status;
+	unsigned int correctAnwserId;
+}SubmitAnswerResponse;
+
+typedef struct PlayerResults
+{
+	string username;
+	unsigned int correctAnswerCount;
+	unsigned int wrongAnswersCount;
+	unsigned int avarageAnswerTime;
+}PlayerResults;
+
+typedef struct GetGameResultsResponse
+{
+	unsigned int status;
+	vector<PlayerResults> results;
+}GetGameResultsResponse;
+
+
+=======
+>>>>>>> origin/develop
 enum Responses : unsigned char
 {
 	Response_Error = 0,
@@ -104,7 +140,15 @@ enum Responses : unsigned char
 	Response_CloseRoom,
 	Response_StartGame,
 	Response_GetRoomState,
+<<<<<<< HEAD
+	Response_LeaveRoom,
+	Response_LeaveGame,
+	Response_GetQuestion,
+	Response_SubmitAnswer,
+	Response_GetGameResults
+=======
 	Response_LeaveRoom
+>>>>>>> origin/develop
 };
 
 class JsonResponsePacketSerializer
@@ -124,7 +168,14 @@ public:
 	static Buffer serializeStartGameResponse(StartGameResponse);
 	static Buffer serializeGetRoomStateResponse(GetRoomStateResponse);
 	static Buffer serializeLeaveRoomResponse(LeaveRoomResponse);
+<<<<<<< HEAD
+	static Buffer serializeLeaveGameResponse(LeaveGameResponse);
+	static Buffer serializeGetQuestionResponse(GetQuestionResponse);
+	static Buffer serializeSubmitAnswerResponse(SubmitAnswerResponse);
+	static Buffer serializeGetGameResultsResponse(GetGameResultsResponse);
+=======
 
+>>>>>>> origin/develop
 private:
 	static Buffer buildResponseBuffer(unsigned char code, json& j);
 };

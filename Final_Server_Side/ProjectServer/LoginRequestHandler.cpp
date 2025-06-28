@@ -1,6 +1,10 @@
 ﻿#include "LoginRequestHandler.h"
 #include <stdexcept>
 
+<<<<<<< HEAD:פתרונות תרגול בית 13/ProjectServer/LoginRequestHandler.cpp
+LoginRequestHandler::LoginRequestHandler(RequestHandlerFactory& factory, SOCKET sock) 
+    : m_handlerFactory(factory), m_loginManager(factory.getLoginManager()), m_socket(sock) {}
+=======
 <<<<<<< HEAD:Final_Server_Side/ProjectServer/LoginRequestHandler.cpp
 LoginRequestHandler::LoginRequestHandler(RequestHandlerFactory& factory, SOCKET sock) 
     : m_handlerFactory(factory),
@@ -12,6 +16,7 @@ LoginRequestHandler::LoginRequestHandler(RequestHandlerFactory& factory)
     m_loginManager(factory.getLoginManager())
 >>>>>>> b2ee5add6bbab06d883a999d61c983eff6764292:פתרונות תרגול בית 13/ProjectServer/LoginRequestHandler.cpp
 {}
+>>>>>>> origin/develop:Final_Server_Side/ProjectServer/LoginRequestHandler.cpp
 
 bool LoginRequestHandler::isRequestRelevant(RequestInfo requestInfo)
 {
@@ -44,11 +49,15 @@ RequestResult LoginRequestHandler::login(RequestInfo requestInfo)
     unsigned int success = m_loginManager.login(req.username, req.password, m_socket);
 
     Buffer buffer = JsonResponsePacketSerializer::serializeLoginResponse({ success });
+<<<<<<< HEAD:פתרונות תרגול בית 13/ProjectServer/LoginRequestHandler.cpp
+    return { buffer, success ? m_handlerFactory.createMenuRequestHandler({ req.username, m_socket }) : this};
+=======
 <<<<<<< HEAD:Final_Server_Side/ProjectServer/LoginRequestHandler.cpp
     return { buffer, success ? m_handlerFactory.createMenuRequestHandler({ req.username, m_socket }) : this};
 =======
     return { buffer, success ? m_handlerFactory.createMenuRequestHandler() : this};
 >>>>>>> b2ee5add6bbab06d883a999d61c983eff6764292:פתרונות תרגול בית 13/ProjectServer/LoginRequestHandler.cpp
+>>>>>>> origin/develop:Final_Server_Side/ProjectServer/LoginRequestHandler.cpp
 }
 
 RequestResult LoginRequestHandler::signup(RequestInfo requestInfo)
@@ -57,9 +66,13 @@ RequestResult LoginRequestHandler::signup(RequestInfo requestInfo)
     unsigned int success = m_loginManager.signup(req.username, req.password, req.email, m_socket);
 
     Buffer buffer = JsonResponsePacketSerializer::serializeSignupResponse({ success });
+<<<<<<< HEAD:פתרונות תרגול בית 13/ProjectServer/LoginRequestHandler.cpp
+    return { buffer, success ? m_handlerFactory.createMenuRequestHandler({ req.username, m_socket }) : this };
+=======
 <<<<<<< HEAD:Final_Server_Side/ProjectServer/LoginRequestHandler.cpp
     return { buffer, success ? m_handlerFactory.createMenuRequestHandler({ req.username, m_socket }) : this };
 =======
     return { buffer, success ? m_handlerFactory.createMenuRequestHandler() : this };
 >>>>>>> b2ee5add6bbab06d883a999d61c983eff6764292:פתרונות תרגול בית 13/ProjectServer/LoginRequestHandler.cpp
+>>>>>>> origin/develop:Final_Server_Side/ProjectServer/LoginRequestHandler.cpp
 }

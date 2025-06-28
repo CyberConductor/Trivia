@@ -24,7 +24,11 @@ public:
 
 	//Helpers
 	int getFreeId();
+<<<<<<< HEAD:פתרונות תרגול בית 13/ProjectServer/RoomManager.h
+	//Room& getUserRoom(string);
+=======
 	Room& getUserRoom(string);
+>>>>>>> origin/develop:Final_Server_Side/ProjectServer/RoomManager.h
 private:
 	map<roomID, Room> m_rooms;
 	RequestHandlerFactory* m_handlerFactory;

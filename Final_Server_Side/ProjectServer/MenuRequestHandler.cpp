@@ -129,6 +129,10 @@ RequestResult MenuRequestHandler::createRoom(RequestInfo requestInfo)
     RoomData roomData = { id, request.roomName, request.maxUsers, request.questionCount, request.answerTimeOut, false };
     Room& room = m_handlerFactory.getRoomManager().createRoom(m_user, roomData);
 
+<<<<<<< HEAD:פתרונות תרגול בית 13/ProjectServer/MenuRequestHandler.cpp
+    return { JsonResponsePacketSerializer::serializeCreateRoomResponse({ 1 }), this };
+=======
     IRequestHandler* handler = m_handlerFactory.createRoomAdminRequestHandler(m_user, room);
     return { JsonResponsePacketSerializer::serializeCreateRoomResponse({ 1 , room.m_metadata.id }), handler };
+>>>>>>> origin/develop:Final_Server_Side/ProjectServer/MenuRequestHandler.cpp
 }

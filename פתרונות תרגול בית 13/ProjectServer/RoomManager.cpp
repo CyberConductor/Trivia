@@ -75,6 +75,18 @@ int RoomManager::getFreeId()
 	}
 }
 
+<<<<<<< HEAD
+//Room& RoomManager::getUserRoom(string username)
+//{
+//	for (auto& room : m_rooms)
+//	{
+//		map<LoggedUser, IRequestHandler*> users = room.second.m_users;
+//		for (auto& user : users)
+//			if(user.first.getUsername() == username)
+//				return room.second;
+//	}
+//}
+=======
 Room& RoomManager::getUserRoom(string username)
 {
 	for (auto& room : m_rooms)
@@ -85,3 +97,4 @@ Room& RoomManager::getUserRoom(string username)
 	}
 	return Room()
 }
+>>>>>>> origin/develop
