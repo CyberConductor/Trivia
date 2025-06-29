@@ -107,6 +107,13 @@ namespace WpfApp
                 questionTimer.Stop();
                 MessageBox.Show("Time's up! Moving to next question.");
 
+                var json = JsonSerializer.Serialize(new
+                {
+                    answerId = -1,
+                    timeTaken = 0
+                });
+                App.Communicator.SendRequest((byte)Requests.Request_SubmitAnswer, json);
+
                 currentQuestionIndex++;
                 LoadNextQuestion();
             }
@@ -124,7 +131,6 @@ namespace WpfApp
                 var json = JsonSerializer.Serialize(new
                 {
                     answerId = answerId,
-                    roomId = roomId,
                     timeTaken = Math.Round(timeTakenSeconds, 2)
                 });
 

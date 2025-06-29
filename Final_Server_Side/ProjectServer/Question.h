@@ -15,7 +15,7 @@ public:
 	vector<string> getPossibleAnswers();
 
 	unsigned int getCorrectAnswerId();
-
+	bool operator==(const Question&);
 private:
 	string m_question;
 	string m_rightAnswer;

@@ -152,8 +152,8 @@ void Communicator::handleClient(SOCKET sock)
                             IRequestHandler*& userHandler = userPair.second;
 
                             // convert all the room members to game request handlers
-                            if (auto memberHandler = dynamic_cast<RoomMemberRequestHandler*>(userHandler))
-                                userPair.second = m_handlerFactory.createGameRequestHandler(user, adminHandler->m_room, memberHandler);
+                            /*if (auto memberHandler = dynamic_cast<RoomMemberRequestHandler*>(userHandler))
+                                userPair.second = m_handlerFactory.createGameRequestHandler(user, adminHandler->m_room, memberHandler);*/
                         }
                         handler = result.newHandler;
                         m_clients[sock] = handler;

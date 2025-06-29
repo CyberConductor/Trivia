@@ -1,68 +1,103 @@
 #include "Game.h"
-#include "IRequestHandler.h"
-#include "LoginManager.h"
-#include "Question.h"
-#include "Room.h"
 #include <algorithm>
 #include <random>
-#include "StatisticsManager.h"
+#include <iostream>
 
 Game::Game(Room& room, vector<Question> questions)
-    : m_room(room),
-    m_questions(questions),
-    m_gameId(room.m_metadata.id) 
+    : m_room(room), m_questions(questions), m_gameId(room.m_metadata.id)
 {
-    //shuffle the questions order
     std::shuffle(m_questions.begin(), m_questions.end(), std::mt19937(std::random_device{}()));
 
-    for (auto user : room.m_users)
-        m_players.emplace(
-            user.first,
-            GameData({ questions[0], 0, 0, 0 })
-        );
+    for (const auto& user : room.m_users)
+    {
+        m_players.emplace(user.first, GameData{ questions[0], 0, 0, 0 });
+    }
+
+    totalPlayers = static_cast<int>(m_players.size());
 }
 
 Question Game::getQuestionForUser(LoggedUser user)
 {
-    return m_players.find(user)->second.currentQuestion;
+    lock_guard<mutex> lock(mtx);
+    return m_players.at(user).currentQuestion;
 }
 
-void Game::submitAnswer()
+bool Game::submitAnswer(LoggedUser user, int answerId, time_t answerTime)
 {
-    m_questions.erase(m_questions.begin());
-    if (!m_questions.empty())
+    unique_lock<mutex> lock(mtx);
+
+    auto& data = m_players.at(user);
+    bool result = updateScore(data, answerTime, answerId);
+
+    answersReceived++;
+
+    if (answersReceived < totalPlayers)
     {
-        for (auto& player : m_players)
-            player.second.currentQuestion = m_questions[0];
+        cv.wait(lock, [this]() { return answersReceived >= totalPlayers; });
     }
+    else
+    {
+        // advance to next question
+        answersReceived = 0;
+
+        if (!m_questions.empty())
+        {
+            m_questions.erase(m_questions.begin());
+
+            for (auto& player : m_players)
+                player.second.currentQuestion = m_questions[0];
+        }
+
+        cv.notify_all();
+    }
+
+    return result;
 }
 
 bool Game::removePlayer(string username)
 {
+    lock_guard<mutex> lock(mtx);
+
     for (auto it = m_players.begin(); it != m_players.end(); ++it)
     {
         if (it->first.getUsername() == username)
         {
             m_players.erase(it);
+            totalPlayers--;
             return true;
         }
     }
-    return false; // player not found
+    return false;
 }
 
-void Game::updateScore(string username, time_t answerTime)
+bool Game::updateScore(GameData& data, time_t answerTime, unsigned int answerId)
 {
-    for (auto it = m_players.begin(); it != m_players.end(); ++it)
+    lock_guard<mutex> lock(mtx);
+
+    int oldTotal = data.correctAnswerCount + data.wrongAnswerCount;
+    data.avarageAnswerTime = ((data.avarageAnswerTime * oldTotal) + answerTime) / (oldTotal + 1);
+
+    if (data.currentQuestion.getCorrectAnswerId() == answerId)
     {
-        if (it->first.getUsername() == username)
-        {
-            int oldToatal = (it->second.correctAnswerCount++) + it->second.wrongAnswerCount;
-            it->second.avarageAnswerTime = ((it->second.avarageAnswerTime * oldToatal) + answerTime) / (oldToatal + 1);
-        }
+        data.correctAnswerCount++;
+        return true;
     }
+
+    data.wrongAnswerCount++;
+    return false;
 }
 
 bool Game::operator==(const Game& other) const
 {
     return m_gameId == other.m_gameId;
+}
+
+bool Game::allPlayersAnswered()
+{
+    for (auto player : m_players)
+    {
+        if (player.second.currentQuestion == m_questions[0])
+            return false;
+    }
+    return true;
 }
