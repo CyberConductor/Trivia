@@ -12,12 +12,16 @@ namespace WpfApp
     {
         private readonly DispatcherTimer refreshTimer;
         private readonly int roomId;
+        private readonly int timeOut;
+        private readonly int questionCount;
         private string admin = "";
 
-        public RoomWaitWindow(int roomId)
+        public RoomWaitWindow(int roomId, int timeOut, int questionCount)
         {
             InitializeComponent();
             this.roomId = roomId;
+            this.timeOut = timeOut;
+            this.questionCount = questionCount;
 
             refreshTimer = new DispatcherTimer
             {
@@ -119,7 +123,9 @@ namespace WpfApp
 
                 if (data.TryGetProperty("status", out JsonElement status) && status.GetInt32() == 1)
                 {
-                    GoToGame(); 
+                    GameWindow gameWindow = new GameWindow(questionCount, timeOut);
+                    gameWindow.Show();
+                    this.Close();
                 }
                 else
                 {
@@ -169,39 +175,6 @@ namespace WpfApp
             {
                 MessageBox.Show("Error processing leave room response: " + ex.Message);
             }
-        }
-
-        private void GoToGame()
-        {
-            string stateJson = JsonSerializer.Serialize(new { roomId = this.roomId });
-            string stateResponse = App.Communicator.SendRequest((byte)Requests.Request_GetRoomState, stateJson);
-            var stateData = JsonSerializer.Deserialize<JsonElement>(stateResponse);
-
-            List<string> playersList = new List<string>();
-            int questionCount = 5;
-            int answerTimeOut = 10;
-
-            if (stateData.TryGetProperty("players", out JsonElement playersElement))
-            {
-                playersList = playersElement.EnumerateArray()
-                    .Select(p => p.GetString())
-                    .Where(p => !string.IsNullOrEmpty(p))
-                    .ToList();
-            }
-
-            if (stateData.TryGetProperty("questionCount", out JsonElement questionCountElement))
-            {
-                questionCount = questionCountElement.GetInt32();
-            }
-
-            if (stateData.TryGetProperty("answerTimeOut", out JsonElement answerTimeOutElement))
-            {
-                answerTimeOut = answerTimeOutElement.GetInt32();
-            }
-
-            GameWindow gameWindow = new GameWindow(this.roomId, playersList, questionCount, answerTimeOut);
-            gameWindow.Show();
-            this.Close();
         }
 
         private void GoToMenu(string message = null)

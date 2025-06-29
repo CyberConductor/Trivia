@@ -10,8 +10,6 @@ namespace WpfApp
 {
     public partial class GameWindow : Window
     {
-        private int roomId;
-        private List<string> players;
         private int questionCount;
         private int answerTimeOut;
 
@@ -24,17 +22,15 @@ namespace WpfApp
 
         private int correctAnswersCount = 0;
 
-        public GameWindow(int roomId, List<string> players, int questionCount, int answerTimeOut)
+        public GameWindow( int questionCount, int answerTimeOut )
         {
             InitializeComponent();
 
-            this.roomId = roomId;
-            this.players = players;
             this.questionCount = questionCount;
             this.answerTimeOut = answerTimeOut;
 
             questionTimer = new DispatcherTimer();
-            questionTimer.Interval = TimeSpan.FromSeconds(1);
+            questionTimer.Interval = TimeSpan.FromSeconds(0.1);
             questionTimer.Tick += QuestionTimer_Tick;
 
             InitializeGame();
@@ -76,7 +72,7 @@ namespace WpfApp
                     AnswersListBox.SelectedValuePath = "Key";
                     AnswersListBox.SelectedIndex = -1;
 
-                    TimerTextBlock.Text = $"Question {currentQuestionIndex + 1} of {questionCount}";
+                    //TimerTextBlock.Text = $"Question {currentQuestionIndex + 1} of {questionCount}";
 
                     // Start timer
                     secondsRemaining = answerTimeOut;
@@ -232,6 +228,7 @@ namespace WpfApp
 
                 string leaveResponse = App.Communicator.SendRequest((byte)Requests.Request_LeaveGame, "{}");
 
+                //TODO: return to room
                 Menu menu = new Menu();
                 menu.Show();
                 this.Close();

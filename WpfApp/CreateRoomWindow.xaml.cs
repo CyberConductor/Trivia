@@ -26,11 +26,13 @@ namespace WpfApp1
             string roomName = RoomNameTextBox.Text;
             string questionTimeStr = QuestionTimeTextBox.Text;
             string playersCountStr = PlayersCountTextBox.Text;
+            string questionCountStr = QuestionCountTextBox.Text;
 
             // Validate input
             if (string.IsNullOrWhiteSpace(roomName) ||
                 !int.TryParse(questionTimeStr, out int questionTime) ||
-                !int.TryParse(playersCountStr, out int playersCount))
+                !int.TryParse(playersCountStr, out int playersCount) ||
+                !int.TryParse(questionCountStr, out int questionCount))
             {
                 MessageBox.Show("Please enter valid values for all fields.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -41,7 +43,7 @@ namespace WpfApp1
             {
                 roomName = roomName,
                 answerTimeOut = questionTime,
-                questionCount = 5,
+                questionCount = questionCount,
                 maxUsers = playersCount
             });
 
@@ -54,7 +56,7 @@ namespace WpfApp1
 
                 if (roomResponse.status == 1)
                 {
-                    RoomWaitWindow waitRoom = new RoomWaitWindow(roomResponse.id)
+                    RoomWaitWindow waitRoom = new RoomWaitWindow(roomResponse.id, questionTime, questionCount)
                     {
 
                     };
