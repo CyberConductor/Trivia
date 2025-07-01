@@ -12,6 +12,7 @@ namespace WpfApp
     {
         private int questionCount;
         private int answerTimeOut;
+        RoomWaitWindow room;
 
         private int currentQuestionIndex = 0;
         private Dictionary<int, string> currentAnswers = new();
@@ -22,15 +23,16 @@ namespace WpfApp
 
         private int correctAnswersCount = 0;
 
-        public GameWindow( int questionCount, int answerTimeOut )
+        public GameWindow( int questionCount, int answerTimeOut, RoomWaitWindow room )
         {
             InitializeComponent();
 
             this.questionCount = questionCount;
             this.answerTimeOut = answerTimeOut;
+            this.room = room;
 
             questionTimer = new DispatcherTimer();
-            questionTimer.Interval = TimeSpan.FromSeconds(0.1);
+            questionTimer.Interval = TimeSpan.FromSeconds(1);
             questionTimer.Tick += QuestionTimer_Tick;
 
             InitializeGame();
@@ -171,10 +173,7 @@ namespace WpfApp
                 {
                     questionTimer.Stop();
                     string leaveResponse = App.Communicator.SendRequest((byte)Requests.Request_LeaveGame, "{}");
-
-                    Menu menu = new Menu();
-                    menu.Show();
-                    this.Close();
+                    ReturnToRoom();
                 }
                 catch (Exception ex)
                 {
@@ -227,16 +226,19 @@ namespace WpfApp
                 }
 
                 string leaveResponse = App.Communicator.SendRequest((byte)Requests.Request_LeaveGame, "{}");
-
-                //TODO: return to room
-                Menu menu = new Menu();
-                menu.Show();
-                this.Close();
+                ReturnToRoom();
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error getting game results or leaving game: " + ex.Message);
             }
+        }
+
+        private void ReturnToRoom()
+        {
+            questionTimer.Stop();
+            room.Show();
+            this.Close();
         }
     }
 }

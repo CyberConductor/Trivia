@@ -20,6 +20,7 @@ typedef struct RoomData
 	unsigned int numOfQuestionsInGame;
 	time_t timePerQuestion;
 	RoomStatus status;
+	bool hasGameBegun;
 } RoomData;
 
 //forward decleration

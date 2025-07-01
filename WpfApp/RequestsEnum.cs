@@ -30,4 +30,30 @@ namespace WpfApp
 		Request_SubmitAnswer,
 		Request_GetGameResults
     }
+
+    public enum Responses
+    {
+		//1
+		Response_Error = 0,
+		Response_Login,
+		Response_Signup,
+		//2
+		Response_Logout,
+		Response_GetRooms,
+		Response_GetPlayersInRoom,
+		Response_JoinRoom,
+		Response_CreateRoom,
+		Response_GetHighScore,
+		Response_GetPersonalStatus,
+		//3
+		Response_CloseRoom,
+		Response_StartGame,
+		Response_GetRoomState,
+		Response_LeaveRoom,
+		//4
+		Response_LeaveGame,
+		Response_GetQuestion,
+		Response_SubmitAnswer,
+		Response_GetGameResults
+	};
 }

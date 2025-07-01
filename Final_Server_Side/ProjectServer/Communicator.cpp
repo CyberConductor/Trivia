@@ -146,15 +146,15 @@ void Communicator::handleClient(SOCKET sock)
                 {
                     if (dynamic_cast<GameRequestHandler*>(result.newHandler))
                     {
-                        for (auto& userPair : adminHandler->m_room.m_users)
-                        {
-                            const LoggedUser& user = userPair.first;
-                            IRequestHandler*& userHandler = userPair.second;
+                        //for (auto& userPair : adminHandler->m_room.m_users)
+                        //{
+                        //    const LoggedUser& user = userPair.first;
+                        //    IRequestHandler*& userHandler = userPair.second;
 
-                            // convert all the room members to game request handlers
-                            /*if (auto memberHandler = dynamic_cast<RoomMemberRequestHandler*>(userHandler))
-                                userPair.second = m_handlerFactory.createGameRequestHandler(user, adminHandler->m_room, memberHandler);*/
-                        }
+                        //    // convert all the room members to game request handlers
+                        //    /*if (auto memberHandler = dynamic_cast<RoomMemberRequestHandler*>(userHandler))
+                        //        userPair.second = m_handlerFactory.createGameRequestHandler(user, adminHandler->m_room, memberHandler);*/
+                        //}
                         handler = result.newHandler;
                         m_clients[sock] = handler;
                     }

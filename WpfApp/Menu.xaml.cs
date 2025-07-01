@@ -57,6 +57,7 @@ namespace WpfApp
 
                 // Clear current user info
                 App.CurrentUser = null;
+                App.Communicator.Close();
 
                 MessageBox.Show("You have signed out.");
 

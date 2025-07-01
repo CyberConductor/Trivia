@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
 using TriviaClient.Network;
@@ -15,6 +16,11 @@ namespace WpfApp
         private readonly int timeOut;
         private readonly int questionCount;
         private string admin = "";
+        private bool hasGameBegun;
+
+        private Thread listenerThread;
+        private bool keepListening = true;
+
 
         public RoomWaitWindow(int roomId, int timeOut, int questionCount)
         {
@@ -25,10 +31,13 @@ namespace WpfApp
 
             refreshTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(3)
+                Interval = TimeSpan.FromSeconds(1)
             };
             refreshTimer.Tick += RefreshRoomState;
             refreshTimer.Start();
+
+            listenerThread = new Thread(ListenToServer);
+            listenerThread.Start();
 
             RefreshRoomState(null, null); // Initial immediate refresh
         }
@@ -40,6 +49,8 @@ namespace WpfApp
                 string stateJson = JsonSerializer.Serialize(new { roomId = this.roomId });
                 string stateResponse = App.Communicator.SendRequest((byte)Requests.Request_GetRoomState, stateJson);
                 var stateData = JsonSerializer.Deserialize<JsonElement>(stateResponse);
+                stateData.TryGetProperty("hasGameBegun", out JsonElement begun);
+                this.hasGameBegun = begun.GetBoolean();
 
                 // Update players and admin controls
                 if (stateData.TryGetProperty("players", out JsonElement playersElement))
@@ -77,23 +88,13 @@ namespace WpfApp
                         }
                     });
                 }
-
-                // Check if game started
-                if (stateData.TryGetProperty("hasGameBegun", out JsonElement started) && started.GetBoolean())
-                {
-                    refreshTimer.Stop();
-                    GoToGame();
-                    return;
-                }
-
                 
-                if (stateData.TryGetProperty("status", out JsonElement status) && status.GetInt32() == 0)
+                else if (stateData.TryGetProperty("status", out JsonElement status) && status.GetInt32() == 0)
                 {
                     refreshTimer.Stop();
                     GoToMenu("Room was closed.");
                     return;
                 }
-
             }
             catch (Exception ex)
             {
@@ -112,6 +113,55 @@ namespace WpfApp
             }
         }
 
+        private void ListenToServer()
+        {
+            while (keepListening)
+            {
+                try
+                {
+                    string response = App.Communicator.TryReadMessage(); 
+
+                    if (!string.IsNullOrEmpty(response))
+                    {
+                        byte code = (byte)response[0];
+                        string json = response.Substring(1);
+
+                        switch (code)
+                        {
+                            case (byte)Responses.Response_StartGame:
+                                if (!hasGameBegun)
+                                    break;
+                                Dispatcher.Invoke(() =>
+                                {
+                                    GoToGame();
+                                });
+                                break;
+
+                            case (byte)Responses.Response_LeaveRoom:
+                                Dispatcher.Invoke(() =>
+                                {
+                                    keepListening = false;
+                                    refreshTimer.Stop();
+                                    GoToMenu("Room was closed.");
+                                });
+                                break;
+
+                            default:
+                                // other codes – you can log or ignore
+                                break;
+                        }
+                    }
+
+                    Thread.Sleep(200); // don't overheat CPU
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error processing checking server messages: " + ex.Message);
+                    GoToMenu();
+                }
+            }
+        }
+
         private void StartGameButton_Click(object sender, RoutedEventArgs e)
         {
             string json = JsonSerializer.Serialize(new { roomId = this.roomId });
@@ -123,9 +173,7 @@ namespace WpfApp
 
                 if (data.TryGetProperty("status", out JsonElement status) && status.GetInt32() == 1)
                 {
-                    GameWindow gameWindow = new GameWindow(questionCount, timeOut);
-                    gameWindow.Show();
-                    this.Close();
+                    GoToGame();
                 }
                 else
                 {
@@ -186,6 +234,15 @@ namespace WpfApp
 
             Menu menu = new Menu();
             menu.Show();
+            this.Close();
+        }
+
+        private void GoToGame()
+        {
+            keepListening = false;
+            refreshTimer.Stop();
+            GameWindow gameWindow = new GameWindow(questionCount, timeOut, this);
+            gameWindow.Show();
             this.Close();
         }
 

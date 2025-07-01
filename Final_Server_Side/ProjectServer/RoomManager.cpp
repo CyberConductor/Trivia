@@ -18,7 +18,8 @@ Room& RoomManager::createRoom(LoggedUser user, RoomData data)
 	if (m_rooms.find(data.id) != m_rooms.end())
 		throw std::runtime_error("Room with this ID already exists");
 
-	data.status = false;
+	data.status = true;
+	data.hasGameBegun = false;
 
 	// insert a room directly into the map to avoid local object lifetime issue
 	auto inserted = m_rooms.emplace(data.id, Room(data));

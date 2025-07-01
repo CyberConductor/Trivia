@@ -98,7 +98,7 @@
             <Border Background="White"
                     CornerRadius="10"
                     Padding="30"
-                    Margin="80,100,100,151"
+                    Margin="50"
                     Effect="{DynamicResource materialDesignElevation3}"
                     Grid.Column="2">
 

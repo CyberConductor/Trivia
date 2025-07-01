@@ -24,8 +24,8 @@ protected:
 	{
 		GetRoomStateResponse state = 
 		{ 
-			1, 
 			m_room.m_metadata.status,
+			m_room.m_metadata.hasGameBegun,
 			m_room.getAllUsers(),
 			m_room.m_metadata.numOfQuestionsInGame,
 			m_room.m_metadata.timePerQuestion 

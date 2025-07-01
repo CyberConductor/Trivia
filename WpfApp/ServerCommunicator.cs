@@ -2,6 +2,8 @@
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
+using System.IO;
+
 
 namespace TriviaClient.Network
 {
@@ -23,6 +25,12 @@ namespace TriviaClient.Network
         {
             try
             {
+                if (client == null || !client.Connected)
+                {
+                    client = new TcpClient(SERVER_IP, PORT);
+                    stream = client.GetStream();
+                }
+
                 // Prepare request
                 byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
                 byte[] lengthBytes = BitConverter.GetBytes(jsonBytes.Length);
@@ -70,11 +78,25 @@ namespace TriviaClient.Network
             }
         }
 
+        public string TryReadMessage()
+        {
+            if (stream.DataAvailable)
+            {
+                byte[] buffer = new byte[4096];
+                int bytesRead = stream.Read(buffer, 0, buffer.Length);
+                return Encoding.UTF8.GetString(buffer, 0, bytesRead);
+            }
+            return null;
+        }
 
         public void Close()
         {
-            stream.Close();
-            client.Close();
+            try
+            {
+                stream?.Close();
+                client?.Close();
+            }
+            catch { };
         }
     }
 }

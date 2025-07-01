@@ -51,21 +51,29 @@ RequestResult RoomAdminRequestHandler::closeRoom(RequestInfo requestInfo)
 
 RequestResult RoomAdminRequestHandler::startGame(RequestInfo)
 {
-	for (auto& user : m_room.m_users)
+	m_room.m_metadata.hasGameBegun = true;
+
+	try
 	{
-		if (RoomMemberRequestHandler* memberHandler = dynamic_cast<RoomMemberRequestHandler*>(user.second))
+		for (auto& user : m_room.m_users)
 		{
-			Buffer buffer = JsonResponsePacketSerializer::serializeStartGameResponse({ 1 });
-			Helper::sendData(user.first.getSocket(), buffer);
+			if (RoomMemberRequestHandler* memberHandler = dynamic_cast<RoomMemberRequestHandler*>(user.second))
+			{
+				Buffer buffer = JsonResponsePacketSerializer::serializeStartGameResponse({ 1 });
+				Helper::sendData(user.first.getSocket(), buffer);
 
-			// convert to game request handler
-			user.second = m_handlerFactory.createGameRequestHandler(user.first, m_room, memberHandler);
+				// convert to game request handler
+				user.second = m_handlerFactory.createGameRequestHandler(user.first, m_room, memberHandler);
+			}
 		}
+
+		// return response for the admin
+		Buffer buffer = JsonResponsePacketSerializer::serializeStartGameResponse({ 1 });
+		return { buffer, m_handlerFactory.createGameRequestHandler(m_user, m_room, this) };
 	}
-
-	m_room.m_metadata.status = true;
-
-	// return response for the admin
-	Buffer buffer = JsonResponsePacketSerializer::serializeStartGameResponse({ 1 });
-	return { buffer, m_handlerFactory.createGameRequestHandler(m_user, m_room, this) };
+	catch (std::exception e)
+	{
+		m_room.m_metadata.hasGameBegun = false;
+		std::cout << e.what() << std::endl;
+	}
 }
