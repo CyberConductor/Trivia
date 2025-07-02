@@ -4,17 +4,23 @@
 #include "RoomAdminRequestHandler.h"
 #include "RoomMemberRequestHandler.h"
 #include "GameRequestHandler.h"
+#include "Communicator.h"
 
 RequestHandlerFactory::RequestHandlerFactory()
     : m_roomManager(RoomManager(this)),
     m_database(new SqliteDatabase()),
     m_statisticsManager(m_database),
-    m_gameManager(m_database)
+    m_gameManager(m_database),
+    m_communicatorPtr(new Communicator(*this))
 {
     m_database->open();
 }
 
-RequestHandlerFactory::~RequestHandlerFactory() { delete m_database; }
+RequestHandlerFactory::~RequestHandlerFactory() 
+{ 
+    delete m_database;
+    delete m_communicatorPtr;
+}
 
 IRequestHandler* RequestHandlerFactory::createLoginRequestHandler(SOCKET sock)
 { return new LoginRequestHandler(*this, sock); }
@@ -33,3 +39,4 @@ LoginManager& RequestHandlerFactory::getLoginManager() { return m_loginManager; 
 StatisticsManager& RequestHandlerFactory::getStatisticsManager() { return m_statisticsManager; }
 RoomManager& RequestHandlerFactory::getRoomManager() { return m_roomManager; }
 GameManager& RequestHandlerFactory::getGameManager() { return m_gameManager; }
+Communicator& RequestHandlerFactory::getCommunicator() { return *m_communicatorPtr; }

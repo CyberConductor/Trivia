@@ -34,6 +34,7 @@ public:
 	StatisticsManager& getStatisticsManager();
 	RoomManager& getRoomManager();
 	GameManager& getGameManager();
+	Communicator& getCommunicator();
 
 private:
 	SqliteDatabase* m_database;
@@ -41,4 +42,5 @@ private:
 	LoginManager m_loginManager;
 	RoomManager m_roomManager;
 	GameManager m_gameManager;
+	Communicator* m_communicatorPtr;
 };

@@ -6,7 +6,9 @@ GameRequestHandler::GameRequestHandler(RequestHandlerFactory& factory, LoggedUse
 	m_gameManager(factory.getGameManager()),
 	m_game(game),
 	m_preHandler(handler)
-{}
+{
+	std::cout << "GameRequestHandler created for " << user.getUsername() << std::endl;
+}
 
 bool GameRequestHandler::isRequestRelevant(RequestInfo req)
 {

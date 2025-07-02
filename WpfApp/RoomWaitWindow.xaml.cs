@@ -31,7 +31,7 @@ namespace WpfApp
 
             refreshTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(1)
+                Interval = TimeSpan.FromSeconds(100)
             };
             refreshTimer.Tick += RefreshRoomState;
             refreshTimer.Start();
@@ -44,11 +44,15 @@ namespace WpfApp
 
         private void RefreshRoomState(object sender, EventArgs e)
         {
+            if (!keepListening)
+                return;
+
             try
             {
                 string stateJson = JsonSerializer.Serialize(new { roomId = this.roomId });
                 string stateResponse = App.Communicator.SendRequest((byte)Requests.Request_GetRoomState, stateJson);
                 var stateData = JsonSerializer.Deserialize<JsonElement>(stateResponse);
+
                 stateData.TryGetProperty("hasGameBegun", out JsonElement begun);
                 this.hasGameBegun = begun.GetBoolean();
 
@@ -91,7 +95,6 @@ namespace WpfApp
                 
                 else if (stateData.TryGetProperty("status", out JsonElement status) && status.GetInt32() == 0)
                 {
-                    refreshTimer.Stop();
                     GoToMenu("Room was closed.");
                     return;
                 }
@@ -129,8 +132,6 @@ namespace WpfApp
                         switch (code)
                         {
                             case (byte)Responses.Response_StartGame:
-                                if (!hasGameBegun)
-                                    break;
                                 Dispatcher.Invoke(() =>
                                 {
                                     GoToGame();
@@ -140,8 +141,6 @@ namespace WpfApp
                             case (byte)Responses.Response_LeaveRoom:
                                 Dispatcher.Invoke(() =>
                                 {
-                                    keepListening = false;
-                                    refreshTimer.Stop();
                                     GoToMenu("Room was closed.");
                                 });
                                 break;
@@ -193,7 +192,6 @@ namespace WpfApp
             string response = App.Communicator.SendRequest((byte)Requests.Request_CloseRoom, json);
             MessageBox.Show(response);
 
-            refreshTimer.Stop(); 
             GoToMenu("Room was closed."); 
         }
 
@@ -225,8 +223,11 @@ namespace WpfApp
             }
         }
 
-        private void GoToMenu(string message = null)
+        private void GoToMenu(string? message = default)
         {
+            keepListening = false;
+            refreshTimer.Stop();
+
             if (!string.IsNullOrEmpty(message))
             {
                 MessageBox.Show(message);
@@ -248,6 +249,7 @@ namespace WpfApp
 
         protected override void OnClosed(EventArgs e)
         {
+            keepListening = false;
             refreshTimer?.Stop();
             base.OnClosed(e);
         }

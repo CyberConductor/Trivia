@@ -1,5 +1,7 @@
 #include "RoomAdminRequestHandler.h"
 #include "IRequestHandler.h"
+#include "Communicator.h"
+#include <iostream>
 
 RoomAdminRequestHandler::RoomAdminRequestHandler(RequestHandlerFactory& factory, LoggedUser user, Room& room)
 	: RoomMember(user, room, factory.getRoomManager(), factory)
@@ -63,7 +65,10 @@ RequestResult RoomAdminRequestHandler::startGame(RequestInfo)
 				Helper::sendData(user.first.getSocket(), buffer);
 
 				// convert to game request handler
+				std::cout << "updating handler for user: " << user.first.getUsername() << std::endl
+					<< "user socket: " << user.first.getSocket() << std::endl;
 				user.second = m_handlerFactory.createGameRequestHandler(user.first, m_room, memberHandler);
+				m_handlerFactory.getCommunicator().m_clients[user.first.getSocket()] = user.second;
 			}
 		}
 

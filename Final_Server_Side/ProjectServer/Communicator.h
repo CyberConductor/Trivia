@@ -27,4 +27,6 @@ private:
 	map<SOCKET, IRequestHandler*> m_clients;
 	RequestHandlerFactory& m_handlerFactory;
 	SOCKET m_serverSocket;
+
+	friend RoomAdminRequestHandler;
 };
