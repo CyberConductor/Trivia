@@ -206,7 +206,7 @@ namespace WpfApp
                         string username = player.GetProperty("username").GetString();
                         int correct = player.GetProperty("correctAnswersCount").GetInt32();
                         int wrong = player.GetProperty("wrongAnswersCount").GetInt32();
-                        double avgTime = root.GetProperty("averageAnswerTime").GetDouble();
+                        double avgTime = player.GetProperty("averageAnswerTime").GetDouble();
 
                         scores.Add($"{username}: Correct: {correct} | Wrong: {wrong} | Avg Time: {avgTime:F2} sec");
                     }

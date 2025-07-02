@@ -171,9 +171,9 @@ Buffer JsonResponsePacketSerializer::serializeGetGameResultsResponse(GetGameResu
 	{
 		json j_player;
 		j_player["username"] = pr.username;
-		j_player["correctAnswerCount"] = pr.correctAnswerCount;
+		j_player["correctAnswersCount"] = pr.correctAnswersCount;
 		j_player["wrongAnswersCount"] = pr.wrongAnswersCount;
-		j_player["avarageAnswerTime"] = pr.avarageAnswerTime;
+		j_player["averageAnswerTime"] = pr.averageAnswerTime;
 
 		j_results.push_back(j_player);
 	}

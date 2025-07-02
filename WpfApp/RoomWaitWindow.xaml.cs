@@ -31,7 +31,7 @@ namespace WpfApp
 
             refreshTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(100)
+                Interval = TimeSpan.FromSeconds(1)
             };
             refreshTimer.Tick += RefreshRoomState;
             refreshTimer.Start();
@@ -151,7 +151,7 @@ namespace WpfApp
                         }
                     }
 
-                    Thread.Sleep(200); // don't overheat CPU
+                    Thread.Sleep(50); // don't overheat CPU
                 }
                 catch (Exception ex)
                 {
@@ -244,7 +244,6 @@ namespace WpfApp
             refreshTimer.Stop();
             GameWindow gameWindow = new GameWindow(questionCount, timeOut, this);
             gameWindow.Show();
-            this.Close();
         }
 
         protected override void OnClosed(EventArgs e)

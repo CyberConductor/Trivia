@@ -46,7 +46,7 @@ namespace WpfApp
         {
             string response = App.Communicator.SendRequest((byte)Requests.Request_GetRooms, "");
 
-            MessageBox.Show(response, "GetRooms Response");
+            //MessageBox.Show(response, "GetRooms Response");
 
             try
             {

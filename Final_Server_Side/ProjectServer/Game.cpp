@@ -42,12 +42,11 @@ bool Game::submitAnswer(LoggedUser user, int answerId, time_t answerTime)
 
         // advance to next question
         if (!m_questions.empty())
-        {
             m_questions.erase(m_questions.begin());
 
+        if (!m_questions.empty())
             for (auto& player : m_players)
                 player.second.currentQuestion = m_questions[0];
-        }
     }
 
     return result;

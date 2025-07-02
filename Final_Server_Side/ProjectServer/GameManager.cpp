@@ -17,7 +17,7 @@ Game& GameManager::createGame(Room& room)
     // check if a game for this room already exists
     for (Game* game : m_games)
     {
-        if (room.m_metadata.id == game->m_gameId)
+        if (room.m_metadata.id == game->m_gameId && !game->m_players.empty())
             return *game;
     }
 
