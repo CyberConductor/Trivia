@@ -33,13 +33,14 @@ bool Game::submitAnswer(LoggedUser user, int answerId, time_t answerTime)
 
     if (answersReceived < totalPlayers)
     {
-        cv.wait(lock, [this]() { return answersReceived >= totalPlayers; });
+        cv.wait(lock, [this]() { return answersReceived == 0; });
     }
     else
     {
-        // advance to next question
         answersReceived = 0;
+        cv.notify_all();
 
+        // advance to next question
         if (!m_questions.empty())
         {
             m_questions.erase(m_questions.begin());
@@ -47,8 +48,6 @@ bool Game::submitAnswer(LoggedUser user, int answerId, time_t answerTime)
             for (auto& player : m_players)
                 player.second.currentQuestion = m_questions[0];
         }
-
-        cv.notify_all();
     }
 
     return result;
@@ -72,8 +71,6 @@ bool Game::removePlayer(string username)
 
 bool Game::updateScore(GameData& data, time_t answerTime, unsigned int answerId)
 {
-    lock_guard<mutex> lock(mtx);
-
     int oldTotal = data.correctAnswerCount + data.wrongAnswerCount;
     data.avarageAnswerTime = ((data.avarageAnswerTime * oldTotal) + answerTime) / (oldTotal + 1);
 

@@ -14,7 +14,7 @@ namespace WpfApp
         private int answerTimeOut;
         RoomWaitWindow room;
 
-        private int currentQuestionIndex = 0;
+        private int currentQuestionIndex = 1;
         private Dictionary<int, string> currentAnswers = new();
 
         private DispatcherTimer questionTimer;
@@ -151,7 +151,11 @@ namespace WpfApp
                     }
 
                     currentQuestionIndex++;
-                    LoadNextQuestion();
+
+                    if (currentQuestionIndex >= questionCount)
+                        ShowGameResults();
+                    else
+                        LoadNextQuestion();
                 }
                 catch (Exception ex)
                 {

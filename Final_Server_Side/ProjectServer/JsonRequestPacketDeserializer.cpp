@@ -59,7 +59,7 @@ SubmitAnswerRequest JsonRequestPacketDeserializer::deserializeSubmitAnswerReques
 
 	SubmitAnswerRequest req;
 	req.answerId = j["answerId"];
-	req.answerId = j["timeTaken"];
+	req.anwserTime = j["timeTaken"];
 
 	return req;
 }
