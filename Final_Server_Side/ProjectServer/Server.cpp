@@ -3,8 +3,7 @@
 
 Server::Server()
     : m_database(),
-    m_handlerFactory(),
-    m_communicator(m_handlerFactory)
+    m_handlerFactory()
 {}
 
 Server::~Server()
@@ -18,7 +17,7 @@ void Server::run()
     TRACE("starting server...");
     try
     {
-        m_communicator.startHandleRequests();
+        m_handlerFactory.getCommunicator().startHandleRequests();
     }
     catch (const std::exception& e)
     {

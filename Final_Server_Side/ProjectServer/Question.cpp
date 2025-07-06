@@ -19,3 +19,10 @@ unsigned int Question::getCorrectAnswerId()
 		if (m_rightAnswer == m_possibleAnswers[i])
 			return i;
 }
+
+bool Question::operator==(const Question& other)
+{
+	return m_question == other.m_question &&
+		m_rightAnswer == other.m_rightAnswer &&
+		m_possibleAnswers == other.m_possibleAnswers;
+}

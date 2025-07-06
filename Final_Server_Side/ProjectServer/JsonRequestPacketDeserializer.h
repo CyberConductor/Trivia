@@ -44,6 +44,7 @@ struct CreateRoomRequest
 struct SubmitAnswerRequest
 {
 	unsigned int answerId;
+	time_t anwserTime;
 };
 
 enum Requests : unsigned char

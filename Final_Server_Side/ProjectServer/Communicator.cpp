@@ -1,4 +1,5 @@
 #include "Communicator.h"
+#include "JsonRequestPacketDeserializer.h"
 
 static const unsigned short PORT = 8826;
 static const unsigned int IFACE = 0;
@@ -126,14 +127,20 @@ void Communicator::handleNewClient()
 
 void Communicator::handleClient(SOCKET sock)
 {
-    IRequestHandler* handler = m_clients[sock];
+    IRequestHandler* handler = NULL;
 
     try
     {
         while (true)
         {
+            handler = m_clients[sock]; 
+            std::cout << "socket: " << sock << 
+                "\ncurrent handler type: " << typeid(*handler).name() << std::endl;
             // receive and deserialize the request
             RequestInfo request = Helper::getRequestInfo(sock);
+            //debug
+            if(dynamic_cast<RoomMemberRequestHandler*>(handler) && request.id == Requests::Request_GetQuestion)
+                handler = m_clients[sock];
             // process the request through the current handler
             RequestResult result = handler->handleRequest(request);
             // send back the response
@@ -146,35 +153,18 @@ void Communicator::handleClient(SOCKET sock)
                 {
                     if (dynamic_cast<GameRequestHandler*>(result.newHandler))
                     {
-                        for (auto& userPair : adminHandler->m_room.m_users)
-                        {
-                            const LoggedUser& user = userPair.first;
-                            IRequestHandler*& userHandler = userPair.second;
+                        //for (auto& userPair : adminHandler->m_room.m_users)
+                        //{
+                        //    const LoggedUser& user = userPair.first;
+                        //    IRequestHandler*& userHandler = userPair.second;
 
-                            // convert all the room members to game request handlers
-                            if (auto memberHandler = dynamic_cast<RoomMemberRequestHandler*>(userHandler))
-                                userPair.second = m_handlerFactory.createGameRequestHandler(user, adminHandler->m_room, memberHandler);
-                        }
+                        //     //convert all the room members to game request handlers.
+                        //     //it will pass on the admin because its current state is roomAdmin
+                        //    if (auto memberHandler = dynamic_cast<GameRequestHandler*>(userHandler))
+                        //        m_clients[user.getSocket()] = memberHandler;
+                        //}
                         handler = result.newHandler;
                         m_clients[sock] = handler;
-                    }
-                }
-                if (auto gameHandler = dynamic_cast<GameRequestHandler*>(handler))
-                {
-                    while (true)
-                    {
-                        // if leaveGame was called, break out of game mode
-                        if (gameHandler != result.newHandler)
-                        {
-                            handler = result.newHandler;
-                            m_clients[sock] = handler;
-                            delete gameHandler;
-                            break;
-                        }
-
-                        request = Helper::getRequestInfo(sock);
-                        result = handler->handleRequest(request);
-                        Helper::sendData(sock, result.response);
                     }
                 }
                 else
@@ -182,6 +172,24 @@ void Communicator::handleClient(SOCKET sock)
                     delete handler;
                     handler = result.newHandler;
                     m_clients[sock] = handler;
+                }
+            }
+            if (auto gameHandler = dynamic_cast<GameRequestHandler*>(handler))
+            {
+                while (true)
+                {
+                    // if leaveGame was called, break out of game mode
+                    if (gameHandler != result.newHandler)
+                    {
+                        handler = result.newHandler;
+                        m_clients[sock] = handler;
+                        delete gameHandler;
+                        break;
+                    }
+
+                    request = Helper::getRequestInfo(sock);
+                    result = handler->handleRequest(request);
+                    Helper::sendData(sock, result.response);
                 }
             }
         }

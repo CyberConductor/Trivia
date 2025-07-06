@@ -20,8 +20,10 @@ public:
 	//methods
 	Game& createGame(Room&);
 	void deleteGame(int);
-	int submitGameStatsToDB(GameData);
+
 private:
+	int submitGameStatsToDB(string, GameData);
+
 	//helpers
 	static size_t WriteCallback(void*, size_t, size_t, string*);
 	vector<Question> fetchQuestionsFromAPI(const RoomData&);

@@ -6,7 +6,9 @@ GameRequestHandler::GameRequestHandler(RequestHandlerFactory& factory, LoggedUse
 	m_gameManager(factory.getGameManager()),
 	m_game(game),
 	m_preHandler(handler)
-{}
+{
+	std::cout << "GameRequestHandler created for " << user.getUsername() << std::endl;
+}
 
 bool GameRequestHandler::isRequestRelevant(RequestInfo req)
 {
@@ -36,21 +38,21 @@ RequestResult GameRequestHandler::getQuestion(RequestInfo)
 		return generateErrorResponse("no more questions left, game is over.", m_preHandler);
 
 	Question q = m_game.getQuestionForUser(m_user);
-	GetQuestionResponse res{ 1, q.getQuestion() };
+
+	map<unsigned int, string> possibleAnswers;
 	int i = 0;
 	for ( auto answer : q.getPossibleAnswers())
-		res.answers.emplace(i++, answer);
+		possibleAnswers.emplace(i++, answer);
 
-	return { JsonResponsePacketSerializer::serializeGetQuestionResponse(res), this };
+	return { JsonResponsePacketSerializer::serializeGetQuestionResponse({ 1, q.getQuestion(), possibleAnswers }), this };
 }
 
 RequestResult GameRequestHandler::submitAnswer(RequestInfo requestInfo)
 {
 	SubmitAnswerRequest req = JsonRequestPacketDeserializer::deserializeSubmitAnswerRequest(requestInfo.buffer);
 	unsigned int answerId = m_game.m_players.find(m_user)->second.currentQuestion.getCorrectAnswerId();
-	m_game.submitAnswer();
 
-	return { JsonResponsePacketSerializer::serializeSubmitAnswerResponse({ 1, answerId }), this };
+	return { JsonResponsePacketSerializer::serializeSubmitAnswerResponse({ m_game.submitAnswer(m_user, req.answerId, req.anwserTime), answerId }), this };
 }
 
 RequestResult GameRequestHandler::getGameResults(RequestInfo)

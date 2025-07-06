@@ -17,8 +17,8 @@ Game& GameManager::createGame(Room& room)
     // check if a game for this room already exists
     for (Game* game : m_games)
     {
-        if (room.m_metadata.id == game->m_gameId)
-            throw std::runtime_error("game for this room already exists");
+        if (room.m_metadata.id == game->m_gameId && !game->m_players.empty())
+            return *game;
     }
 
     // get questions from database. TODO: get questions from API
@@ -49,8 +49,12 @@ void GameManager::deleteGame(int id)
 	{
 		if (id == (*it)->m_gameId)
 		{
-			for (auto player : (*it)->m_players)
-                (*it)->removePlayer(player.first.getUsername());
+            for (auto player : (*it)->m_players)
+            {
+                auto username = player.first.getUsername();
+                submitGameStatsToDB(username, player.second);
+                (*it)->removePlayer(username);
+            }
 
             delete *it;
 			m_games.erase(it);
@@ -59,14 +63,11 @@ void GameManager::deleteGame(int id)
 	}
 }
 
-int GameManager::submitGameStatsToDB(GameData data)
+int GameManager::submitGameStatsToDB(string username, GameData data)
 {
-	StatisticsManager statsManager = StatisticsManager((SqliteDatabase*)m_database);
-	for (auto game : m_games)
-		for (auto player : game->m_players)
-			if (player.second == data)
-				return statsManager.submitGameStatistics(player.first.getUsername(), data);
-	return SQLITE_ERROR;
+	StatisticsManager statsManager = StatisticsManager(dynamic_cast<SqliteDatabase*>(m_database));
+
+    return statsManager.submitGameStatistics(username, data);
 }
 
 size_t GameManager::WriteCallback(void* contents, size_t size, size_t nmemb, string* output)

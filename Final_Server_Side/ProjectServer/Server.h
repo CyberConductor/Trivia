@@ -15,7 +15,6 @@ public:
 
 private:
 	SqliteDatabase m_database;
-	Communicator m_communicator;
 	RequestHandlerFactory m_handlerFactory;
 };
 

@@ -32,7 +32,7 @@ namespace WpfApp
             InitializeComponent();
             UpdateSignOutButtonVisibility();
             _refreshTimer = new DispatcherTimer();
-            _refreshTimer.Interval = TimeSpan.FromSeconds(3);
+            _refreshTimer.Interval = TimeSpan.FromSeconds(5);
             _refreshTimer.Tick += RefreshTimer_Tick;
             _refreshTimer.Start();
         }
@@ -46,7 +46,7 @@ namespace WpfApp
         {
             string response = App.Communicator.SendRequest((byte)Requests.Request_GetRooms, "");
 
-            MessageBox.Show(response, "GetRooms Response");
+            //MessageBox.Show(response, "GetRooms Response");
 
             try
             {
@@ -75,11 +75,7 @@ namespace WpfApp
             {
                 MessageBox.Show($"Error loading room list:\n{ex.Message}\nRaw response:\n{response}");
             }
-        }
-
-        
-           
-      
+        }      
 
         private void JoinRoomButton_Click(object sender, RoutedEventArgs e)
         {
@@ -89,21 +85,16 @@ namespace WpfApp
                 return;
             }
 
-
             string joinJson = JsonSerializer.Serialize(new { roomId = selectedRoom.id });
             string joinResponse = App.Communicator.SendRequest((byte)Requests.Request_JoinRoom, joinJson);
             
-
             try
             {
                 var joinData = JsonSerializer.Deserialize<JsonElement>(joinResponse);
                 if (joinData.TryGetProperty("status", out var status) && status.GetInt32() == 1)
                 {
-                   
-                    var waitWindow = new RoomWaitWindow(selectedRoom.id);
+                    var waitWindow = new RoomWaitWindow(selectedRoom.id, selectedRoom.timePerQuestion, selectedRoom.numOfQuestionsInGame);
                     waitWindow.Show();
-
-                 
                     this.Close();
                 }
                 else

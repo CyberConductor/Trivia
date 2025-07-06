@@ -4,27 +4,36 @@ using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace WpfApp
 {
     public partial class GameWindow : Window
     {
-        private int roomId;
-        private List<string> players;
         private int questionCount;
         private int answerTimeOut;
+        RoomWaitWindow room;
 
-        private int currentQuestionIndex = 0;
+        private int currentQuestionIndex = 1;
         private Dictionary<int, string> currentAnswers = new();
 
-        public GameWindow(int roomId, List<string> players, int questionCount, int answerTimeOut)
+        private DispatcherTimer questionTimer;
+        private int secondsRemaining;
+        private DateTime questionStartTime;
+
+        private int correctAnswersCount = 0;
+
+        public GameWindow( int questionCount, int answerTimeOut, RoomWaitWindow room )
         {
             InitializeComponent();
 
-            this.roomId = roomId;
-            this.players = players;
             this.questionCount = questionCount;
             this.answerTimeOut = answerTimeOut;
+            this.room = room;
+
+            questionTimer = new DispatcherTimer();
+            questionTimer.Interval = TimeSpan.FromSeconds(1);
+            questionTimer.Tick += QuestionTimer_Tick;
 
             InitializeGame();
         }
@@ -32,6 +41,8 @@ namespace WpfApp
         private void InitializeGame()
         {
             currentQuestionIndex = 0;
+            correctAnswersCount = 0;
+            CorrectAnswersTextBlock.Text = $"Correct answers: {correctAnswersCount}";
             LoadNextQuestion();
         }
 
@@ -52,12 +63,10 @@ namespace WpfApp
                 if (root.GetProperty("status").GetInt32() == 1)
                 {
                     string question = root.GetProperty("question").GetString();
-                    var answersJson = root.GetProperty("answers").EnumerateObject();
 
-                    currentAnswers = answersJson.ToDictionary(
-                        a => int.Parse(a.Name),
-                        a => a.Value.GetString()
-                    );
+                    currentAnswers = root.EnumerateObject()
+                        .Where(p => int.TryParse(p.Name, out _))
+                        .ToDictionary(p => int.Parse(p.Name), p => p.Value.GetString());
 
                     QuestionTextBlock.Text = $"Q{currentQuestionIndex + 1}: {question}";
                     AnswersListBox.ItemsSource = currentAnswers.ToList();
@@ -65,7 +74,14 @@ namespace WpfApp
                     AnswersListBox.SelectedValuePath = "Key";
                     AnswersListBox.SelectedIndex = -1;
 
-                    TimerTextBlock.Text = $"Question {currentQuestionIndex + 1} of {questionCount}";
+                    //TimerTextBlock.Text = $"Question {currentQuestionIndex + 1} of {questionCount}";
+
+                    // Start timer
+                    secondsRemaining = answerTimeOut;
+                    questionStartTime = DateTime.Now;
+                    TimeRemainingTextBlock.Text = $"Time left: {secondsRemaining}s";
+
+                    questionTimer.Start();
                 }
                 else
                 {
@@ -79,25 +95,67 @@ namespace WpfApp
             }
         }
 
+        private void QuestionTimer_Tick(object sender, EventArgs e)
+        {
+            secondsRemaining--;
+            TimeRemainingTextBlock.Text = $"Time left: {secondsRemaining}s";
+
+            if (secondsRemaining <= 0)
+            {
+                questionTimer.Stop();
+                MessageBox.Show("Time's up! Moving to next question.");
+
+                var json = JsonSerializer.Serialize(new
+                {
+                    answerId = -1,
+                    timeTaken = 0
+                });
+                App.Communicator.SendRequest((byte)Requests.Request_SubmitAnswer, json);
+
+                currentQuestionIndex++;
+                LoadNextQuestion();
+            }
+        }
+
         private void SubmitAnswerButton_Click(object sender, RoutedEventArgs e)
         {
             if (AnswersListBox.SelectedItem is KeyValuePair<int, string> selectedAnswer)
             {
+                questionTimer.Stop();
+
                 int answerId = selectedAnswer.Key;
+                double timeTakenSeconds = (DateTime.Now - questionStartTime).TotalSeconds;
 
                 var json = JsonSerializer.Serialize(new
                 {
                     answerId = answerId,
-                    roomId = roomId
+                    timeTaken = Math.Round(timeTakenSeconds, 2)
                 });
 
                 try
                 {
                     string response = App.Communicator.SendRequest((byte)Requests.Request_SubmitAnswer, json);
 
+                    var jsonDoc = JsonDocument.Parse(response);
+                    var root = jsonDoc.RootElement;
+
+                    if (root.TryGetProperty("correctAnswerId", out var correctAnswerIdProp))
+                    {
+                        int correctAnswerId = correctAnswerIdProp.GetInt32();
+
+                        if (answerId == correctAnswerId)
+                        {
+                            correctAnswersCount++;
+                            CorrectAnswersTextBlock.Text = $"Correct answers: {correctAnswersCount}";
+                        }
+                    }
 
                     currentQuestionIndex++;
-                    LoadNextQuestion();
+
+                    if (currentQuestionIndex >= questionCount)
+                        ShowGameResults();
+                    else
+                        LoadNextQuestion();
                 }
                 catch (Exception ex)
                 {
@@ -117,12 +175,9 @@ namespace WpfApp
             {
                 try
                 {
+                    questionTimer.Stop();
                     string leaveResponse = App.Communicator.SendRequest((byte)Requests.Request_LeaveGame, "{}");
-
-
-                    Menu menu = new Menu();
-                    menu.Show();
-                    this.Close();
+                    ReturnToRoom();
                 }
                 catch (Exception ex)
                 {
@@ -135,6 +190,8 @@ namespace WpfApp
         {
             try
             {
+                questionTimer.Stop();
+
                 string response = App.Communicator.SendRequest((byte)Requests.Request_GetGameResults, "{}");
                 var jsonDoc = JsonDocument.Parse(response);
                 var root = jsonDoc.RootElement;
@@ -149,11 +206,22 @@ namespace WpfApp
                         string username = player.GetProperty("username").GetString();
                         int correct = player.GetProperty("correctAnswersCount").GetInt32();
                         int wrong = player.GetProperty("wrongAnswersCount").GetInt32();
+                        double avgTime = player.GetProperty("averageAnswerTime").GetDouble();
 
-                        scores.Add($"{username}: ✔️ {correct} | ❌ {wrong}");
+                        scores.Add($"{username}: Correct: {correct} | Wrong: {wrong} | Avg Time: {avgTime:F2} sec");
                     }
 
                     string message = "Game Over!\n\nResults:\n" + string.Join("\n", scores);
+
+                    // Determine winner by highest correct answers (tie possible)
+                    int maxCorrect = resultsElement.EnumerateArray().Max(p => p.GetProperty("correctAnswersCount").GetInt32());
+                    var winners = resultsElement.EnumerateArray()
+                        .Where(p => p.GetProperty("correctAnswersCount").GetInt32() == maxCorrect)
+                        .Select(p => p.GetProperty("username").GetString())
+                        .ToList();
+
+                    message += "\n\nWinner(s): " + string.Join(", ", winners);
+
                     MessageBox.Show(message, "Game Results");
                 }
                 else
@@ -162,15 +230,19 @@ namespace WpfApp
                 }
 
                 string leaveResponse = App.Communicator.SendRequest((byte)Requests.Request_LeaveGame, "{}");
-
-                Menu menu = new Menu();
-                menu.Show();
-                this.Close();
+                ReturnToRoom();
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error getting game results or leaving game: " + ex.Message);
             }
+        }
+
+        private void ReturnToRoom()
+        {
+            questionTimer.Stop();
+            room.Show();
+            this.Close();
         }
     }
 }
