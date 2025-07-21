@@ -27,7 +27,7 @@ A fully-featured multiplayer **client-server trivia game** designed to support a
 | Layer             | Technologies                           |
 |------------------|----------------------------------------|
 | 👨‍💻 Client UI       | `C# (WPF)`
-| 🧠 Sקהקר             |   `C++`     
+| 🧠 Sever            |   `C++`     
 | 🌐 Networking      | `TCP Sockets`, Custom Protocol        
 | 📦 Message Format  | `JSON`                                
 | 🗃️ Database         | `SQLite` (for users,questions,players statistics)
